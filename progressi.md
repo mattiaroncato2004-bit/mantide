@@ -72,6 +72,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 - **Linea del tempo** (richiesta del team, 17:51): cursore costruito su PanResponder (niente libreria nativa, funziona anche nel browser). La pagina della mappa riceve `timeline: {until}`, mostra solo le foto fino a lì, disegna la linea `journey` e anima la punta (`.tl-head`, marker HTML sopra le miniature) dal posto precedente al nuovo in 0,4 s, con la mappa che la segue. Riproduzione: una foto ogni 0,5 s (circa 20 s per 45 foto). Sulla linea niente data in testata: un trattino per foto, un trattino lungo con "mese 'aa" a ogni inizio viaggio (più di 4 giorni dalla foto precedente), arancioni quando superati. Mentre è aperta, pannello Locale e scheda luogo restano chiusi.
 - **Ridisegno "strumento da rilievo"** (richiesta del team, 17:46, con le skill taste-skill v2 `design-taste-frontend` e `ui-ux-pro-max`): token in `src/theme.ts` (colori `C`, font `F`, raggi `R` 6/10/18, spaziature `S` su griglia di 4); Bricolage Grotesque per titoli e luoghi, IBM Plex Mono per numeri, date e distanze; la scala attiva è bianco carta, l'arancione resta per "visitato" e le azioni principali.
 - **Passaporto per gli amanti del viaggio** (richiesta del team, 17:48): si apre toccando il contatore. Ogni numero ha accanto quanto manca. Livelli per numero di paesi: Turista 0, Viaggiatore 3, Esploratore 10, Giramondo 25, Leggenda 50. I paesi contati sono 234 (Natural Earth senza le 8 isole in "mare aperto"); la superficie è stimata da `locate.ts` su proiezione equirettangolare (Italia ≈ 300.000 km², verificato nel test).
+- **Barre di percentuale nell'intestazione** (feedback del team, 19:19): sotto paesi la quota dei 234 paesi del mondo; sotto regioni e province la quota del paese che stai guardando (`here` del Passaporto; province solo per l'Italia). Il numero grande resta il totale visitato.
 - **Contatore senza totali** ("6 paesi · 6 regioni · 8 province"): con le regioni del mondo "x/20" non ha più senso, e la riga stava su due righe.
 - **Toccare una zona apre la scheda del luogo, non segna subito:** prima vedi come è stata visitata, le foto e gli eventi lì, poi decidi se segnarla. Gli eventi di un luogo usano `recommendIn`, che condivide il punteggio con `recommend`.
 - **Protocollo app ↔ mappa:** l'app chiama `window.mantide.setState(...)`; la pagina risponde con `ready`, `toggle` (zona toccata), `photo` (foto toccata), `event` (evento toccato) ed `error`.
@@ -142,7 +143,13 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 19:18 · questo commit · README aggiornato per la giuria
+### 19:20 · questo commit · Percentuali nell'intestazione
+- **Cosa:** accanto a ogni numero dell'intestazione la percentuale in arancione e sotto una barra sottile: paesi del mondo, regioni e province del paese inquadrato.
+- **Perché:** il team voleva vedere a colpo d'occhio quanta parte del mondo e del paese ha visto.
+- **Verifica:** `npx tsc --noEmit`; nel browser a Nazionale sull'Italia: 6 · 3% paesi, 11 · 30% regioni (6/20), 13 · 7% province (8/110).
+- **Da provare:** su Android.
+
+### 19:18 · ddb35bf · README aggiornato per la giuria
 - **Cosa:** in cima, in evidenza, perché la demo è nel browser (il wifi non ha permesso di scaricare Gemma 4 sul computer dell'emulatore); nuove sezioni "Why open source" e "The day, in short" (cronologia e difficoltà); "Why" con prezzi dei concorrenti e l'idea della galleria come l'algoritmo di Instagram; funzioni nuove (Sei qui, cerchi di distanza, gruppi di foto, Galleria con consenso, tocco → scala sotto); riga "Android app on a device: not run"; link al pitch.
 - **Perché:** richiesta del team: i punti salienti e le difficoltà devono essere visibili e aggiornati.
 - **Verifica:** orari presi dal registro qui sotto, prezzi da `docs/ricerca.md`.

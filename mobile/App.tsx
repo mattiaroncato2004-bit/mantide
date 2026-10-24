@@ -356,6 +356,7 @@ function Home() {
     `${mapState.visited.province.length} province`;
 
   const travel = useMemo(() => passport(mapState.visited, focus.country), [mapState.visited, focus.country]);
+  const share = (c: { visited: number; total: number }) => (c.total ? Math.round((100 * c.visited) / c.total) : 0);
 
   const herePlace = locate(focus.lat, focus.lon);
   const localName = herePlace.province ? nameOf('province', herePlace.province) : nameOf('country', herePlace.country);
@@ -413,14 +414,25 @@ function Home() {
           accessibilityRole="button"
           accessibilityLabel={`${stats}. Livello ${travel.level.name}. Apri il passaporto`}
         >
+          {/* Each number with how much of the whole it is: countries of the world, then regions and
+              provinces of the country you're looking at (provinces only where we have them: Italy). */}
           {([
-            [countries, countries === 1 ? 'paese' : 'paesi'],
-            [regions, regions === 1 ? 'regione' : 'regioni'],
-            [mapState.visited.province.length, mapState.visited.province.length === 1 ? 'provincia' : 'province'],
-          ] as const).map(([n, label], i) => (
+            [countries, countries === 1 ? 'paese' : 'paesi', share(travel.countries)],
+            [regions, regions === 1 ? 'regione' : 'regioni', travel.here?.regions.total ? share(travel.here.regions) : undefined],
+            [mapState.visited.province.length, mapState.visited.province.length === 1 ? 'provincia' : 'province',
+              travel.here?.provinces ? share(travel.here.provinces) : undefined],
+          ] as const).map(([n, label, pct], i) => (
             <View key={i} style={[styles.count, i > 0 && styles.countRule]}>
-              <Text style={styles.countN}>{n}</Text>
+              <View style={styles.countTop}>
+                <Text style={styles.countN}>{n}</Text>
+                {pct !== undefined && <Text style={styles.countPct}>{pct}%</Text>}
+              </View>
               <Text style={styles.countLabel}>{label}</Text>
+              {pct !== undefined && (
+                <View style={styles.countTrack}>
+                  <View style={[styles.countFill, { width: `${Math.max(pct, 4)}%` }]} />
+                </View>
+              )}
             </View>
           ))}
           <View style={[styles.count, styles.countRule, styles.levelCell]}>
@@ -633,6 +645,10 @@ const styles = StyleSheet.create({
   count: { flex: 1, paddingHorizontal: 10, justifyContent: 'center' },
   countRule: { borderLeftWidth: 1, borderLeftColor: C.line },
   levelCell: { flex: 1.7 },
+  countTop: { flexDirection: 'row', alignItems: 'baseline', gap: 4 },
+  countPct: { color: C.accent, fontFamily: F.monoMedium, fontSize: 11 },
+  countTrack: { height: 3, borderRadius: 2, backgroundColor: C.line, marginTop: 6, overflow: 'hidden' },
+  countFill: { height: 3, borderRadius: 2, backgroundColor: C.accent },
   level: { color: C.accent, fontFamily: F.bold, fontSize: 15.5, lineHeight: 28, letterSpacing: -0.3 },
   countN: {
     color: C.text, fontFamily: F.display, fontSize: 26, lineHeight: 28, letterSpacing: -0.6,
