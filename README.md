@@ -86,6 +86,8 @@ npx expo export --platform android             # bundles the app's JavaScript fo
 npx tsx scripts/test-locate.ts                 # point → country, region, province
 npx tsx scripts/test-parse.ts                  # reading Gemma's answers
 npx tsx scripts/test-recommend.ts              # events per scale
+npx tsx scripts/test-passport.ts               # passport stats on the demo data
+npx tsx scripts/check-visited.ts               # every visited region and province lights up on the map
 npx tsx scripts/simulate-demo.ts               # the whole demo on the demo data: map, interests, suggestions
 npx tsx scripts/preview-map.ts /tmp/map.html   # the map page with sample data, open it in a browser
 ```

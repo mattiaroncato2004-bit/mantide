@@ -26,6 +26,9 @@ export const mapHtml = `<!doctype html>
   /* Photo markers, like the map in the iPhone Photos app. No position here: MapLibre sets it. */
   .ph { width: 44px; height: 44px; box-sizing: border-box; border: 2px solid #fff; border-radius: 8px;
     background: #24323d; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45); cursor: pointer; }
+  /* The pin's point: a small white triangle under the thumbnail, touching the place. */
+  .ph::after { content: ''; position: absolute; left: 50%; bottom: -9px; margin-left: -6px;
+    border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid #fff; }
   .ph img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 6px; pointer-events: none; }
   .ph-dot { width: 16px; height: 16px; box-sizing: border-box; border: 3px solid #ff7a45; border-radius: 50%;
     background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); cursor: pointer; }
@@ -223,17 +226,28 @@ export const mapHtml = `<!doctype html>
         { padding: { top: 120, bottom: 330, left: 40, right: 40 }, maxZoom: 12, duration: 1200 });
     }
     // Overseas pieces (French Guiana, Hawaii…) would zoom out to the whole world: frame only
-    // the areas within NEAR_DEG of where you are looking.
-    var NEAR_DEG = 20;
-    var near = features.filter(function (f) {
-      var c = bbox([f]);
-      if (!c) return false;
-      var lon = (c[0][0] + c[1][0]) / 2, lat = (c[0][1] + c[1][1]) / 2;
-      return Math.abs(lon - state.focus.lon) < NEAR_DEG && Math.abs(lat - state.focus.lat) < NEAR_DEG;
+    // the areas within NEAR_DEG of where you are looking, and leave out islands more than GAP_DEG
+    // from every other area (the Canaries, the Azores) unless they are the closest to you.
+    var NEAR_DEG = 20, GAP_DEG = 3;
+    var boxes = features.map(function (f) { return bbox([f]); });
+    var distance = function (i) {
+      var c = boxes[i];
+      return Math.abs((c[0][0] + c[1][0]) / 2 - state.focus.lon) + Math.abs((c[0][1] + c[1][1]) / 2 - state.focus.lat);
+    };
+    var gap = function (a, b) {
+      return Math.max(0, a[0][0] - b[1][0], b[0][0] - a[1][0], a[0][1] - b[1][1], b[0][1] - a[1][1]);
+    };
+    var near = features.map(function (f, i) { return i; }).filter(function (i) {
+      var c = boxes[i];
+      return c && Math.abs((c[0][0] + c[1][0]) / 2 - state.focus.lon) < NEAR_DEG && Math.abs((c[0][1] + c[1][1]) / 2 - state.focus.lat) < NEAR_DEG;
     });
-    var b = bbox(near.length ? near : features);
-    // Room for the app's header card on top and scale switcher at the bottom.
-    if (b) map.fitBounds(b, { padding: { top: 110, bottom: 90, left: 24, right: 24 }, duration: 1200 });
+    var closest = near.reduce(function (best, i) { return best < 0 || distance(i) < distance(best) ? i : best; }, -1);
+    var framed = near.filter(function (i) {
+      return i === closest || near.some(function (j) { return j !== i && gap(boxes[i], boxes[j]) <= GAP_DEG; });
+    });
+    var b = bbox(framed.length ? framed.map(function (i) { return features[i]; }) : features);
+    // Room for the app's header (chromeTop) and for the buttons and scale switcher at the bottom.
+    if (b) map.fitBounds(b, { padding: { top: (state.chromeTop || 110) + 8, bottom: 170, left: 24, right: 24 }, duration: 1200 });
   }
 
   function render(withCamera) {
@@ -366,7 +380,8 @@ export const mapHtml = `<!doctype html>
         map.easeTo({ center: coords, zoom: zoom, duration: 600 });
       }).catch(function () {});
     });
-    return new maplibregl.Marker({ element: el, opacityWhenCovered: '0' }).setLngLat(coords);
+    // Thumbnails stand above their point like pins, so the place underneath stays visible.
+    return new maplibregl.Marker({ element: el, anchor: thumb ? 'bottom' : 'center', offset: thumb ? [0, -9] : [0, 0], opacityWhenCovered: '0' }).setLngLat(coords);
   }
 
   function updateMarkers() {

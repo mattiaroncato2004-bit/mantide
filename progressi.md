@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 18:19. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 18:30. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
@@ -16,7 +16,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:19. Hackathon: prototipo alle 19:00, c
 | Linea del tempo: cursore da trascinare, ▶ per riprodurre, mappa fino alla data scelta, linea arancione e punta animata del viaggio | fatto | browser: riproduzione da "foto 1" a "foto 45 di 45", linee tra Italia, Lisbona, Berlino, Barcellona, Parigi, Londra |
 | Ridisegno con taste-skill v2 e ui-ux-pro-max: Bricolage Grotesque + IBM Plex Mono, pannelli d'inchiostro con filetti, un solo accento arancione | fatto | browser: tutte le schermate a 390×844 |
 | Passaporto: livello, paesi e % delle terre emerse, continenti, regioni e province del paese in cui sei, regioni per paese | fatto | `npx tsx scripts/test-passport.ts`: demo → 6/234 paesi, 1,3% terre emerse, Viaggiatore (mancano 4 a Esploratore), Italia 6/20 regioni e 8/110 province |
-| Regioni di tutti i paesi (Natural Earth admin-1) alle scale Nazionale e Regionale | fatto | `test-locate.ts`: Pechino → regione cinese, Lisbona → regione portoghese |
+| Regioni di tutti i paesi (Natural Earth admin-1) alle scale Nazionale e Regionale | fatto | `test-locate.ts`: Pechino → regione cinese, Lisbona → regione portoghese; `check-visited.ts`: in tutti i 6 paesi con foto ogni regione e provincia visitata è tra le zone disegnate; browser: Île-de-France, Berlino, Lisbona, Cataluña, Greater London accese a Nazionale |
 | Mappa: globo, 4 scale, tocco per segnare, GPS, contatore | fatto | anteprima nel browser a 390×760 nelle 4 scale |
 | Scheda luogo: tocco su una zona → come è stata visitata, foto, eventi lì, pulsante per segnarla | fatto | `npx tsc --noEmit`; `scripts/simulate-demo.ts` (Veneto: 15 foto, primo evento H-FARM Open Campus) |
 | Linee dei viaggi: le foto unite in ordine cronologico | fatto | anteprima nel browser: linea tratteggiata tra le foto di Venezia |
@@ -59,10 +59,11 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:19. Hackathon: prototipo alle 19:00, c
 - **Eventi alla scala Locale come puntini arancioni** (`events` nella pagina della mappa): il tocco manda `{type: 'event', id}` e la scheda di quell'evento passa in testa al pannello. L'inquadratura comprende te e gli eventi, sopra il pannello.
 - **Linee dei viaggi** (`tripLines` in `src/map/mapHtml.ts`): le foto ordinate per data; più di 4 giorni senza foto chiudono un viaggio e ne aprono un altro. È l'idea "unire i luoghi in ordine cronologico" dei metadati.
 - **Miniature come in Foto di iPhone:** gruppi con il numero, che si separano zoomando. Le miniature (160 px, base64) si mandano alla pagina solo quando cambiano.
+- **Miniature a puntina** (18:30): la miniatura sta sopra il punto, con una punta bianca che lo indica. Centrata sul punto copriva le regioni piccole visitate (Greater London, Berlino), che sembravano spente.
 - **Regioni vere di Spagna, Francia, Regno Unito e Portogallo** (feedback del team, 18:16): Natural Earth admin-1 per questi paesi sono province, dipartimenti e contee. `world-groups.json` le raggruppa per il campo `region` (Spagna 19: 17 comunità autonome + Ceuta e Melilla; Francia 18; Regno Unito 16; Portogallo 6); ogni unità in `world-regions.json` ha `group`. Come per l'Italia: Nazionale = regioni, Regionale = province o dipartimenti della regione. Toccando un paese, Regionale va sulla regione dove hai più foto. Dati salvati portati a `visited:v2` e `photos:v2`, con rilettura automatica della galleria.
 - **Regioni visitate ben visibili:** tinta arancione al 35% e bordo da 2,6 px. Prima erano quasi trasparenti e una regione piccola non si notava.
 - **Intestazione su una riga** (feedback del team, 18:20): paesi, regioni, province e livello su tutta la larghezza, fondo pieno; il pulsante Galleria è passato in basso accanto a "Linea del tempo" e "Torna qui". L'app misura l'altezza dell'intestazione e la manda alla mappa (`chromeTop`), che ci mette sotto il pulsante dei crediti.
-- **Le scale seguono il luogo che tocchi** (feedback del team, 18:05): toccando la Francia a Globale, Nazionale mostra le regioni francesi; il pulsante "◎ Torna dove sei" riporta alla posizione GPS (o a H-FARM senza GPS). Il centro di un luogo è il centro del suo pezzo più grande (`centerOf` in `locate.ts`), e Nazionale inquadra solo le regioni entro 20° da lì: altrimenti la Guyana francese fa allontanare la mappa su tutto il mondo.
+- **Le scale seguono il luogo che tocchi** (feedback del team, 18:05): toccando la Francia a Globale, Nazionale mostra le regioni francesi; il pulsante "◎ Torna dove sei" riporta alla posizione GPS (o a H-FARM senza GPS). Il centro di un luogo è il centro del suo pezzo più grande (`centerOf` in `locate.ts`), e Nazionale inquadra solo le regioni entro 20° da lì: altrimenti la Guyana francese fa allontanare la mappa su tutto il mondo. Restano fuori anche le isole a più di 3° da ogni altra regione (Canarie, Azzorre), salvo quella più vicina a te; l'inquadratura lascia spazio all'intestazione (`chromeTop`) e ai pulsanti in basso.
 - **Linea del tempo** (richiesta del team, 17:51): cursore costruito su PanResponder (niente libreria nativa, funziona anche nel browser). La pagina della mappa riceve `timeline: {until}`, mostra solo le foto fino a lì, disegna la linea `journey` e anima la punta (`.tl-head`, marker HTML sopra le miniature) dal posto precedente al nuovo in 0,4 s, con la mappa che la segue. Riproduzione: una foto ogni 0,5 s (circa 20 s per 45 foto). Sulla linea niente data in testata: un trattino per foto, un trattino lungo con "mese 'aa" a ogni inizio viaggio (più di 4 giorni dalla foto precedente), arancioni quando superati. Mentre è aperta, pannello Locale e scheda luogo restano chiusi.
 - **Ridisegno "strumento da rilievo"** (richiesta del team, 17:46, con le skill taste-skill v2 `design-taste-frontend` e `ui-ux-pro-max`): token in `src/theme.ts` (colori `C`, font `F`, raggi `R` 6/10/18, spaziature `S` su griglia di 4); Bricolage Grotesque per titoli e luoghi, IBM Plex Mono per numeri, date e distanze; la scala attiva è bianco carta, l'arancione resta per "visitato" e le azioni principali.
 - **Passaporto per gli amanti del viaggio** (richiesta del team, 17:48): si apre toccando il contatore. Ogni numero ha accanto quanto manca. Livelli per numero di paesi: Turista 0, Viaggiatore 3, Esploratore 10, Giramondo 25, Leggenda 50. I paesi contati sono 234 (Natural Earth senza le 8 isole in "mare aperto"); la superficie è stimata da `locate.ts` su proiezione equirettangolare (Italia ≈ 300.000 km², verificato nel test).
@@ -135,6 +136,17 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:19. Hackathon: prototipo alle 19:00, c
 ## Registro
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
+
+### 18:30 · questo commit · Regioni visitate visibili in tutti i paesi con foto
+- **Cosa:**
+  - Miniature a puntina sopra il punto, non centrate su di esso.
+  - Inquadratura Nazionale e Regionale sotto l'intestazione e sopra i pulsanti; senza le isole lontane.
+  - `scripts/check-visited.ts`: per ogni paese con foto demo controlla che ogni regione e provincia visitata sia tra le zone disegnate a Nazionale e Regionale.
+- **Perché:** il team ha visto il Regno Unito senza regioni accese: Greater London era accesa ma nascosta sotto la miniatura. La Spagna appariva piccola perché l'inquadratura comprendeva le Canarie.
+- **Verifica:**
+  - `npx tsc --noEmit`, `test-locate`, `test-parse`, `test-recommend`, `test-passport`, `check-visited` ("Tutto ok" per ITA, PRT, DEU, ESP, FRA, GBR); `npx expo export --platform android`.
+  - Nel browser a 390×844, scala Nazionale: Île-de-France, Berlino, Lisbona, Cataluña e Greater London accese; Spagna a tutta larghezza senza Canarie; Cina come prima. Regno Unito Regionale: Hackney e Westminster accese.
+- **Da provare:** tutto su Android.
 
 ### 18:19 · questo commit · Regioni vere di ES/FR/GB/PT, regioni che si accendono, intestazione compatta
 - **Cosa:**
