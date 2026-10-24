@@ -23,7 +23,7 @@ npx tsx scripts/<name>.ts    # tests and tools in scripts/ (excluded from the ap
 | `src/map/` | The MapLibre page (`mapHtml.ts`), its WebView (`MapView.tsx`), photo thumbnails (`thumbs.ts`) |
 | `src/geo/` | Boundaries and `locate()`: point → country, region, province |
 | `src/gallery/` | Reading the gallery |
-| `src/ai/` | Gemma client and the 12 interests |
+| `src/ai/` | Gemma client (`gemma.ts`), the parser of its answers (`parse.ts`, testable in Node), the 12 interests |
 | `src/events/` | Invented events and the recommender |
 | `src/screens/` | Galleria, Interessi, Per te |
 | `src/state/` | Visited places |

@@ -70,8 +70,11 @@ Checks that run without Android:
 ```sh
 cd mobile
 npx tsc --noEmit                               # types
+npx expo export --platform android             # bundles the app's JavaScript for Android
 npx tsx scripts/test-locate.ts                 # point → country, region, province
+npx tsx scripts/test-parse.ts                  # reading Gemma's answers
 npx tsx scripts/test-recommend.ts              # events per scale
+npx tsx scripts/simulate-demo.ts               # the whole demo on the demo data: map, interests, suggestions
 npx tsx scripts/preview-map.ts /tmp/map.html   # the map page with sample data, open it in a browser
 ```
 

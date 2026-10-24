@@ -4,16 +4,16 @@
 // on a laptop CPU, and the original never leaves the device.
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import Storage from 'expo-sqlite/kv-store';
-import { INTEREST_IDS, type InterestId } from './interests';
+import { parseAnswer, type Analysis } from './parse';
 import type { Photo } from '../gallery/photos';
 import demo from '../demo/demo.json';
+
+export type { Analysis } from './parse';
 
 // From the Android emulator, 10.0.2.2 is the computer it runs on.
 // On a real phone, use the computer's address on the local network.
 export const GEMMA_URL = 'http://10.0.2.2:9379';
 export const GEMMA_MODEL = 'gemma4-e2b';
-
-export type Analysis = { scene: string; interests: InterestId[] };
 
 // Tested on Gemma 4 E2B: a plain instruction gives clean JSON; the server's constrained
 // JSON mode produced broken output and worse labels, so we parse the text ourselves.
@@ -37,22 +37,6 @@ const KEY = 'analysis:v1';
 // Used only when Gemma can't be reached during a live demo; the app says so on screen.
 const DEMO = demo as Record<string, { analysis: Analysis | null }>;
 export const demoAnalysis = (filename: string): Analysis | null => DEMO[filename]?.analysis ?? null;
-
-// Keeps only what we can trust: the first {...} block, known interest ids, no duplicates.
-export function parseAnswer(text: string): Analysis | null {
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) return null;
-  try {
-    const raw = JSON.parse(match[0]);
-    const interests = [...new Set<string>(Array.isArray(raw.interests) ? raw.interests : [])]
-      .filter((id): id is InterestId => (INTEREST_IDS as string[]).includes(id))
-      .slice(0, 3);
-    if (!interests.length) return null;
-    return { scene: String(raw.scene ?? '').slice(0, 80), interests };
-  } catch {
-    return null;
-  }
-}
 
 export async function analyzePhoto(uri: string): Promise<Analysis> {
   const small = await manipulateAsync(uri, [{ resize: { width: 384 } }], {

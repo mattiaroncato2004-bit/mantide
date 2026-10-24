@@ -2,11 +2,11 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 17:15. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 17:25. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
-Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**, perché la prima compilazione aspetta il computer da 16 GB.
+Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**, perché la prima compilazione aspetta il computer da 16 GB. Quello che si può verificare senza Android passa: il pacchetto JavaScript per Android si costruisce (`npx expo export --platform android`, 699 moduli), `npx expo-doctor` supera 20 controlli su 20, e `scripts/simulate-demo.ts` fa girare tutta la logica della demo sui dati demo.
 
 | Pezzo | Stato | Verificato come |
 |---|---|---|
@@ -16,11 +16,11 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 | Punto → paese, regione, provincia (`locate`) | fatto | `npx tsx scripts/test-locate.ts`: 11 casi, compresi Lido di Venezia, Burano, Nizza |
 | Lettura della galleria e schermata Galleria | fatto | solo `npx tsc --noEmit` |
 | Gemma 4 E2B sul computer (`litert-lm serve`) | fatto | Mac M3 8 GB: 6–9 s a foto da 384 px, primo avvio 1–2 min |
-| Analisi delle foto nell'app, schermata Interessi | fatto | solo `npx tsc --noEmit` |
+| Analisi delle foto nell'app, schermata Interessi | fatto | `npx tsx scripts/test-parse.ts` (lettura delle risposte, 6 casi); il resto solo `npx tsc --noEmit` |
 | Eventi inventati (46), consigli per scala, schermata Per te | fatto | `npx tsx scripts/test-recommend.ts` |
 | Galleria dimostrativa inventata (45 foto) | fatto | EXIF riletti per tutte le foto |
 | Risposte di Gemma sulle 45 foto demo (riserva) | fatto | col prompt attuale il tema giusto è tra gli interessi in 43 foto su 45, ed è il primo in 41 |
-| Copione della demo | fatto | – |
+| Copione della demo | fatto | schermate attese prese da `scripts/simulate-demo.ts`: 6 paesi · 6/20 regioni · 8/110 province; interessi in testa architettura 16, natura 12, street art 10; Per te Globale → Berlino, Locale → H-FARM Open Campus |
 | Prima compilazione e prova sull'emulatore | **da fare** | – |
 | Gemma direttamente sul telefono | non fatto | serve un telefono da 8 GB |
 
@@ -100,7 +100,18 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 17:15 · questo commit · Risposte di Gemma sulle foto demo
+### 17:25 · questo commit · Controlli senza Android e simulazione della demo
+- **Cosa:**
+  - `parseAnswer` spostato in `src/ai/parse.ts`, senza moduli nativi, con il test `scripts/test-parse.ts`.
+  - `scripts/simulate-demo.ts`: luoghi, interessi e consigli alle 4 scale calcolati sui dati demo.
+  - `docs/demo.md` aggiornato con quello che comparirà davvero; README con tutti i controlli che girano senza Android.
+- **Perché:** trovare gli errori prima della prima compilazione, e avere un copione esatto.
+- **Verifica:**
+  - `npx tsc --noEmit`, `test-parse` (6 casi), `npx expo export --platform android` (699 moduli) ed `npx expo-doctor` (20/20) passati.
+  - La simulazione dà 6 paesi, 6 regioni e 8 province; interessi in testa architettura, natura e street art; Per te Globale → "Berlin Wall Murals & Beats", Locale → "H-FARM Open Campus: architettura sostenibile".
+- **Da provare:** tutto sull'emulatore.
+
+### 17:15 · 2cb5b11 · Risposte di Gemma sulle foto demo
 - **Cosa:** `demo-data/analyses.json` (le 45 risposte di Gemma col prompt attuale) e `mobile/src/demo/demo.json` rigenerato.
 - **Perché:** sono la riserva della demo se Gemma non risponde, e la prova di quanto Gemma riconosce le passioni.
 - **Verifica:**
