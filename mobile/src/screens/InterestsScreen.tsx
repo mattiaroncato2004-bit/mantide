@@ -14,10 +14,11 @@ type Props = {
   canRun: boolean;
   onRun: () => void;
   onRemove: (id: InterestId) => void;
+  deviceNote: string;
   topInset: number;
 };
 
-export function InterestsScreen({ rows, analyzed, status, running, canRun, onRun, onRemove, topInset }: Props) {
+export function InterestsScreen({ rows, analyzed, status, running, canRun, onRun, onRemove, deviceNote, topInset }: Props) {
   return (
     <View style={[styles.root, { paddingTop: topInset + 16 }]}>
       <Text style={styles.title}>Le tue foto dicono che ami…</Text>
@@ -26,6 +27,7 @@ export function InterestsScreen({ rows, analyzed, status, running, canRun, onRun
           ? `Gemma 4 ha guardato ${analyzed} foto, sul tuo computer: nessuna è finita nel cloud.`
           : 'Gemma 4 guarda le tue foto sul tuo computer e capisce cosa ti appassiona.'}
       </Text>
+      <Text style={styles.device}>{deviceNote}</Text>
 
       <Pressable
         onPress={onRun}
@@ -75,6 +77,7 @@ const styles = StyleSheet.create({
   buttonDim: { opacity: 0.6 },
   buttonText: { color: C.onAccent, fontWeight: '700', fontSize: 15 },
   status: { color: C.muted, fontSize: 13, marginTop: 8 },
+  device: { color: C.muted, fontSize: 12, marginTop: 6, lineHeight: 17 },
   list: { paddingVertical: 16, gap: 12 },
   row: { backgroundColor: C.card, borderRadius: 14, padding: 12, borderWidth: 1, borderColor: C.line, gap: 8 },
   rowHead: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },

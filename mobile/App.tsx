@@ -15,7 +15,7 @@ import { GalleryScreen } from './src/screens/GalleryScreen';
 import { InterestsScreen, type InterestRow } from './src/screens/InterestsScreen';
 import { ForYouScreen } from './src/screens/ForYouScreen';
 import { makeThumbs } from './src/map/thumbs';
-import { analyzePhoto, demoAnalysis, GEMMA_URL, loadAnalyses, sample, saveAnalyses, type Analysis } from './src/ai/gemma';
+import { analyzePhoto, demoAnalysis, GEMMA_URL, loadAnalyses, sample, saveAnalyses, whereGemmaRuns, type Analysis } from './src/ai/gemma';
 import { labelOf, type InterestId } from './src/ai/interests';
 import { EVENTS, profileFromCounts, recommend } from './src/events/recommend';
 import { nameOf } from './src/geo/locate';
@@ -293,6 +293,7 @@ function Home() {
             canRun={photos.length > 0}
             onRun={analyze}
             onRemove={(id) => setRemoved((r) => [...r, id])}
+            deviceNote={whereGemmaRuns()}
             topInset={insets.top}
           />
         )}

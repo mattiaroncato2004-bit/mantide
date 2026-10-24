@@ -2,6 +2,7 @@
 // Gemma runs on hardware you own: `litert-lm serve` on your computer (see local-ai/README.md).
 // The photo is shrunk to 384 px before leaving the app: fewer image tokens, about 6 s per photo
 // on a laptop CPU, and the original never leaves the device.
+import * as Device from 'expo-device';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import Storage from 'expo-sqlite/kv-store';
 import { parseAnswer, type Analysis } from './parse';
@@ -14,6 +15,20 @@ export type { Analysis } from './parse';
 // On a real phone, use the computer's address on the local network.
 export const GEMMA_URL = 'http://10.0.2.2:9379';
 export const GEMMA_MODEL = 'gemma4-e2b';
+
+// Gemma 4 E2B needs about 2–3 GB of RAM with images, so it can run on the phone itself only
+// from 8 GB up. Below that it runs on the user's computer: either way, never in a third-party cloud.
+const ON_DEVICE_MIN_GB = 8;
+
+export function whereGemmaRuns(): string {
+  const gb = Device.totalMemory ? Math.round(Device.totalMemory / 1024 ** 3) : null;
+  const what = Device.isDevice ? 'Questo telefono' : 'Questo emulatore';
+  if (gb === null) return 'Gemma 4 gira sul tuo computer, in rete locale.';
+  if (gb >= ON_DEVICE_MIN_GB) {
+    return `${what} ha ${gb} GB di RAM: abbastanza per Gemma sul telefono (prossima versione). Oggi gira sul tuo computer.`;
+  }
+  return `${what} ha ${gb} GB di RAM: per Gemma ne servono ${ON_DEVICE_MIN_GB}, quindi gira sul tuo computer, in rete locale.`;
+}
 
 // Tested on Gemma 4 E2B: a plain instruction gives clean JSON; the server's constrained
 // JSON mode produced broken output and worse labels, so we parse the text ourselves.

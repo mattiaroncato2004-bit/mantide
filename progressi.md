@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 17:30. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 17:20. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
@@ -30,7 +30,8 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 - **Expo in development build, non Expo Go.** Expo Go ha un manifest suo e non carica codice nativo: niente permesso per il GPS delle foto.
 - **Expo e non Kotlin nativo** (decisione del team, 16:45). La home era già fatta, e dopo la prima compilazione le modifiche arrivano con un `git pull`. La proposta Kotlin + Redmi (`docs/scelte-e-setup-kotlin.md`, mai su GitHub) non è stata adottata.
 - **Demo sull'emulatore del computer da 16 GB, con Gemma sul computer.** Nessun telefono del team ha 6 GB di RAM o più.
-- **Tutte le librerie native aggiunte prima della prima compilazione**, così resta l'unica lunga.
+- **Tutte le librerie native aggiunte prima della prima compilazione**, così resta l'unica lunga. L'ultima è expo-device (17:20).
+- **L'app dice dove gira Gemma in base alla RAM** (`whereGemmaRuns` in `src/ai/gemma.ts`, mostrato in Interessi): sotto 8 GB sul computer dell'utente, da 8 GB in su potrebbe girare sul telefono. È la risposta a "Who does it leave out?".
 
 **Galleria e luoghi**
 - **`ACCESS_MEDIA_LOCATION` attivo** (`isAccessMediaLocationEnabled` in `app.json`): senza, Android toglie il GPS dalle foto. Verificato nel codice di expo-media-library: lo chiede a runtime e legge il file con `MediaStore.setRequireOriginal`.
@@ -101,7 +102,17 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 17:30 · questo commit · Confini scritti dentro la pagina della mappa
+### 17:20 · questo commit · Dove gira Gemma, in base alla RAM `[native: rebuild]`
+- **Cosa:** expo-device; `whereGemmaRuns()` legge la RAM del dispositivo e la scheda Interessi spiega dove gira Gemma.
+- **Perché:** rendere visibile la scelta "sotto 8 GB Gemma gira sul tuo computer, mai nel cloud".
+- **Verifica:** `npx tsc --noEmit`, `npx expo export --platform android`, `npx expo-doctor`.
+- **Da provare:** il valore della RAM sull'emulatore.
+
+### 17:16 · 4711665 · Guida completa per il computer della demo
+- **Cosa:** `docs/setup-android.md` copre tutti i passi in ordine, compresi Python, Git, la RAM dell'emulatore a 4 GB, la verifica finale coi numeri attesi e cosa fare in caso di errore. `local-ai/README.md` ha i comandi per Windows e la prova su una foto demo.
+- **Nota:** questo commit non aveva aggiornato `progressi.md`.
+
+### 17:30 · 1536ead · Confini scritti dentro la pagina della mappa
 - **Cosa:** `withGeo()` in `src/map/mapHtml.ts` scrive i confini nella pagina; `MapView` e `scripts/preview-map.ts` la usano; tolto `injectedJavaScriptBeforeContentLoaded`.
 - **Perché:** togliere un comportamento che cambia tra le versioni della WebView di Android.
 - **Verifica:** `npx tsc --noEmit`; `npx expo export --platform android`; nel browser la pagina ha 242 paesi, 20 regioni e 110 province, e disegna zone e miniature senza errori.
