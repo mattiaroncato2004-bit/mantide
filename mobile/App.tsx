@@ -393,6 +393,10 @@ function Home() {
           }
           const [lon, lat] = (level === 'country' ? centerOf(region) : undefined) ?? centerOf(id) ?? [focus.lon, focus.lat];
           setFocus({ country, region, lat, lon });
+          // Tapping goes one scale down, with the place's sheet still open: a country opens its regions,
+          // a region (Lazio at Nazionale) its provinces. Provinces stay at Regionale: Locale has no areas.
+          if (level === 'country') setScale('national');
+          else if (level === 'region') setScale('regional');
         }}
         onPhoto={setOpened}
         onPhotos={setGroup}

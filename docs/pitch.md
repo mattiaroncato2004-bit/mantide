@@ -39,7 +39,7 @@ Prima del primo gesto (15 s):
 | Gesto | Cosa dite |
 |---|---|
 | Benvenuto → **Usa la mia galleria**: in alto Gemma guarda le foto una per una | "Gemma 4, il modello aperto di Google, sta guardando le foto. Qui, su questo computer, non in un cloud." |
-| **Globale** → tocco su un paese → **Nazionale** → **Regionale**: le zone visitate si accendono | "Data e GPS delle foto: la mappa si costruisce da sola, dal mondo alle province." |
+| **Globale** → tocco su un paese (si passa da soli a Nazionale) → tocco su una regione (si passa a Regionale): le zone visitate si accendono | "Data e GPS delle foto: la mappa si costruisce da sola, dal mondo alle province." |
 | **Locale**: "Sei qui", cerchi di distanza, schede "Per te qui". Leggete la frase arancione di una scheda, poi toccatela | "Nessun questionario: Gemma ha capito cosa fotografo, e qui vicino c'è un evento fatto per me. Tocco la scheda e vedo dov'è." |
 | **▶ Linea del tempo** | "Le foto, in ordine, ricostruiscono il viaggio." |
 | Tocco sul contatore in alto: **Passaporto** | "Per chi ama viaggiare: ogni numero dice anche quanto manca." |
