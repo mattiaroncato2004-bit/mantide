@@ -111,6 +111,7 @@ Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta
 - **Perché:** era l'unica schermata del design ancora mancante, e segnare una zona al primo tocco era troppo facile da sbagliare.
 - **Verifica:** `npx tsc --noEmit`; `test-recommend.ts` passato; `npx expo export --platform android`; simulazione: Veneto 15 foto con primo evento "H-FARM Open Campus", provincia di Venezia 4 foto con primo evento "Biennale Arte".
 - **Da provare:** sull'emulatore. Per gli esagoni la scheda non mostra foto né eventi.
+- **Dopo il commit:** `docs/demo.md` aggiornato con la scheda del luogo e le linee dei viaggi (commit successivo).
 
 ### 17:18 · 9aa24e2 · Linee dei viaggi sulla mappa
 - **Cosa:** sorgente e livello `trips` nella pagina della mappa: una linea tratteggiata bianca per ogni viaggio, sotto le miniature.

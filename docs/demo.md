@@ -18,7 +18,8 @@ Demo night: dalle 19:20 al tavolo. Durata: circa 3 minuti, poi domande.
 |---|---|---|
 | 0:00 | Mappa, scala **Globale**: globo satellitare, 6 paesi a colori, contatore "6 paesi · 6/20 regioni · 8/110 province" | "La galleria del telefono sa già dove siamo stati e cosa amiamo. Noi la trasformiamo in una mappa e in consigli." |
 | 0:20 | Zoom su Lisbona: compaiono le **miniature**, raggruppate; tocco su un murale | "Ogni foto ha GPS e data: la mappa si costruisce da sola. Tocco una foto: Gemma ha visto un murale su un muro di strada, e ne ha dedotto street art." |
-| 0:50 | Scale **Nazionale → Regionale → Locale**: regioni d'Italia, province del Veneto, esagoni intorno a H-FARM | "Quattro scale, dal mondo al quartiere. Una zona si segna anche a mano, come in Been, o col GPS dove sei adesso." |
+| 0:50 | Scale **Nazionale → Regionale → Locale**: regioni d'Italia, province del Veneto con la linea tratteggiata dei viaggi, esagoni intorno a H-FARM | "Quattro scale, dal mondo al quartiere. La linea unisce le foto nell'ordine in cui le hai scattate." |
+| 1:05 | Scala **Nazionale**, tocco sul **Veneto**: si apre la scheda (15 foto, primo evento "H-FARM Open Campus"); poi "Segna come visitato" su una regione vuota | "Ogni luogo sa come l'hai visitato: foto, GPS o a mano, come in Been. E ti dice cosa fare lì." |
 | 1:20 | Scheda **Interessi**: Architettura 16, Natura 12, Street art 10, Cibo 9, Montagna 6, Musica 6… con le foto che lo dimostrano | "Nessun questionario: Gemma 4 E2B guarda le foto. Ogni interesse ha le sue prove, e lo puoi togliere." |
 | 1:50 | Scheda **Per te** su Globale, poi scala Locale e di nuovo Per te | "Su Globale, in cima: murales e musica a Berlino. Su Locale: l'H-FARM Open Campus sull'architettura sostenibile, perché ho 16 foto di architettura e 12 di natura." |
 | 2:20 | Torna alla mappa | "Le foto non vanno in nessun cloud: Gemma gira su hardware tuo, oggi su questo computer, domani direttamente sul telefono." |
