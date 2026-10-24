@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato attuale, architettura, decisioni con il loro perché, e un registro di ogni modifica. Chi modifica il repo (persona o agente) lo aggiorna nello stesso commit: le regole sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 16:55.
+Ultimo aggiornamento: 24 ottobre 2026, 17:05.
 
 > **Decisione presa alle 16:45:** si resta su **Expo** (`mobile/`), demo sull'**emulatore** del computer da 16 GB, Gemma sul computer. La proposta Kotlin + Redmi (`docs/scelte-e-setup-kotlin.md`, solo in locale) non è stata adottata.
 >
@@ -23,7 +23,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 16:55.
 | Analisi foto con Gemma nell'app, schermata Interessi | fatto | `npx tsc --noEmit`; da provare sull'emulatore |
 | Catalogo eventi inventato (46) e consigli per scala, schermata Per te | fatto | `npx tsx scripts/test-recommend.ts` |
 | Miniature delle foto sulla mappa, raggruppate, con anteprima al tocco | fatto | anteprima nel browser: gruppi con numero, separazione allo zoom, tocco → messaggio `photo` |
-| Galleria dimostrativa inventata (`demo-data/`) | in preparazione | – |
+| Galleria dimostrativa inventata (`demo-data/`, 45 foto) | fatto | EXIF riletti per tutte le 45 foto; Gemma su una foto per tema: 6 su 6 col tema giusto |
 | Gemma 4 dentro il telefono o emulatore | opzionale, dopo | – |
 
 ## Il progetto in breve
@@ -75,6 +75,7 @@ Computer dell'utente (local-ai/, da fare)
 - **Regioni e province solo per l'Italia.** Fuori dall'Italia le scale Nazionale e Regionale mostrano il paese; la scala Locale (esagoni H3) funziona ovunque.
 - **`locate` controlla prima le province italiane**, più precise del confine nazionale; un punto in mare va alla zona più vicina entro circa 25 km, ma un punto dentro un altro paese non viene mai spostato in Italia.
 - **Protocollo app ↔ mappa:** l'app chiama `window.mantide.setState(...)`; la pagina risponde con messaggi `ready`, `toggle` (zona toccata), `photo` (foto toccata) ed `error`. I confini entrano una volta sola in `window.__MANTIDE_GEO` prima del caricamento. Le miniature (160 px, base64) si mandano solo quando cambiano.
+- **Galleria dimostrativa inventata:** un viaggiatore immaginario di Roncade appassionato di street art, cibo, montagna, musica e architettura. Foto vere con licenza aperta da Wikimedia Commons (CC0, pubblico dominio, CC BY, CC BY-SA), con GPS e date inventati scritti negli EXIF, e i metadati originali tolti. Rigenerabile con `demo-data/make_demo_photos.py build`.
 - **Gemma con un'istruzione semplice, non con il JSON vincolato.** Il `response_format` di `litert-lm serve` ha dato JSON rotto e interessi sbagliati; l'istruzione semplice dà JSON pulito. L'app tiene il primo blocco `{...}` e solo gli interessi della lista (`parseAnswer` in `src/ai/gemma.ts`).
 - **Foto a 384 px verso Gemma.** A 960 px Gemma usava circa 2.400 pezzi d'immagine; a 384 px risponde in 6–8 s invece di oltre un minuto.
 - **Gemma guarda un campione:** al massimo 3 foto per luogo e giorno, 60 in tutto (`sample`).
@@ -104,6 +105,7 @@ Il setup del computer che compila è in [docs/setup-android.md](docs/setup-andro
 - **La mappa ha bisogno di internet:** MapLibre, h3-js e le tile arrivano da CDN.
 - **Gemma dall'emulatore è `http://10.0.2.2:9379`** (`GEMMA_URL` in `src/ai/gemma.ts`); su un telefono vero serve l'indirizzo del computer e `litert-lm serve --host 0.0.0.0`.
 - **La prima richiesta a Gemma dura 1–2 minuti** (costruisce la cache); fatela prima della demo.
+- **Murales e diritto d'autore:** la licenza della foto non copre l'opera dipinta. Per questo tutte le foto di street art vengono da Lisbona, Berlino e Barcellona (libertà di panorama), anche quelle collocate a Roma, Napoli, Parigi e Londra.
 - **Il modello si registra con l'id `gemma4-e2b`:** `litert-lm import models/gemma-4-E2B-it.litertlm gemma4-e2b`.
 
 ## Domande aperte
@@ -112,15 +114,25 @@ Il setup del computer che compila è in [docs/setup-android.md](docs/setup-andro
 
 ## Prossimi passi
 
-1. Galleria dimostrativa inventata in `demo-data/` e prova di Gemma su quelle foto.
-2. Prima compilazione sull'emulatore: provare permessi, lettura galleria, analisi, miniature.
-3. Prova generale della demo e video di riserva.
+1. Prima compilazione sull'emulatore: provare permessi, lettura galleria, analisi, miniature.
+2. Prova generale della demo e video di riserva.
 
 ## Registro
 
 Dal più recente. Ogni voce: commit, cosa, perché, come è stato verificato.
 
-### 16:55 · questo commit · Gemma, interessi, eventi e foto sulla mappa
+### 17:05 · questo commit · Galleria dimostrativa inventata
+- **Cosa:**
+  - `demo-data/`: 45 foto da 1024 px (8,2 MB), 13 luoghi tra Italia ed estero, dal 2024-03 al 2026-10.
+  - `photos.json` con luogo, tema, licenza e autore di ogni foto; `CREDITS.md`; lo script che rigenera tutto; il README con i comandi `adb` per caricarle nell'emulatore.
+  - README principale: correzioni minori all'architettura.
+- **Perché:** la galleria vera non è disponibile per la demo; serve una galleria credibile su cui Gemma possa riconoscere le passioni.
+- **Verifica:**
+  - EXIF (GPS, date, modello del telefono) riletti per tutte le foto.
+  - Gemma su una foto per tema (storia, natura, cibo, architettura, street art, mare): il tema giusto compare sempre, in 6–9 s a foto.
+- **Da provare:** che l'emulatore legga GPS e date dopo `adb push`.
+
+### 16:55 · c40d876 · Gemma, interessi, eventi e foto sulla mappa
 - **Cosa:**
   - `local-ai/`: istruzioni e `test_photo.py` per Gemma 4 E2B con `litert-lm serve`.
   - `src/ai/gemma.ts`: rimpicciolisce la foto a 384 px, la manda a Gemma, legge il JSON, salva i risultati, sceglie il campione.

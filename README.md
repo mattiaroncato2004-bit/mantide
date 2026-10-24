@@ -18,13 +18,13 @@ An open-source Android app that turns your gallery into a living map of the plac
 
 Travel trackers make you tick boxes by hand. Recommendation apps make you pick a "foodie" or "art lover" filter. Your photos already describe both, more honestly than any filter. Reading a whole gallery is only acceptable if it stays on hardware you own, which an open-weight model like Gemma 4 makes possible.
 
-## Architecture (planned)
+## Architecture
 
 | Part | Choice |
 |---|---|
 | App | Expo / React Native (TypeScript), Android development build |
 | Map | MapLibre GL JS 5.6 in a WebView, globe projection, Sentinel-2 cloudless 2016 satellite tiles by EOX (CC BY 4.0), GeoJSON fills for visited areas, clustered photo thumbnails |
-| Boundaries | Natural Earth (countries, regions), ISTAT / geoBoundaries (Italian regions and provinces), H3 hexagons (micro-areas) |
+| Boundaries | Natural Earth (countries), openpolis/geojson-italy from ISTAT (Italian regions and provinces), H3 hexagons (micro-areas) |
 | Local data | SQLite on the device |
 | AI | Gemma 4 E2B (`gemma-4-E2B-it.litertlm`, 2.58 GB) through LiteRT-LM (`litert-lm serve`) on your own computer; the app sends photos shrunk to 384 px |
 | Events | Invented JSON catalog, recommended by matching your interests at the current scale |
