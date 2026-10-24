@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 17:56. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 18:11. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
@@ -59,7 +59,8 @@ Ultimo aggiornamento: 24 ottobre 2026, 17:56. Hackathon: prototipo alle 19:00, c
 - **Eventi alla scala Locale come puntini arancioni** (`events` nella pagina della mappa): il tocco manda `{type: 'event', id}` e la scheda di quell'evento passa in testa al pannello. L'inquadratura comprende te e gli eventi, sopra il pannello.
 - **Linee dei viaggi** (`tripLines` in `src/map/mapHtml.ts`): le foto ordinate per data; più di 4 giorni senza foto chiudono un viaggio e ne aprono un altro. È l'idea "unire i luoghi in ordine cronologico" dei metadati.
 - **Miniature come in Foto di iPhone:** gruppi con il numero, che si separano zoomando. Le miniature (160 px, base64) si mandano alla pagina solo quando cambiano.
-- **Linea del tempo** (richiesta del team, 17:51): cursore costruito su PanResponder (niente libreria nativa, funziona anche nel browser). La pagina della mappa riceve `timeline: {until}`, mostra solo le foto fino a lì, disegna la linea `journey` e anima la punta (`.tl-head`, marker HTML sopra le miniature) dal posto precedente al nuovo in 0,8 s, con la mappa che la segue. Mentre è aperta, pannello Locale e scheda luogo restano chiusi.
+- **Le scale seguono il luogo che tocchi** (feedback del team, 18:05): toccando la Francia a Globale, Nazionale mostra le regioni francesi; il pulsante "◎ Torna dove sei" riporta alla posizione GPS (o a H-FARM senza GPS). Il centro di un luogo è il centro del suo pezzo più grande (`centerOf` in `locate.ts`), e Nazionale inquadra solo le regioni entro 20° da lì: altrimenti la Guyana francese fa allontanare la mappa su tutto il mondo.
+- **Linea del tempo** (richiesta del team, 17:51): cursore costruito su PanResponder (niente libreria nativa, funziona anche nel browser). La pagina della mappa riceve `timeline: {until}`, mostra solo le foto fino a lì, disegna la linea `journey` e anima la punta (`.tl-head`, marker HTML sopra le miniature) dal posto precedente al nuovo in 0,4 s, con la mappa che la segue. Riproduzione: una foto ogni 0,5 s (circa 20 s per 45 foto). Sulla linea niente data in testata: un trattino per foto, un trattino lungo con "mese 'aa" a ogni inizio viaggio (più di 4 giorni dalla foto precedente), arancioni quando superati. Mentre è aperta, pannello Locale e scheda luogo restano chiusi.
 - **Ridisegno "strumento da rilievo"** (richiesta del team, 17:46, con le skill taste-skill v2 `design-taste-frontend` e `ui-ux-pro-max`): token in `src/theme.ts` (colori `C`, font `F`, raggi `R` 6/10/18, spaziature `S` su griglia di 4); Bricolage Grotesque per titoli e luoghi, IBM Plex Mono per numeri, date e distanze; la scala attiva è bianco carta, l'arancione resta per "visitato" e le azioni principali.
 - **Passaporto per gli amanti del viaggio** (richiesta del team, 17:48): si apre toccando il contatore. Ogni numero ha accanto quanto manca. Livelli per numero di paesi: Turista 0, Viaggiatore 3, Esploratore 10, Giramondo 25, Leggenda 50. I paesi contati sono 234 (Natural Earth senza le 8 isole in "mare aperto"); la superficie è stimata da `locate.ts` su proiezione equirettangolare (Italia ≈ 300.000 km², verificato nel test).
 - **Contatore senza totali** ("6 paesi · 6 regioni · 8 province"): con le regioni del mondo "x/20" non ha più senso, e la riga stava su due righe.
@@ -131,6 +132,17 @@ Ultimo aggiornamento: 24 ottobre 2026, 17:56. Hackathon: prototipo alle 19:00, c
 ## Registro
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
+
+### 18:11 · questo commit · Scale che seguono il luogo toccato, linea del tempo più veloce e con trattini
+- **Cosa:**
+  - Toccare un luogo sposta il fuoco delle scale, con "◎ Torna dove sei".
+  - `centerOf` e `regionOfProvince` in `locate.ts`; Nazionale inquadra solo le regioni vicine.
+  - Linea del tempo a 0,5 s per foto e animazione da 0,4 s; data tolta dalla testata, trattini ed etichette dei viaggi sulla linea.
+  - Pulsante dei crediti della mappa spostato sotto l'intestazione.
+- **Perché:** feedback del team dopo la prova: la Nazionale tornava sempre in Italia, il viaggio era lento, la data sopra la linea non aiutava a trascinare.
+- **Verifica:**
+  - Nel browser: Francia → Nazionale con zoom 4 sulla Francia metropolitana e i suoi dipartimenti; riproduzione arrivata alla foto 18 in 9 s, con "mar '24 … giu '26" sotto la linea.
+  - `npx tsc --noEmit`, `test-locate`, `npx expo export --platform android`.
 
 ### 17:56 · questo commit · Una sola schermata, ridisegno, regioni del mondo, Passaporto, linea del tempo `[native: rebuild]`
 - **Cosa:**

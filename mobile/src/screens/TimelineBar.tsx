@@ -10,14 +10,13 @@ type Props = {
   onChange: (index: number) => void;
   playing: boolean;
   onTogglePlay: () => void;
-  date: string; // "14 giugno 2025"
   place: string; // "Venezia"
-  first: string; // year of the oldest photo
-  last: string; // year of the newest photo
+  // One mark per photo, at its position on the line (0..1); trips start with a labelled long mark.
+  marks: { at: number; label?: string }[];
   onClose: () => void;
 };
 
-export function TimelineBar({ count, index, onChange, playing, onTogglePlay, date, place, first, last, onClose }: Props) {
+export function TimelineBar({ count, index, onChange, playing, onTogglePlay, place, marks, onClose }: Props) {
   const width = useRef(1);
   const startX = useRef(0);
   // The responder is created once: it reads the latest values through this ref.
@@ -59,7 +58,7 @@ export function TimelineBar({ count, index, onChange, playing, onTogglePlay, dat
         <View style={styles.label}>
           <Text style={styles.place} numberOfLines={1}>{place}</Text>
           <Text style={styles.date}>
-            {date} · foto {index + 1} di {count}
+            foto {index + 1} di {count}
           </Text>
         </View>
         <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel="Chiudi la linea del tempo">
@@ -78,11 +77,27 @@ export function TimelineBar({ count, index, onChange, playing, onTogglePlay, dat
         <View style={styles.track} pointerEvents="none">
           <View style={[styles.fill, { width: `${t * 100}%` }]} />
         </View>
+        {marks.map((m, i) => (
+          <View
+            key={i}
+            pointerEvents="none"
+            style={[styles.tick, m.label ? styles.tickMajor : null, m.at <= t && styles.tickPassed, { left: `${m.at * 100}%` }]}
+          />
+        ))}
         <View style={[styles.thumb, { left: `${t * 100}%` }]} pointerEvents="none" />
       </View>
-      <View style={styles.ends}>
-        <Text style={styles.end}>{first}</Text>
-        <Text style={styles.end}>{last}</Text>
+      <View style={styles.labels} pointerEvents="none">
+        {marks.map((m, i) =>
+          m.label ? (
+            <Text
+              key={i}
+              style={[styles.markLabel, m.at < 0.08 ? styles.markFirst : m.at > 0.92 ? styles.markLast : null, { left: `${m.at * 100}%` }]}
+              numberOfLines={1}
+            >
+              {m.label}
+            </Text>
+          ) : null,
+        )}
       </View>
     </View>
   );
@@ -111,6 +126,16 @@ const styles = StyleSheet.create({
     position: 'absolute', width: 22, height: 22, marginLeft: -11, borderRadius: 11,
     backgroundColor: C.text, borderWidth: 4, borderColor: C.accent,
   },
-  ends: { flexDirection: 'row', justifyContent: 'space-between' },
-  end: { color: C.faint, fontFamily: F.mono, fontSize: 11 },
+  // Marks along the line: short for each photo, long where a trip starts; orange once passed.
+  tick: { position: 'absolute', width: 1, height: 8, marginLeft: -0.5, backgroundColor: C.lineStrong },
+  tickMajor: { height: 16, width: 2, marginLeft: -1, backgroundColor: C.muted },
+  tickPassed: { backgroundColor: C.accent },
+  labels: { height: 16 },
+  markLabel: {
+    position: 'absolute', width: 52, marginLeft: -26, textAlign: 'center',
+    color: C.muted, fontFamily: F.mono, fontSize: 10.5,
+  },
+  // Labels at the ends grow inward so they stay inside the bar.
+  markFirst: { marginLeft: 0, textAlign: 'left' },
+  markLast: { marginLeft: -52, textAlign: 'right' },
 });

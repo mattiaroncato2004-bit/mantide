@@ -13,7 +13,7 @@ import {
 import { IBMPlexMono_400Regular, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold } from '@expo-google-fonts/ibm-plex-mono';
 import { MapView } from './src/map/MapView';
 import { makeThumbs } from './src/map/thumbs';
-import { locate, nameOf } from './src/geo/locate';
+import { centerOf, countryOfRegion, locate, nameOf, regionOfProvince } from './src/geo/locate';
 import { ids, useVisited } from './src/state/visited';
 import { askForAllPhotos, forgetPhotos, loadPhotos, requestGallery, scanGallery, type Photo } from './src/gallery/photos';
 import {
@@ -45,7 +45,7 @@ const DEFAULT_FOCUS: Focus = { country: 'ITA', region: '05', lat: 45.6297, lon: 
 const MAX_POINTS = 1500;
 
 // The timeline's play button moves one photo forward this often.
-const PLAY_STEP_MS = 1100;
+const PLAY_STEP_MS = 500;
 
 // Whether the user let the app read the gallery: asked once, at first launch.
 type GalleryChoice = 'all' | 'none';
@@ -72,6 +72,7 @@ function Home() {
   const [scale, setScale] = useState<Scale>('global');
   const [focus, setFocus] = useState<Focus>(DEFAULT_FOCUS);
   const [here, setHere] = useState<[number, number] | null>(null);
+  const [home, setHome] = useState<Focus>(DEFAULT_FOCUS); // where you are; focus moves when you tap a place
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
   const [analyses, setAnalyses] = useState<Record<string, Analysis>>({});
@@ -97,12 +98,14 @@ function Home() {
       if (permission !== 'granted') return;
       const { coords } = await Location.getCurrentPositionAsync({});
       const place = locate(coords.latitude, coords.longitude);
-      setFocus({
+      const position = {
         country: place.country ?? DEFAULT_FOCUS.country,
         region: place.region ?? '',
         lat: coords.latitude,
         lon: coords.longitude,
-      });
+      };
+      setHome(position);
+      setFocus(position);
       setHere([coords.longitude, coords.latitude]);
       mark('gps', [place]);
     })().catch((e) => console.warn('[gps]', e));
@@ -268,6 +271,21 @@ function Home() {
     return () => clearInterval(timer);
   }, [playing, journey.length]);
 
+  // Marks for the timeline: one per photo; a trip (more than 4 days since the previous photo)
+  // starts with "mese 'aa", left out where it would overlap the previous label.
+  const timelineMarks = useMemo(() => {
+    const last = Math.max(1, journey.length - 1);
+    let lastLabelAt = -1;
+    return journey.map((p, i) => {
+      const at = i / last;
+      const tripStart = i === 0 || p.takenAt - journey[i - 1].takenAt > 4 * 24 * 3600 * 1000;
+      if (!tripStart || at - lastLabelAt < 0.14) return { at };
+      lastLabelAt = at;
+      const d = new Date(p.takenAt);
+      return { at, label: `${d.toLocaleDateString('it-IT', { month: 'short' })} '${String(d.getFullYear()).slice(2)}` };
+    });
+  }, [journey]);
+
   const openTimeline = () => {
     setSelected(null);
     setTimelineIndex(0);
@@ -344,6 +362,11 @@ function Home() {
         onToggle={(level: Level, id: string, name: string) => {
           setSelectedEvent(null);
           setSelected({ level, id, name });
+          // The scales follow the place you tapped: France at Globale, then Nazionale shows French regions.
+          const [lon, lat] = centerOf(id) ?? [focus.lon, focus.lat];
+          const country = level === 'country' ? id : level === 'region' ? (countryOfRegion(id) ?? focus.country) : 'ITA';
+          const region = level === 'region' ? id : level === 'province' ? (regionOfProvince(id) ?? '') : (locate(lat, lon).region ?? '');
+          setFocus({ country, region, lat, lon });
         }}
         onPhoto={setOpened}
         onEvent={(id) => setSelectedEvent(id)}
@@ -404,22 +427,34 @@ function Home() {
               if (timelineIndex >= journey.length - 1) setTimelineIndex(0);
               setPlaying((p) => !p);
             }}
-            date={new Date(reached.takenAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}
             place={reached.province ? nameOf('province', reached.province) : nameOf('country', reached.country)}
-            first={String(new Date(journey[0].takenAt).getFullYear())}
-            last={String(new Date(journey[journey.length - 1].takenAt).getFullYear())}
+            marks={timelineMarks}
             onClose={closeTimeline}
           />
         ) : (
-          journey.length > 1 && (
-            <Pressable
-              onPress={openTimeline}
-              style={({ pressed }) => [styles.timelineButton, pressed && styles.pressed]}
-              accessibilityRole="button"
-            >
-              <Text style={styles.timelineButtonText}>▶ Linea del tempo</Text>
-            </Pressable>
-          )
+          <View style={styles.tools}>
+            {journey.length > 1 && (
+              <Pressable
+                onPress={openTimeline}
+                style={({ pressed }) => [styles.timelineButton, pressed && styles.pressed]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.timelineButtonText}>▶ Linea del tempo</Text>
+              </Pressable>
+            )}
+            {(focus.lat !== home.lat || focus.lon !== home.lon) && (
+              <Pressable
+                onPress={() => {
+                  setSelected(null);
+                  setFocus(home);
+                }}
+                style={({ pressed }) => [styles.timelineButton, pressed && styles.pressed]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.timelineButtonText}>◎ Torna dove sei</Text>
+              </Pressable>
+            )}
+          </View>
         )}
         <View style={styles.scales} accessibilityRole="tablist">
           {SCALES.map((s) => (
@@ -561,8 +596,8 @@ const styles = StyleSheet.create({
   scalePressed: { backgroundColor: C.line },
   scaleText: { color: C.muted, fontFamily: F.medium, fontSize: 14, letterSpacing: -0.1 },
   scaleTextOn: { color: C.bg, fontFamily: F.bold },
-  timelineButton: {
-    alignSelf: 'flex-start', marginHorizontal: 12, backgroundColor: C.surface, borderRadius: R.md,
+  tools: { flexDirection: 'row', gap: 8, marginHorizontal: 12 },
+  timelineButton: { backgroundColor: C.surface, borderRadius: R.md,
     borderWidth: 1, borderColor: C.line, paddingVertical: 10, paddingHorizontal: 14,
   },
   timelineButtonText: { color: C.text, fontFamily: F.semi, fontSize: 14 },

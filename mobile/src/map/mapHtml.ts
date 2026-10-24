@@ -20,8 +20,8 @@ export const mapHtml = `<!doctype html>
 <style>
   html, body, #map { margin: 0; height: 100%; background: #071521; }
   .maplibregl-ctrl-attrib { font-size: 9px; }
-  /* Keep the attribution button above the app's scale switcher. */
-  .maplibregl-ctrl-bottom-right { bottom: 72px; }
+  /* The attribution button sits on the right, under the app's header, clear of the bottom panels. */
+  .maplibregl-ctrl-bottom-right { bottom: auto; top: 168px; }
   /* Photo markers, like the map in the iPhone Photos app. No position here: MapLibre sets it. */
   .ph { width: 44px; height: 44px; box-sizing: border-box; border: 2px solid #fff; border-radius: 8px;
     background: #24323d; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45); cursor: pointer; }
@@ -211,7 +211,16 @@ export const mapHtml = `<!doctype html>
       return map.fitBounds([[Math.min.apply(null, lons), Math.min.apply(null, lats)], [Math.max.apply(null, lons), Math.max.apply(null, lats)]],
         { padding: { top: 120, bottom: 330, left: 40, right: 40 }, maxZoom: 12, duration: 1200 });
     }
-    var b = bbox(features);
+    // Overseas pieces (French Guiana, Hawaii…) would zoom out to the whole world: frame only
+    // the areas within NEAR_DEG of where you are looking.
+    var NEAR_DEG = 20;
+    var near = features.filter(function (f) {
+      var c = bbox([f]);
+      if (!c) return false;
+      var lon = (c[0][0] + c[1][0]) / 2, lat = (c[0][1] + c[1][1]) / 2;
+      return Math.abs(lon - state.focus.lon) < NEAR_DEG && Math.abs(lat - state.focus.lat) < NEAR_DEG;
+    });
+    var b = bbox(near.length ? near : features);
     // Room for the app's header card on top and scale switcher at the bottom.
     if (b) map.fitBounds(b, { padding: { top: 110, bottom: 90, left: 24, right: 24 }, duration: 1200 });
   }
@@ -284,7 +293,7 @@ export const mapHtml = `<!doctype html>
   }
 
   // The journey's head travels from the previous place to the new one; the map follows it.
-  var JOURNEY_MS = 800;
+  var JOURNEY_MS = 400;
   var head = null;        // [lon, lat] where the head is now
   var headMarker = null;
   var frame = 0;
@@ -320,7 +329,7 @@ export const mapHtml = `<!doctype html>
       if (t < 1) frame = requestAnimationFrame(step);
     }
     frame = requestAnimationFrame(step);
-    map.easeTo({ center: to, duration: JOURNEY_MS + 200 });
+    map.easeTo({ center: to, duration: JOURNEY_MS + 100 });
   }
 
   function makeMarker(coords, clusterId, id, count) {

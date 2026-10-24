@@ -157,6 +157,34 @@ const REGION_COUNTRY = new Map<string, string>([
 
 export const countryOfRegion = (id: string): string | undefined => REGION_COUNTRY.get(id);
 
+export const regionOfProvince = (id: string): string | undefined =>
+  PROVINCES.find((f) => f.properties.id === id)?.properties.region;
+
+// Where the map goes when you tap a place: the middle of its largest piece, so France means
+// mainland France and not a point in the Atlantic between Paris and French Guiana.
+function mainCenter(g: Geometry): [number, number] {
+  let best: [number, number] = [0, 0];
+  let bestSize = -1;
+  for (const [outer] of polygons(g)) {
+    const b = bboxOf({ type: 'Polygon', coordinates: [outer] });
+    const size = (b[2] - b[0]) * (b[3] - b[1]);
+    if (size > bestSize) {
+      bestSize = size;
+      best = [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
+    }
+  }
+  return best;
+}
+
+const CENTERS = new Map<string, [number, number]>(
+  [...COUNTRIES, ...REGIONS, ...PROVINCES, ...[...WORLD_REGIONS.values()].flat()].map((f) => [
+    f.properties.id,
+    mainCenter(f.geometry),
+  ]),
+);
+
+export const centerOf = (id: string): [number, number] | undefined => CENTERS.get(id);
+
 const NAMES: Record<'country' | 'region' | 'province', Map<string, string>> = {
   country: new Map(COUNTRIES.map((f) => [f.properties.id, f.properties.name])),
   region: new Map([...REGIONS, ...[...WORLD_REGIONS.values()].flat()].map((f) => [f.properties.id, f.properties.name])),
