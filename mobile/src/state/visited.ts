@@ -1,7 +1,7 @@
 // Visited places, saved on the device. Each place keeps the sources that marked it
 // (by hand, by GPS, by a photo), so the UI can say why a place counts as visited.
 import { useCallback, useEffect, useState } from 'react';
-import Storage from 'expo-sqlite/kv-store';
+import Storage from '../storage';
 import type { Place } from '../geo/locate';
 import type { Level, Source } from '../types';
 

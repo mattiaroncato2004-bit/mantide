@@ -38,6 +38,7 @@ The **first request takes 1–2 minutes** (LiteRT-LM builds its cache); then abo
 
 ## How the app reaches it
 
+- **Browser version of the app** (`npx expo start --web`): add `--cors-origin http://localhost:8081` to `serve`, so the browser may call it.
 - **Android emulator:** nothing to configure. The app calls `http://10.0.2.2:9379`, which inside the emulator is the computer it runs on.
 - **Real phone on the same Wi-Fi:** start with `--host 0.0.0.0` and set `GEMMA_URL` in `mobile/src/ai/gemma.ts` to the computer's address.
 

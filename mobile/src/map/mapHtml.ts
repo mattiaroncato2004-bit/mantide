@@ -83,6 +83,7 @@ export const mapHtml = `<!doctype html>
     }
   });
 
+  window.mantideMap = map; // for debugging from the browser console
   map.on('style.load', function () { map.setProjection({ type: 'globe' }); });
 
   map.on('load', function () {

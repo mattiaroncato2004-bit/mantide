@@ -36,4 +36,4 @@ Demo night: dalle 19:20 al tavolo. Durata: circa 3 minuti, poi domande.
 
 - **Gemma non risponde:** l'app usa le risposte che Gemma aveva già dato sulle foto demo (`demo-data/analyses.json`) e lo scrive a schermo. Ditelo anche voi.
 - **L'emulatore non legge il GPS delle foto demo:** l'app lo prende da `demo-data/photos.json`, gli stessi valori scritti negli EXIF.
-- **L'app non parte:** il video di riserva, e l'anteprima della mappa nel browser (`npx tsx scripts/preview-map.ts /tmp/map.html`).
+- **L'app non parte sull'emulatore:** la stessa app nel browser, a dimensione telefono (`cd mobile && npx expo start --web --port 8081`, Gemma con `--cors-origin http://localhost:8081`: vedi README). Usa la galleria demo e Gemma vera. Poi il video di riserva.

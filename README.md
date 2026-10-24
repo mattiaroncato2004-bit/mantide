@@ -65,6 +65,15 @@ Your computer (local-ai/)
    ```
 4. **Demo photos:** push them into the emulator ([demo-data/README.md](demo-data/README.md)), then in the app: **Galleria → Leggi la galleria**, **Interessi → Analizza le foto con Gemma**, **Per te**.
 
+**Without Android: the same app in a browser.** Start Gemma with `litert-lm serve --port 9379 --cors-origin http://localhost:8081`, then:
+
+```sh
+cd mobile
+npx expo start --web --port 8081   # open http://localhost:8081 at phone size
+```
+
+The browser version reads the demo gallery (photos loaded from Wikimedia Commons) instead of a phone gallery; everything else is the same code. Platform-specific pieces live in `.web.ts` / `.web.tsx` files next to their Android versions.
+
 Checks that run without Android:
 
 ```sh

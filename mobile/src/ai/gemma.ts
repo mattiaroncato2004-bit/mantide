@@ -3,17 +3,18 @@
 // The photo is shrunk to 384 px before leaving the app: fewer image tokens, about 6 s per photo
 // on a laptop CPU, and the original never leaves the device.
 import * as Device from 'expo-device';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import Storage from 'expo-sqlite/kv-store';
+import { Platform } from 'react-native';
+import Storage from '../storage';
+import { imageForGemma } from './image';
 import { parseAnswer, type Analysis } from './parse';
 import type { Photo } from '../gallery/photos';
 import demo from '../demo/demo.json';
 
 export type { Analysis } from './parse';
 
-// From the Android emulator, 10.0.2.2 is the computer it runs on.
-// On a real phone, use the computer's address on the local network.
-export const GEMMA_URL = 'http://10.0.2.2:9379';
+// From the Android emulator, 10.0.2.2 is the computer it runs on; the browser demo runs on that
+// computer itself. On a real phone, use the computer's address on the local network.
+export const GEMMA_URL = Platform.OS === 'web' ? 'http://127.0.0.1:9379' : 'http://10.0.2.2:9379';
 export const GEMMA_MODEL = 'gemma4-e2b';
 
 // Gemma 4 E2B needs about 2–3 GB of RAM with images, so it can run on the phone itself only
@@ -21,6 +22,7 @@ export const GEMMA_MODEL = 'gemma4-e2b';
 const ON_DEVICE_MIN_GB = 8;
 
 export function whereGemmaRuns(): string {
+  if (Platform.OS === 'web') return 'Versione browser: Gemma 4 gira su questo computer, nessuna foto va nel cloud.';
   const gb = Device.totalMemory ? Math.round(Device.totalMemory / 1024 ** 3) : null;
   const what = Device.isDevice ? 'Questo telefono' : 'Questo emulatore';
   if (gb === null) return 'Gemma 4 gira sul tuo computer, in rete locale.';
@@ -54,11 +56,7 @@ const DEMO = demo as Record<string, { analysis: Analysis | null }>;
 export const demoAnalysis = (filename: string): Analysis | null => DEMO[filename]?.analysis ?? null;
 
 export async function analyzePhoto(uri: string): Promise<Analysis> {
-  const small = await manipulateAsync(uri, [{ resize: { width: 384 } }], {
-    compress: 0.7,
-    format: SaveFormat.JPEG,
-    base64: true,
-  });
+  const image = await imageForGemma(uri);
   const response = await fetch(`${GEMMA_URL}/v1/chat/completions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -69,7 +67,7 @@ export async function analyzePhoto(uri: string): Promise<Analysis> {
         {
           role: 'user',
           content: [
-            { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${small.base64}` } },
+            { type: 'image_url', image_url: { url: image } },
             { type: 'text', text: PROMPT },
           ],
         },

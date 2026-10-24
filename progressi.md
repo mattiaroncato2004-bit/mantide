@@ -2,11 +2,11 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 17:20. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 17:31. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
-Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**, perché la prima compilazione aspetta il computer da 16 GB. Quello che si può verificare senza Android passa: il pacchetto JavaScript per Android si costruisce (`npx expo export --platform android`, 699 moduli), `npx expo-doctor` supera 20 controlli su 20, e `scripts/simulate-demo.ts` fa girare tutta la logica della demo sui dati demo.
+**La stessa app gira nel browser** (`npx expo start --web`) ed è stata provata lì da capo a fondo: mappa con paesi, regioni e miniature, galleria demo, Gemma vera che analizza dal browser. Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**, perché la prima compilazione aspetta il computer da 16 GB. Quello che si può verificare senza Android passa: il pacchetto JavaScript per Android si costruisce (`npx expo export --platform android`, 699 moduli), `npx expo-doctor` supera 20 controlli su 20, e `scripts/simulate-demo.ts` fa girare tutta la logica della demo sui dati demo.
 
 | Pezzo | Stato | Verificato come |
 |---|---|---|
@@ -23,6 +23,7 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 | Galleria dimostrativa inventata (45 foto) | fatto | EXIF riletti per tutte le foto |
 | Risposte di Gemma sulle 45 foto demo (riserva) | fatto | col prompt attuale il tema giusto è tra gli interessi in 43 foto su 45, ed è il primo in 41 |
 | Copione della demo | fatto | schermate attese prese da `scripts/simulate-demo.ts`: 6 paesi · 6/20 regioni · 8/110 province; interessi in testa architettura 16, natura 12, street art 10; Per te Globale → Berlino, Locale → H-FARM Open Campus |
+| Versione browser della stessa app (demo con schermate e tasti) | fatto | provata in Playwright a 390×844: Galleria 45 foto in 13 luoghi, mappa "6 paesi · 6/20 regioni · 8/110 province" con miniature, Interessi con Gemma dal vivo |
 | Prima compilazione e prova sull'emulatore | **da fare** | – |
 | Gemma direttamente sul telefono | non fatto | serve un telefono da 8 GB |
 
@@ -59,6 +60,10 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 - **Un campione, non tutta la galleria:** al massimo 3 foto per luogo e giorno, 60 in tutto.
 - **Profilo e consigli calcolati dal codice** (`src/events/recommend.ts`): il peso di un interesse è la sua quota tra le foto etichettate; un evento senza interessi in comune non compare.
 
+**Versione browser**
+- **La stessa app nel browser, non un mockup:** i pezzi che dipendono dal telefono hanno un gemello `.web.ts(x)` accanto (archivio, galleria, rimpicciolimento foto, miniature, mappa); Metro sceglie da solo. Sul web la galleria è quella demo, con le foto caricate da Wikimedia (che permette la lettura cross-origin), e Gemma si chiama su `127.0.0.1:9379`.
+- **La mappa nel browser è un iframe con indirizzo `blob:`**, non `srcDoc`: una pagina srcdoc ha origine "null" e MapLibre non finisce mai di caricare le sorgenti GeoJSON.
+
 **Dati inventati e riserve**
 - **Galleria demo:** un viaggiatore immaginario di Roncade, appassionato di street art, cibo, montagna, musica e architettura. Foto vere da Wikimedia Commons (CC0, pubblico dominio, CC BY, CC BY-SA) con GPS e date inventati negli EXIF.
 - **46 eventi inventati** sulle 4 scale, 3 a H-FARM.
@@ -74,12 +79,15 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 - **`mobile/scripts/` è escluso dal controllo dei tipi dell'app** (usa i tipi di Node); gli script si lanciano con `npx tsx`.
 
 **Rete e Gemma**
+- **Versione browser:** Gemma va avviato con `--cors-origin http://localhost:8081`, altrimenti il browser blocca le chiamate.
+- **`CI=1 npx expo start` non ricarica i file modificati:** per lavorare sulla versione web avviatelo senza `CI=1`.
 - **Dall'emulatore il computer si chiama `10.0.2.2`**: Gemma è `http://10.0.2.2:9379` (`GEMMA_URL` in `src/ai/gemma.ts`). Su un telefono vero serve l'indirizzo del computer e `litert-lm serve --host 0.0.0.0`.
 - **La prima richiesta a Gemma dura 1–2 minuti** (costruisce la cache): fatela prima della demo.
 - **Il modello si registra con l'id `gemma4-e2b`:** `litert-lm import models/gemma-4-E2B-it.litertlm gemma4-e2b`.
 - **La mappa ha bisogno di internet:** MapLibre, h3-js e le tile arrivano da CDN.
 
 **Dati e repo**
+- **Dopo un `git pull` che cambia `mobile/package.json` serve `npm install`** in `mobile/` (anche quando non serve ricompilare: le librerie web sono solo JavaScript).
 - **WhatsApp cancella il GPS** dalle foto: le foto vere si copiano via cavo o da Google Foto.
 - **Foto personali in `demo-photos/`, modelli in `models/`:** cartelle escluse da git.
 - **Murales e diritto d'autore:** la licenza della foto non copre l'opera dipinta. Per questo tutte le foto di street art vengono da Lisbona, Berlino e Barcellona (libertà di panorama), anche quelle collocate altrove.
@@ -106,7 +114,20 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 17:20 · questo commit · Scheda del luogo
+### 17:31 · questo commit · La stessa app nel browser
+- **Cosa:**
+  - react-dom, react-native-web, @expo/metro-runtime.
+  - Gemelli web: `src/storage.web.ts`, `src/gallery/source.web.ts` (la lettura della galleria ora sta in `source.ts`), `src/ai/image.web.ts` (il rimpicciolimento ora sta in `image.ts`), `src/map/thumbs.web.ts`, `src/map/MapView.web.tsx`.
+  - `demo.json` ha anche l'indirizzo web di ogni foto demo.
+  - Nella pagina della mappa `window.mantideMap` per il debug.
+  - README, `local-ai/README.md`, `mobile/AGENTS.md` e `docs/demo.md` spiegano la versione browser.
+- **Perché:** avere subito una demo con schermate e tasti veri senza aspettare l'emulatore, e un piano B per la presentazione.
+- **Verifica:**
+  - Nel browser a 390×844, da capo a fondo: home col globo; Galleria con 45 foto in 13 luoghi; mappa con "6 paesi · 6/20 regioni · 8/110 province", regioni visitate e miniature raggruppate; Interessi con Gemma che analizza dal browser.
+  - `npx tsc --noEmit`, tutti i test, `npx expo export --platform android` (706 moduli) ed `npx expo-doctor` (20/20) passati.
+- **Da provare:** la versione Android sull'emulatore, dopo `npm install`.
+
+### 17:20 · 240d4e2 · Scheda del luogo
 - **Cosa:** `src/screens/PlaceSheet.tsx`. Toccando una zona si apre dal basso con: tipo e nome del luogo; come è stato visitato (a mano, GPS, quante foto); le foto scattate lì (un tocco le apre); fino a 2 eventi per te in quel luogo; il pulsante "Segna come visitato" / "Togli il segno a mano". In `recommend.ts` il punteggio è condiviso tra `recommend` e il nuovo `recommendIn`.
 - **Perché:** era l'unica schermata del design ancora mancante, e segnare una zona al primo tocco era troppo facile da sbagliare.
 - **Verifica:** `npx tsc --noEmit`; `test-recommend.ts` passato; `npx expo export --platform android`; simulazione: Veneto 15 foto con primo evento "H-FARM Open Campus", provincia di Venezia 4 foto con primo evento "Biennale Arte".

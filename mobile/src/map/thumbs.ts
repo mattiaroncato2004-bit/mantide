@@ -1,7 +1,7 @@
 // Small JPEG thumbnails of the photos for the map markers, as data URIs.
 // Computed once per photo and cached in the key-value store under "thumbs:v1".
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import Storage from 'expo-sqlite/kv-store';
+import Storage from '../storage';
 
 const KEY = 'thumbs:v1';
 const BATCH = 4; // photos resized in parallel

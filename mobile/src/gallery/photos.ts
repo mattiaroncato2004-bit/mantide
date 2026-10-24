@@ -1,9 +1,11 @@
 // Reads the device gallery: date and GPS of every photo, and the place it belongs to.
 // Only photos with GPS are kept; nothing leaves the device here.
-import * as MediaLibrary from 'expo-media-library/legacy'; // the non-legacy import throws at runtime in SDK 58
-import Storage from 'expo-sqlite/kv-store';
+import Storage from '../storage';
 import { locate, nameOf, type Place } from '../geo/locate';
 import demo from '../demo/demo.json';
+import { askForAllPhotos, readGallery, requestGallery, type GalleryAccess } from './source';
+
+export { askForAllPhotos, requestGallery, type GalleryAccess };
 
 // The invented demo gallery (demo-data/): same GPS and dates as in the photos' EXIF.
 // Used only if a demo photo arrives without GPS, so the demo never depends on the emulator's media scanner.
@@ -18,56 +20,31 @@ export type Photo = Place & {
   lon: number;
 };
 
-export type GalleryAccess = 'all' | 'limited' | 'denied';
-
 const KEY = 'photos:v1';
-const PAGE = 100;
-
-export async function requestGallery(): Promise<GalleryAccess> {
-  const res = await MediaLibrary.requestPermissionsAsync(false, ['photo']);
-  if (!res.granted) return 'denied';
-  return res.accessPrivileges === 'limited' ? 'limited' : 'all';
-}
-
-// Android 14+: lets a user who shared only some photos share the rest.
-export const askForAllPhotos = () => MediaLibrary.presentPermissionsPickerAsync(['photo']);
 
 export async function scanGallery(
   onProgress: (read: number, withGps: number) => void,
   limit = 3000,
 ): Promise<Photo[]> {
   const photos: Photo[] = [];
-  let read = 0;
-  let after: string | undefined;
-  do {
-    // resolveWithFullInfo is what fills `location` on Android (about 5× slower, still fine).
-    const page = await MediaLibrary.getAssetsAsync({
-      first: PAGE,
-      after,
-      mediaType: MediaLibrary.MediaType.photo,
-      sortBy: [[MediaLibrary.SortBy.creationTime, false]],
-      resolveWithFullInfo: true,
-    });
-    for (const asset of page.assets) {
-      read++;
-      const gps = asset.location && (asset.location.latitude || asset.location.longitude) ? asset.location : null;
-      const fallback = DEMO[asset.filename];
-      const lat = gps?.latitude ?? fallback?.lat;
-      const lon = gps?.longitude ?? fallback?.lon;
+  await readGallery((page, read) => {
+    for (const raw of page) {
+      const fallback = DEMO[raw.filename];
+      const lat = raw.gps?.latitude ?? fallback?.lat;
+      const lon = raw.gps?.longitude ?? fallback?.lon;
       if (lat === undefined || lon === undefined) continue;
       photos.push({
-        id: asset.id,
-        uri: asset.uri,
-        filename: asset.filename,
-        takenAt: gps ? asset.creationTime : (fallback?.takenAt ?? asset.creationTime),
+        id: raw.id,
+        uri: raw.uri,
+        filename: raw.filename,
+        takenAt: raw.gps ? raw.takenAt : (fallback?.takenAt ?? raw.takenAt),
         lat,
         lon,
         ...locate(lat, lon),
       });
     }
     onProgress(read, photos.length);
-    after = page.hasNextPage ? page.endCursor : undefined;
-  } while (after && read < limit);
+  }, limit);
   await Storage.setItem(KEY, JSON.stringify(photos));
   return photos;
 }
