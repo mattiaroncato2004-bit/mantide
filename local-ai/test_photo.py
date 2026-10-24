@@ -14,9 +14,15 @@ INTERESTS = ["street-art", "cibo", "mare", "montagna", "arte", "architettura",
 
 # A plain instruction gives clean JSON with Gemma 4 E2B. The server's constrained JSON mode
 # (response_format) produced broken JSON and worse labels in our test, so we don't use it.
+# One short hint per id: without them Gemma filed most murals under "arte" instead of "street-art".
+HINTS = ("street-art (murals, graffiti), cibo (dishes, restaurants), mare (sea, beaches), "
+         "montagna (mountains, hiking), arte (museums, paintings, sculptures), architettura (buildings, bridges), "
+         "musica (concerts, live music), natura (parks, animals, plants), sport, vino (wine, bars), "
+         "storia (castles, ancient monuments), notte (nightlife, clubs)")
+
 PROMPT = (
     "Look at this photo. Which interests of the person who took it does it reveal? "
-    f"Choose 1 to 3 ids, most evident first, ONLY from this list: {', '.join(INTERESTS)}. "
+    f"Choose 1 to 3 ids, most evident first, ONLY from this list: {HINTS}. "
     "Reply with one line of JSON and nothing else, exactly like: "
     '{"scene": "<what you see, in Italian, max 8 words>", "interests": ["id", "id"]}'
 )

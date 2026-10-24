@@ -17,9 +17,17 @@ export type Analysis = { scene: string; interests: InterestId[] };
 
 // Tested on Gemma 4 E2B: a plain instruction gives clean JSON; the server's constrained
 // JSON mode produced broken output and worse labels, so we parse the text ourselves.
+// One short hint per id: without them Gemma filed most murals under "arte" instead of "street-art".
+// Keep in sync with local-ai/test_photo.py.
+const HINTS =
+  'street-art (murals, graffiti), cibo (dishes, restaurants), mare (sea, beaches), ' +
+  'montagna (mountains, hiking), arte (museums, paintings, sculptures), architettura (buildings, bridges), ' +
+  'musica (concerts, live music), natura (parks, animals, plants), sport, vino (wine, bars), ' +
+  'storia (castles, ancient monuments), notte (nightlife, clubs)';
+
 const PROMPT =
   'Look at this photo. Which interests of the person who took it does it reveal? ' +
-  `Choose 1 to 3 ids, most evident first, ONLY from this list: ${INTEREST_IDS.join(', ')}. ` +
+  `Choose 1 to 3 ids, most evident first, ONLY from this list: ${HINTS}. ` +
   'Reply with one line of JSON and nothing else, exactly like: ' +
   '{"scene": "<what you see, in Italian, max 8 words>", "interests": ["id", "id"]}';
 

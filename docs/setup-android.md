@@ -58,18 +58,16 @@ Dopo la compilazione potete chiudere Android Studio per liberare RAM: l'emulator
 
 ## 6. Foto per la demo
 
-La galleria dell'emulatore è vuota. Serve una cinquantina di foto **vostre con il GPS**:
-
-- Copiatele dal telefono **via cavo** o dall'app Google Foto (download). **Non via WhatsApp**, che cancella il GPS.
-- Mettetele nella cartella `demo-photos/` del repo: è esclusa da git, non finiscono online.
-- Trascinatele sulla finestra dell'emulatore, oppure:
+La galleria dell'emulatore è vuota. Caricate la galleria dimostrativa del repo (45 foto con GPS e date già negli EXIF), dalla radice del repo:
 
 ```sh
-adb push demo-photos/. /sdcard/Pictures/demo/
+adb push demo-data/photos/. /sdcard/Pictures/mantide-demo/
 adb shell content call --method scan_volume --uri content://media --arg external_primary
 ```
 
 Se le foto non compaiono nella galleria, riavviate l'emulatore.
+
+Volete aggiungere foto vostre? Copiatele dal telefono **via cavo** o da Google Foto (**non via WhatsApp**, che cancella il GPS) nella cartella `demo-photos/`, esclusa da git, e caricatele allo stesso modo.
 
 ## 7. Posizione GPS dell'emulatore
 
