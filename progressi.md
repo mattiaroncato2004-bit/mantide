@@ -142,7 +142,12 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 19:10 · questo commit · Tocco su un luogo → scala sotto
+### 19:18 · questo commit · README aggiornato per la giuria
+- **Cosa:** in cima, in evidenza, perché la demo è nel browser (il wifi non ha permesso di scaricare Gemma 4 sul computer dell'emulatore); nuove sezioni "Why open source" e "The day, in short" (cronologia e difficoltà); "Why" con prezzi dei concorrenti e l'idea della galleria come l'algoritmo di Instagram; funzioni nuove (Sei qui, cerchi di distanza, gruppi di foto, Galleria con consenso, tocco → scala sotto); riga "Android app on a device: not run"; link al pitch.
+- **Perché:** richiesta del team: i punti salienti e le difficoltà devono essere visibili e aggiornati.
+- **Verifica:** orari presi dal registro qui sotto, prezzi da `docs/ricerca.md`.
+
+### 19:10 · 06bbbeb · Tocco su un luogo → scala sotto
 - **Cosa:** in `App.tsx`, `onToggle` passa a Nazionale per un paese e a Regionale per una regione. Aggiornati `docs/demo.md` e `docs/pitch.md`.
 - **Perché:** il team si aspettava che toccando il Lazio a Nazionale si aprissero le sue province.
 - **Verifica:** `npx tsc --noEmit`; nel browser: Nazionale → tocco sul Lazio → Frosinone, Latina, Roma, Rieti, Viterbo con la scheda del Lazio; Globale → tocco sulla Francia → 13 regioni francesi.
