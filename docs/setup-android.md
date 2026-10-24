@@ -84,7 +84,7 @@ Pannello **⋯ (Extended controls) → Location**: cercate H-FARM, Roncade e pre
 1. All'avvio dell'app consentite la posizione.
 2. **Galleria → Leggi la galleria**; al permesso foto scegliete **"Consenti tutte"**, non "Seleziona foto".
 3. **Mappa**: il contatore dice **"6 paesi · 6/20 regioni · 8/110 province"**; zoomando compaiono le miniature delle foto.
-4. **Interessi → Analizza le foto con Gemma**: circa 5 minuti per 45 foto. In testa: **Architettura 16, Natura 12, Street art 10**.
+4. **Interessi → Analizza le foto con Gemma**: circa 5 minuti per 44 foto. In testa **architettura, natura, street art e cibo**, ognuno con circa 9–16 foto: Gemma analizza dal vivo, e i numeri cambiano di poco da un giro all'altro.
 5. **Per te**: su scala **Globale** il primo evento è "Berlin Wall Murals & Beats"; su scala **Locale** è "H-FARM Open Campus".
 
 Gli stessi numeri si ottengono senza Android con `cd mobile && npx tsx scripts/simulate-demo.ts`. Poi registrate lo schermo mentre fate questo giro (Android Studio: **Running Devices → registra**): è il video di riserva della demo.

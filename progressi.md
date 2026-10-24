@@ -23,7 +23,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 17:31. Hackathon: prototipo alle 19:00, c
 | Galleria dimostrativa inventata (45 foto) | fatto | EXIF riletti per tutte le foto |
 | Risposte di Gemma sulle 45 foto demo (riserva) | fatto | col prompt attuale il tema giusto è tra gli interessi in 43 foto su 45, ed è il primo in 41 |
 | Copione della demo | fatto | schermate attese prese da `scripts/simulate-demo.ts`: 6 paesi · 6/20 regioni · 8/110 province; interessi in testa architettura 16, natura 12, street art 10; Per te Globale → Berlino, Locale → H-FARM Open Campus |
-| Versione browser della stessa app (demo con schermate e tasti) | fatto | provata in Playwright a 390×844: Galleria 45 foto in 13 luoghi, mappa "6 paesi · 6/20 regioni · 8/110 province" con miniature, Interessi con Gemma dal vivo |
+| Versione browser della stessa app (demo con schermate e tasti) | fatto | provata in Playwright a 390×844, tutte le schermate: Galleria 45 foto in 13 luoghi; mappa "6 paesi · 6/20 regioni · 8/110 province" con miniature; Interessi con Gemma dal vivo su 44 foto, zero errori (architettura 14, natura 11, street art 9, cibo 9); Per te Globale → Berlino; scheda Veneto (15 foto, H-FARM Open Campus); anteprima della foto |
 | Prima compilazione e prova sull'emulatore | **da fare** | – |
 | Gemma direttamente sul telefono | non fatto | serve un telefono da 8 GB |
 
@@ -79,7 +79,8 @@ Ultimo aggiornamento: 24 ottobre 2026, 17:31. Hackathon: prototipo alle 19:00, c
 - **`mobile/scripts/` è escluso dal controllo dei tipi dell'app** (usa i tipi di Node); gli script si lanciano con `npx tsx`.
 
 **Rete e Gemma**
-- **Versione browser:** Gemma va avviato con `--cors-origin http://localhost:8081`, altrimenti il browser blocca le chiamate.
+- **Versione browser:** Gemma va avviato con `--cors-origin http://localhost:8081`, altrimenti il browser blocca le chiamate. Nel browser Gemma è più lenta (circa 11 s a foto su Mac M3 8 GB, che fa girare anche il server dell'app).
+- **I conteggi degli interessi cambiano di poco tra un'analisi e l'altra** (es. architettura 16 nelle risposte preparate, 14 dal vivo nel browser): il copione dà numeri indicativi.
 - **`CI=1 npx expo start` non ricarica i file modificati:** per lavorare sulla versione web avviatelo senza `CI=1`.
 - **Dall'emulatore il computer si chiama `10.0.2.2`**: Gemma è `http://10.0.2.2:9379` (`GEMMA_URL` in `src/ai/gemma.ts`). Su un telefono vero serve l'indirizzo del computer e `litert-lm serve --host 0.0.0.0`.
 - **La prima richiesta a Gemma dura 1–2 minuti** (costruisce la cache): fatela prima della demo.
