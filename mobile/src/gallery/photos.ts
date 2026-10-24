@@ -3,10 +3,16 @@
 import * as MediaLibrary from 'expo-media-library/legacy'; // the non-legacy import throws at runtime in SDK 58
 import Storage from 'expo-sqlite/kv-store';
 import { locate, nameOf, type Place } from '../geo/locate';
+import demo from '../demo/demo.json';
+
+// The invented demo gallery (demo-data/): same GPS and dates as in the photos' EXIF.
+// Used only if a demo photo arrives without GPS, so the demo never depends on the emulator's media scanner.
+const DEMO = demo as Record<string, { lat: number; lon: number; takenAt: number }>;
 
 export type Photo = Place & {
   id: string;
   uri: string;
+  filename: string;
   takenAt: number; // ms since epoch
   lat: number;
   lon: number;
@@ -44,15 +50,19 @@ export async function scanGallery(
     });
     for (const asset of page.assets) {
       read++;
-      const loc = asset.location;
-      if (!loc || (loc.latitude === 0 && loc.longitude === 0)) continue;
+      const gps = asset.location && (asset.location.latitude || asset.location.longitude) ? asset.location : null;
+      const fallback = DEMO[asset.filename];
+      const lat = gps?.latitude ?? fallback?.lat;
+      const lon = gps?.longitude ?? fallback?.lon;
+      if (lat === undefined || lon === undefined) continue;
       photos.push({
         id: asset.id,
         uri: asset.uri,
-        takenAt: asset.creationTime,
-        lat: loc.latitude,
-        lon: loc.longitude,
-        ...locate(loc.latitude, loc.longitude),
+        filename: asset.filename,
+        takenAt: gps ? asset.creationTime : (fallback?.takenAt ?? asset.creationTime),
+        lat,
+        lon,
+        ...locate(lat, lon),
       });
     }
     onProgress(read, photos.length);

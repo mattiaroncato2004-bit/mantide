@@ -6,6 +6,7 @@ import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import Storage from 'expo-sqlite/kv-store';
 import { INTEREST_IDS, type InterestId } from './interests';
 import type { Photo } from '../gallery/photos';
+import demo from '../demo/demo.json';
 
 // From the Android emulator, 10.0.2.2 is the computer it runs on.
 // On a real phone, use the computer's address on the local network.
@@ -23,6 +24,11 @@ const PROMPT =
   '{"scene": "<what you see, in Italian, max 8 words>", "interests": ["id", "id"]}';
 
 const KEY = 'analysis:v1';
+
+// Gemma's answers on the invented demo gallery, computed beforehand by local-ai/precompute_demo.py.
+// Used only when Gemma can't be reached during a live demo; the app says so on screen.
+const DEMO = demo as Record<string, { analysis: Analysis | null }>;
+export const demoAnalysis = (filename: string): Analysis | null => DEMO[filename]?.analysis ?? null;
 
 // Keeps only what we can trust: the first {...} block, known interest ids, no duplicates.
 export function parseAnswer(text: string): Analysis | null {
