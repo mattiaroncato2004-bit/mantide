@@ -13,6 +13,7 @@
 | `docs/ricerca.md` | Concorrenti e interfacce di riferimento |
 | `docs/setup-android.md` | Setup del computer che compila e fa girare l'emulatore |
 | `docs/demo.md` | Copione della demo e piano B |
+| `docs/pitch.md` | Il discorso di 5 minuti per la demo night |
 | `progressi.md` | Stato, decisioni, insidie, registro |
 
 ## Dopo ogni modifica al codice o ogni push

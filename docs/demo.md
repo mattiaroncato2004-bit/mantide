@@ -8,7 +8,7 @@ Demo night: dalle 19:20 al tavolo. Durata: circa 3 minuti, poi domande.
 2. Emulatore acceso, app installata (`npx expo run:android`), server di sviluppo acceso.
 3. Foto demo caricate: `adb push demo-data/photos/. /sdcard/Pictures/mantide-demo/` e poi lo scan (`demo-data/README.md`).
 4. Posizione dell'emulatore su H-FARM, Roncade (pannello Location).
-5. Nell'app, **una volta**: "Usa la mia galleria" e lasciate finire Gemma (l'intestazione mostra l'avanzamento). Così durante la demo tutto è già pronto e veloce. Per rivedere il benvenuto: pulsante **Galleria** in alto.
+5. Nell'app, **una volta**: "Usa la mia galleria" e lasciate finire Gemma (l'intestazione mostra l'avanzamento). Così durante la demo tutto è già pronto e veloce. Per collegare o scollegare la galleria: pulsante **Galleria**, in basso a destra.
    Per sapere in anticipo cosa comparirà: `cd mobile && npx tsx scripts/simulate-demo.ts`.
 6. Video di riserva: registrate lo schermo mentre fate il giro sotto (Android Studio: Running Devices → registra).
 

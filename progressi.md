@@ -141,7 +141,13 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 19:07 · questo commit · Benvenuto: il titolo riassume il prodotto
+### 19:08 · questo commit · Pitch di 5 minuti
+- **Cosa:** `docs/pitch.md`: apertura, problema (app a pagamento, interessi da menu), intuizione (la galleria come l'algoritmo di Instagram, ma per te), demo, perché open source (foto e spostamenti sono i dati più privati), chiusura. In `docs/demo.md` corretto dove sta il pulsante Galleria.
+- **Perché:** richiesta del team per la demo night.
+- **Verifica:** prezzi dei concorrenti presi da `docs/ricerca.md`.
+- **Da fare:** il repo su GitHub è privato; per la sfida open source va reso pubblico (lo può fare il proprietario, `giorgiocaligiuri`).
+
+### 19:07 · 5381add · Benvenuto: il titolo riassume il prodotto
 - **Cosa:** titolo "Dove sei stato, cosa ami, cosa fare vicino a te." (mappa, interessi, eventi), una riga "Mantide lo scopre dalle foto che hai già.", riquadro Gemma 4 / Privacy a una riga ciascuno. Tolti la scritta sopra il titolo e il paragrafo.
 - **Perché:** il team trovava ancora troppo testo e un titolo che non riassumeva il progetto.
 - **Verifica:** `npx tsc --noEmit`; nel browser a 390×844 con dati cancellati.
