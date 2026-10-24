@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato attuale, architettura, decisioni con il loro perché, e un registro di ogni modifica. Chi modifica il repo (persona o agente) lo aggiorna nello stesso commit: le regole sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 17:00.
+Ultimo aggiornamento: 24 ottobre 2026, 16:55.
 
 > **Decisione presa alle 16:45:** si resta su **Expo** (`mobile/`), demo sull'**emulatore** del computer da 16 GB, Gemma sul computer. La proposta Kotlin + Redmi (`docs/scelte-e-setup-kotlin.md`, solo in locale) non è stata adottata.
 >
@@ -19,8 +19,11 @@ Ultimo aggiornamento: 24 ottobre 2026, 17:00.
 | Home: mappa con 4 scale, tocco per segnare, GPS, contatore, schede | fatto | `npx tsc --noEmit`; mappa provata nel browser a 390×760 nelle 4 scale (`scripts/preview-map.ts`) |
 | Assegnazione punto → paese, regione, provincia (`locate`) | fatto | `npx tsx scripts/test-locate.ts`: 11 casi, compresi Lido di Venezia, Burano, Nizza |
 | Lettura galleria (data, GPS, luogo) e schermata Galleria | fatto | `npx tsc --noEmit`; da provare sull'emulatore |
-| Gemma 4 sul computer (`local-ai/`) | da fare | – |
-| Interessi e consigli di eventi | da fare | – |
+| Gemma 4 E2B sul computer (`litert-lm serve`, `local-ai/`) | fatto | su Mac M3 8 GB: 6–8 s a foto da 384 px, primo avvio 1–2 min; JSON pulito |
+| Analisi foto con Gemma nell'app, schermata Interessi | fatto | `npx tsc --noEmit`; da provare sull'emulatore |
+| Catalogo eventi inventato (46) e consigli per scala, schermata Per te | fatto | `npx tsx scripts/test-recommend.ts` |
+| Miniature delle foto sulla mappa, raggruppate, con anteprima al tocco | fatto | anteprima nel browser: gruppi con numero, separazione allo zoom, tocco → messaggio `photo` |
+| Galleria dimostrativa inventata (`demo-data/`) | in preparazione | – |
 | Gemma 4 dentro il telefono o emulatore | opzionale, dopo | – |
 
 ## Il progetto in breve
@@ -71,7 +74,11 @@ Computer dell'utente (local-ai/, da fare)
 - **Zone visitate quasi trasparenti con bordo arancione, non visitate sotto un velo chiaro.** Il colore pieno sopra il satellite diventava marrone; così si vede la terra vera dove sei stato.
 - **Regioni e province solo per l'Italia.** Fuori dall'Italia le scale Nazionale e Regionale mostrano il paese; la scala Locale (esagoni H3) funziona ovunque.
 - **`locate` controlla prima le province italiane**, più precise del confine nazionale; un punto in mare va alla zona più vicina entro circa 25 km, ma un punto dentro un altro paese non viene mai spostato in Italia.
-- **Protocollo app ↔ mappa:** l'app chiama `window.mantide.setState(...)`; la pagina risponde con messaggi `ready`, `toggle` (zona toccata) ed `error`. I confini entrano una volta sola in `window.__MANTIDE_GEO` prima del caricamento.
+- **Protocollo app ↔ mappa:** l'app chiama `window.mantide.setState(...)`; la pagina risponde con messaggi `ready`, `toggle` (zona toccata), `photo` (foto toccata) ed `error`. I confini entrano una volta sola in `window.__MANTIDE_GEO` prima del caricamento. Le miniature (160 px, base64) si mandano solo quando cambiano.
+- **Gemma con un'istruzione semplice, non con il JSON vincolato.** Il `response_format` di `litert-lm serve` ha dato JSON rotto e interessi sbagliati; l'istruzione semplice dà JSON pulito. L'app tiene il primo blocco `{...}` e solo gli interessi della lista (`parseAnswer` in `src/ai/gemma.ts`).
+- **Foto a 384 px verso Gemma.** A 960 px Gemma usava circa 2.400 pezzi d'immagine; a 384 px risponde in 6–8 s invece di oltre un minuto.
+- **Gemma guarda un campione:** al massimo 3 foto per luogo e giorno, 60 in tutto (`sample`).
+- **Profilo e consigli calcolati dal codice** (`profileFromCounts`, `recommend`, `why` in `src/events/recommend.ts`): peso di un interesse = sua quota tra le foto etichettate; un evento senza interessi in comune non compare.
 
 ## Ambiente e persone
 
@@ -95,6 +102,9 @@ Il setup del computer che compila è in [docs/setup-android.md](docs/setup-andro
 - **React Native 0.88 non ha più `StyleSheet.absoluteFillObject`.**
 - **`mobile/scripts/` è escluso dal controllo dei tipi dell'app** (usa i tipi di Node). Gli script si lanciano con `npx tsx`.
 - **La mappa ha bisogno di internet:** MapLibre, h3-js e le tile arrivano da CDN.
+- **Gemma dall'emulatore è `http://10.0.2.2:9379`** (`GEMMA_URL` in `src/ai/gemma.ts`); su un telefono vero serve l'indirizzo del computer e `litert-lm serve --host 0.0.0.0`.
+- **La prima richiesta a Gemma dura 1–2 minuti** (costruisce la cache); fatela prima della demo.
+- **Il modello si registra con l'id `gemma4-e2b`:** `litert-lm import models/gemma-4-E2B-it.litertlm gemma4-e2b`.
 
 ## Domande aperte
 
@@ -102,15 +112,31 @@ Il setup del computer che compila è in [docs/setup-android.md](docs/setup-andro
 
 ## Prossimi passi
 
-1. Gemma 4 E2B (`gemma-4-E2B-it.litertlm`) sul computer con `litert-lm serve`; nell'app, analisi delle foto → JSON di interessi.
-2. Galleria dimostrativa inventata (`demo-data/`) e catalogo eventi inventato (`mobile/src/events/`).
-3. Schermate Interessi e Per te.
+1. Galleria dimostrativa inventata in `demo-data/` e prova di Gemma su quelle foto.
+2. Prima compilazione sull'emulatore: provare permessi, lettura galleria, analisi, miniature.
+3. Prova generale della demo e video di riserva.
 
 ## Registro
 
 Dal più recente. Ogni voce: commit, cosa, perché, come è stato verificato.
 
-### 17:00 · questo commit · Lettura della galleria
+### 16:55 · questo commit · Gemma, interessi, eventi e foto sulla mappa
+- **Cosa:**
+  - `local-ai/`: istruzioni e `test_photo.py` per Gemma 4 E2B con `litert-lm serve`.
+  - `src/ai/gemma.ts`: rimpicciolisce la foto a 384 px, la manda a Gemma, legge il JSON, salva i risultati, sceglie il campione.
+  - `src/screens/InterestsScreen.tsx`: interessi con conteggio, barra, 3 foto di prova, eliminabili.
+  - `src/events/` (46 eventi inventati, `recommend`, `why`) e `src/screens/ForYouScreen.tsx`.
+  - `src/map/thumbs.ts` e la mappa: miniature raggruppate come in Foto di iPhone; il tocco su una foto apre un'anteprima a tutto schermo con luogo, data e cosa ha visto Gemma.
+  - README: come avviare tutto e la tabella aggiornata di cosa è vero e cosa è inventato.
+- **Perché:** completare il giro galleria → Gemma → interessi → eventi per la demo; le miniature su richiesta del team.
+- **Verifica:**
+  - `npx tsc --noEmit` pulito.
+  - `npx tsx scripts/test-recommend.ts` passato.
+  - Gemma su una foto di prova: `{"scene": "Moto contro muro di mattoni", "interests": ["sport", "architettura"]}` in 7,6 s.
+  - Mappa con miniature provata nel browser.
+- **Da provare:** tutto sull'emulatore. `parseAnswer` non ha un test automatico, perché `gemma.ts` importa moduli nativi.
+
+### 16:45 · 58bc572 · Lettura della galleria
 - **Cosa:**
   - `src/gallery/photos.ts`: permesso foto (con richiesta di "Consenti tutte" se l'accesso è parziale); lettura a pagine da 100 con `resolveWithFullInfo` per avere il GPS; ogni foto assegnata a paese, regione e provincia; salvataggio in kv-store; raggruppamento per provincia italiana o paese estero.
   - `src/screens/GalleryScreen.tsx`: pulsante "Leggi la galleria" con avanzamento, gruppi con 4 miniature. Un tocco porta la mappa sul luogo alla scala giusta.

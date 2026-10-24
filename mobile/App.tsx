@@ -1,6 +1,6 @@
 // Home of the app: the map of where you've been, at four scales, plus the tab bar.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
@@ -12,6 +12,13 @@ import {
   type Photo, type PlaceGroup,
 } from './src/gallery/photos';
 import { GalleryScreen } from './src/screens/GalleryScreen';
+import { InterestsScreen, type InterestRow } from './src/screens/InterestsScreen';
+import { ForYouScreen } from './src/screens/ForYouScreen';
+import { makeThumbs } from './src/map/thumbs';
+import { analyzePhoto, GEMMA_URL, loadAnalyses, sample, saveAnalyses, type Analysis } from './src/ai/gemma';
+import { labelOf, type InterestId } from './src/ai/interests';
+import { EVENTS, profileFromCounts, recommend } from './src/events/recommend';
+import { nameOf } from './src/geo/locate';
 import { C } from './src/theme';
 import type { Focus, Level, MapState, Scale } from './src/types';
 
@@ -24,11 +31,6 @@ const SCALES: { key: Scale; label: string }[] = [
 
 const TABS = ['Mappa', 'Galleria', 'Per te', 'Interessi'] as const;
 type Tab = (typeof TABS)[number];
-
-const COMING: Record<'Per te' | 'Interessi', string> = {
-  'Per te': 'Eventi della scala che stai guardando, scelti in base a quello che fotografi.',
-  Interessi: 'Quello che le tue foto dicono di te, con le foto che lo dimostrano.',
-};
 
 // Roncade (TV), home of H-FARM: the focus until the GPS answers.
 const DEFAULT_FOCUS: Focus = { country: 'ITA', region: '05', lat: 45.6297, lon: 12.3766 };
@@ -54,6 +56,12 @@ function Home() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [scanning, setScanning] = useState(false);
   const [galleryStatus, setGalleryStatus] = useState<string | null>(null);
+  const [thumbs, setThumbs] = useState<Record<string, string>>({});
+  const [analyses, setAnalyses] = useState<Record<string, Analysis>>({});
+  const [analyzing, setAnalyzing] = useState(false);
+  const [aiStatus, setAiStatus] = useState<string | null>(null);
+  const [removed, setRemoved] = useState<InterestId[]>([]);
+  const [opened, setOpened] = useState<string | null>(null); // photo id shown full screen
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const { visited, toggleManual, mark } = useVisited();
@@ -78,7 +86,14 @@ function Home() {
 
   useEffect(() => {
     loadPhotos().then(setPhotos).catch((e) => console.warn('[photos] load failed', e));
+    loadAnalyses().then(setAnalyses).catch((e) => console.warn('[gemma] load failed', e));
   }, []);
+
+  // Small thumbnails for the map, computed once per photo and cached.
+  useEffect(() => {
+    if (!photos.length) return;
+    makeThumbs(photos.slice(0, MAX_POINTS)).then(setThumbs).catch((e) => console.warn('[thumbs]', e));
+  }, [photos]);
 
   const groups = useMemo(() => groupByPlace(photos), [photos]);
 
@@ -105,6 +120,62 @@ function Home() {
     }
   }, [mark]);
 
+  // Gemma looks at a sample of the photos (at most 3 per place and day) and labels each one.
+  const analyze = useCallback(async () => {
+    const todo = sample(photos).filter((p) => !analyses[p.id]);
+    if (!todo.length) {
+      setAiStatus('Tutte le foto scelte sono già state analizzate.');
+      return;
+    }
+    setAnalyzing(true);
+    const results = { ...analyses };
+    try {
+      for (const [i, photo] of todo.entries()) {
+        setAiStatus(`Foto ${i + 1} di ${todo.length}…`);
+        try {
+          const analysis = await analyzePhoto(photo.uri);
+          results[photo.id] = analysis;
+          setAnalyses({ ...results });
+          await saveAnalyses(results);
+          setAiStatus(`Foto ${i + 1} di ${todo.length}: ${analysis.scene} → ${analysis.interests.map(labelOf).join(', ')}`);
+        } catch (e) {
+          if (e instanceof TypeError) throw e; // network error: Gemma is not reachable
+          console.warn('[gemma] photo skipped', photo.id, e);
+        }
+      }
+      setAiStatus(`Fatto: ${Object.keys(results).length} foto analizzate.`);
+    } catch (e) {
+      console.warn('[gemma]', e);
+      setAiStatus(`Non trovo Gemma su ${GEMMA_URL}: avvia "litert-lm serve" sul computer (vedi local-ai/README.md).`);
+    } finally {
+      setAnalyzing(false);
+    }
+  }, [photos, analyses]);
+
+  const byId = useMemo(() => new Map(photos.map((p) => [p.id, p])), [photos]);
+
+  const interestRows: InterestRow[] = useMemo(() => {
+    const rows = new Map<InterestId, InterestRow>();
+    for (const [id, a] of Object.entries(analyses)) {
+      const photo = byId.get(id);
+      if (!photo) continue;
+      for (const interest of a.interests) {
+        if (removed.includes(interest)) continue;
+        const row = rows.get(interest) ?? { id: interest, count: 0, share: 0, photos: [] };
+        row.count++;
+        row.photos.push(photo);
+        rows.set(interest, row);
+      }
+    }
+    const max = Math.max(1, ...[...rows.values()].map((r) => r.count));
+    return [...rows.values()].map((r) => ({ ...r, share: r.count / max })).sort((a, b) => b.count - a.count);
+  }, [analyses, byId, removed]);
+
+  const recommendations = useMemo(() => {
+    const profile = profileFromCounts(Object.fromEntries(interestRows.map((r) => [r.id, r.count])));
+    return recommend(EVENTS, profile, scale, focus);
+  }, [interestRows, scale, focus]);
+
   const openGroup = (group: PlaceGroup) => {
     setFocus({
       country: group.place.country ?? focus.country,
@@ -126,12 +197,12 @@ function Home() {
         province: ids(visited, 'province'),
         hex: ids(visited, 'hex'),
       },
-      points: [
-        ...photos.slice(0, MAX_POINTS).map((p): [number, number] => [p.lon, p.lat]),
-        ...(here ? [here] : []),
-      ],
+      points: here ? [here] : [],
+      photos: photos.slice(0, MAX_POINTS).map((p) => ({
+        id: p.id, lon: p.lon, lat: p.lat, takenAt: p.takenAt, thumb: thumbs[p.id],
+      })),
     }),
-    [scale, focus, visited, here, photos],
+    [scale, focus, visited, here, photos, thumbs],
   );
 
   const showToast = (text: string) => {
@@ -156,7 +227,7 @@ function Home() {
     <View style={styles.root}>
       <View style={styles.body}>
         {/* The map stays mounted under the other tabs, so it never reloads. */}
-        <MapView state={mapState} onToggle={onToggle} />
+        <MapView state={mapState} onToggle={onToggle} onPhoto={setOpened} />
 
         {tab === 'Mappa' && (
           <>
@@ -198,12 +269,30 @@ function Home() {
           />
         )}
 
-        {(tab === 'Per te' || tab === 'Interessi') && (
-          <View style={[styles.coming, { paddingTop: insets.top + 24 }]}>
-            <Text style={styles.title}>{tab}</Text>
-            <Text style={styles.comingText}>{COMING[tab]}</Text>
-            <Text style={styles.comingTag}>In arrivo</Text>
-          </View>
+        {tab === 'Interessi' && (
+          <InterestsScreen
+            rows={interestRows}
+            analyzed={Object.keys(analyses).length}
+            status={aiStatus}
+            running={analyzing}
+            canRun={photos.length > 0}
+            onRun={analyze}
+            onRemove={(id) => setRemoved((r) => [...r, id])}
+            topInset={insets.top}
+          />
+        )}
+
+        {tab === 'Per te' && (
+          <ForYouScreen
+            recommendations={recommendations}
+            scaleLabel={SCALES.find((s) => s.key === scale)?.label ?? ''}
+            hasProfile={interestRows.length > 0}
+            topInset={insets.top}
+          />
+        )}
+
+        {opened && byId.get(opened) && (
+          <PhotoPreview photo={byId.get(opened)!} analysis={analyses[opened]} onClose={() => setOpened(null)} />
         )}
       </View>
 
@@ -225,8 +314,32 @@ function Home() {
   );
 }
 
+// Full-screen photo opened from the map: where, when, and what Gemma saw in it.
+function PhotoPreview({ photo, analysis, onClose }: { photo: Photo; analysis?: Analysis; onClose: () => void }) {
+  const where = photo.province ? nameOf('province', photo.province) : nameOf('country', photo.country);
+  const when = new Date(photo.takenAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+  return (
+    <Pressable style={styles.preview} onPress={onClose} accessibilityRole="button" accessibilityLabel="Chiudi la foto">
+      <Image source={{ uri: photo.uri }} style={styles.previewImage} resizeMode="contain" />
+      <View style={styles.previewInfo}>
+        <Text style={styles.title}>{where}</Text>
+        <Text style={styles.stats}>{when}</Text>
+        {analysis && (
+          <Text style={styles.previewAi}>
+            Gemma: {analysis.scene} · {analysis.interests.map(labelOf).join(', ')}
+          </Text>
+        )}
+      </View>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.bg },
+  preview: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(5, 12, 16, 0.96)', justifyContent: 'center', padding: 16, gap: 16 },
+  previewImage: { width: '100%', height: '60%', borderRadius: 12 },
+  previewInfo: { gap: 4 },
+  previewAi: { color: C.accent, fontSize: 15, fontWeight: '600', marginTop: 6 },
   body: { flex: 1 },
   header: {
     position: 'absolute', left: 16, right: 16,
@@ -249,9 +362,6 @@ const styles = StyleSheet.create({
   scaleOn: { backgroundColor: C.accent },
   scaleText: { color: C.muted, fontSize: 13, fontWeight: '600' },
   scaleTextOn: { color: C.onAccent },
-  coming: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: C.bg, paddingHorizontal: 24, gap: 12 },
-  comingText: { color: C.muted, fontSize: 16, lineHeight: 23, maxWidth: 420 },
-  comingTag: { color: C.accent, fontSize: 12, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
   tabs: {
     flexDirection: 'row', backgroundColor: C.bg, paddingTop: 10,
     borderTopWidth: 1, borderTopColor: C.line,

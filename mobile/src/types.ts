@@ -20,5 +20,9 @@ export type MapState = {
   scale: Scale;
   focus: Focus;
   visited: Record<Level, string[]>;
-  points: [number, number][]; // [lon, lat] of photos and of the current position
+  points: [number, number][]; // [lon, lat] of the current position
+  photos: MapPhoto[];
 };
+
+// A geotagged photo on the map. thumb is a small "data:image/jpeg;base64,..." URI (see map/thumbs.ts).
+export type MapPhoto = { id: string; lon: number; lat: number; takenAt: number; thumb?: string };
