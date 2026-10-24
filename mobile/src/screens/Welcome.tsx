@@ -1,5 +1,6 @@
 // First launch: asks whether the app may read the photo gallery. Without it the map still works:
-// you mark places by hand and the GPS marks where you are.
+// you mark places by hand and the GPS marks where you are. Two ideas only, one line each:
+// Gemma 4 looks at your photos, and they stay yours.
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { C, F, R, S } from '../theme';
 
@@ -19,14 +20,16 @@ export function Welcome({ onUseGallery, onSkip, topInset, bottomInset }: Props) 
       </View>
 
       <View style={styles.body}>
-        <Text style={styles.title}>La tua galleria sa già dove sei stato e cosa ami.</Text>
-        <Text style={styles.text}>
-          Da data e posizione delle foto disegniamo la tua mappa. Gemma 4 guarda cosa fotografi e ti propone
-          eventi su misura, dal mondo al tuo quartiere.
-        </Text>
-        <View style={styles.privacy}>
-          <Text style={styles.privacyLabel}>Le foto restano tue</Text>
-          <Text style={styles.privacyText}>Gemma gira sul tuo telefono o sul tuo computer, mai nel cloud.</Text>
+        <Text style={styles.title}>Le tue foto diventano la tua mappa.</Text>
+        <View style={styles.points}>
+          <View style={styles.point}>
+            <Text style={styles.pointLabel}>Gemma 4</Text>
+            <Text style={styles.pointText}>Analizza le tue foto e scopre cosa ami.</Text>
+          </View>
+          <View style={styles.point}>
+            <Text style={styles.pointLabel}>Privacy</Text>
+            <Text style={styles.pointText}>Le foto restano tue: mai nel cloud.</Text>
+          </View>
         </View>
       </View>
 
@@ -37,7 +40,7 @@ export function Welcome({ onUseGallery, onSkip, topInset, bottomInset }: Props) 
         <Pressable onPress={onSkip} style={({ pressed }) => [styles.secondary, pressed && styles.pressed]} accessibilityRole="button">
           <Text style={styles.secondaryText}>Continua senza galleria</Text>
         </Pressable>
-        <Text style={styles.note}>Puoi cambiare idea quando vuoi dal pulsante Galleria sulla mappa.</Text>
+        <Text style={styles.note}>Puoi cambiare idea da Galleria.</Text>
       </View>
     </View>
   );
@@ -56,12 +59,10 @@ const styles = StyleSheet.create({
   wordmark: { color: C.text, fontFamily: F.bold, fontSize: 18, letterSpacing: -0.3 },
   body: { gap: S.lg, marginTop: 'auto', marginBottom: S.xxl },
   title: { color: C.text, fontFamily: F.display, fontSize: 38, lineHeight: 41, letterSpacing: -1.4 },
-  text: { color: C.muted, fontFamily: F.body, fontSize: 16.5, lineHeight: 24, maxWidth: 520 },
-  privacy: {
-    marginTop: S.xs, paddingLeft: 14, borderLeftWidth: 2, borderLeftColor: C.accent, gap: 3,
-  },
-  privacyLabel: { color: C.text, fontFamily: F.semi, fontSize: 15 },
-  privacyText: { color: C.muted, fontFamily: F.body, fontSize: 15, lineHeight: 21 },
+  points: { gap: S.lg, marginTop: S.xs },
+  point: { paddingLeft: 14, borderLeftWidth: 2, borderLeftColor: C.accent, gap: 2 },
+  pointLabel: { color: C.accent, fontFamily: F.monoSemi, fontSize: 11.5, letterSpacing: 1.2, textTransform: 'uppercase' },
+  pointText: { color: C.text, fontFamily: F.semi, fontSize: 17, lineHeight: 23, letterSpacing: -0.2 },
   actions: { gap: S.sm },
   primary: { backgroundColor: C.accent, borderRadius: R.md, minHeight: 56, alignItems: 'center', justifyContent: 'center' },
   primaryText: { color: C.onAccent, fontFamily: F.bold, fontSize: 17, letterSpacing: -0.2 },

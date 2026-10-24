@@ -47,7 +47,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 - **`locate` controlla prima le province italiane**, più precise del confine nazionale. Un punto in mare va alla zona più vicina entro circa 25 km, ma un punto dentro un altro paese non finisce mai in Italia.
 - **Le scale seguono dove sei** (richiesta del team, 17:45). Italia: regioni e province ISTAT. Altrove: le regioni di primo livello di Natural Earth (`world-regions.json`, 4.468 regioni, 1,3 MB); la scala Regionale mostra la tua regione. In Cina, la Nazionale mostra le regioni cinesi.
 - **Una sola schermata, niente schede** (richiesta del team, 17:40). Galleria, Interessi e Per te sono stati tolti:
-  - al primo avvio il benvenuto chiede la galleria, con l'opzione per escluderla;
+  - al primo avvio il benvenuto chiede la galleria, con l'opzione per escluderla; dice solo due cose, Gemma 4 che analizza le foto e la privacy (feedback del team, 19:00: c'era troppo testo);
   - lettura e analisi partono da sole e si vedono nell'intestazione;
   - gli interessi e gli eventi vivono nella scala Locale (pannello "Per te qui") e nella scheda di ogni luogo.
 - **Niente esagoni alla scala Locale:** erano utili al codice ma brutti da vedere (feedback del team). Tolti anche h3-js e il livello `hex`.
@@ -141,7 +141,13 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 18:55 · questo commit · "Sei qui" e cerchi di distanza, foto di un gruppo, Galleria a destra con consenso
+### 19:01 · questo commit · Benvenuto in due idee; annullato il pannello Locale alleggerito
+- **Cosa:** il benvenuto dice solo "Le tue foto diventano la tua mappa." e due righe: Gemma 4 analizza le tue foto e scopre cosa ami; privacy, le foto restano tue e mai nel cloud. Nel commit precedente (0bb62ac) è stato annullato 11214b9, il pannello Locale alleggerito.
+- **Perché:** il team intendeva il troppo testo del benvenuto, non il pannello Locale.
+- **Verifica:** `npx tsc --noEmit`; nel browser a 390×844 con dati cancellati: titolo, due righe GEMMA 4 e PRIVACY, "Usa la mia galleria", "Continua senza galleria".
+- **Da provare:** su Android.
+
+### 18:55 · 4bbb99a · "Sei qui" e cerchi di distanza, foto di un gruppo, Galleria a destra con consenso
 - **Cosa:** a scala Locale pallino blu "Sei qui" e cerchi a 5, 10 e 20 km; tocco su una miniatura con numero → griglia con tutte le sue foto (`src/screens/PhotoGroup.tsx`); Galleria in fondo a destra, apre tutte le foto o il consenso.
 - **Perché:** il team non vedeva dov'era a scala Locale né quanto erano lontani gli eventi; voleva vedere le foto dietro il numero; Galleria attaccata a Linea del tempo confondeva.
 - **Verifica:** `npx tsc --noEmit`, `check-visited`, `npx expo export --platform android`. Nel browser a 390×844: Locale con "Sei qui" e cerchi 5/10/20 km; tocco sulla miniatura "3" → 3 foto di Treviso; Galleria → 45 foto; "Smetti di usare la galleria" → riquadro del consenso con "Usa la mia galleria".
