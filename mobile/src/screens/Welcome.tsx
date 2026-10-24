@@ -1,6 +1,6 @@
 // First launch: asks whether the app may read the photo gallery. Without it the map still works:
-// you mark places by hand and the GPS marks where you are. One sentence says what the app is, then
-// the two ideas that matter: Gemma 4 looks at your photos, and they stay yours.
+// you mark places by hand and the GPS marks where you are. The title is the whole product in three
+// beats (map, interests, events); the panel says the two ideas that matter: Gemma 4 and privacy.
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { C, F, R, S } from '../theme';
 
@@ -20,20 +20,16 @@ export function Welcome({ onUseGallery, onSkip, topInset, bottomInset }: Props) 
       </View>
 
       <View style={styles.body}>
-        <Text style={styles.kicker}>Dal mondo al tuo quartiere</Text>
-        <Text style={styles.title}>Le tue foto diventano la tua mappa.</Text>
-        <Text style={styles.text}>
-          Mantide legge data e posizione delle foto che hai già e colora i posti dove sei stato. Poi ti propone
-          eventi vicino a te, scelti in base a cosa ami.
-        </Text>
+        <Text style={styles.title}>Dove sei stato, cosa ami, cosa fare vicino a te.</Text>
+        <Text style={styles.text}>Mantide lo scopre dalle foto che hai già.</Text>
         <View style={styles.points}>
           <View style={styles.point}>
             <Text style={styles.pointLabel}>Gemma 4</Text>
-            <Text style={styles.pointText}>Guarda cosa fotografi e capisce le tue passioni: street art, montagna, cibo…</Text>
+            <Text style={styles.pointText}>Capisce le tue passioni da cosa fotografi.</Text>
           </View>
           <View style={[styles.point, styles.pointRule]}>
             <Text style={styles.pointLabel}>Privacy</Text>
-            <Text style={styles.pointText}>Tutto succede sul tuo dispositivo: le foto non vanno nel cloud e restano tue.</Text>
+            <Text style={styles.pointText}>Le foto restano tue, mai nel cloud.</Text>
           </View>
         </View>
       </View>
@@ -45,7 +41,7 @@ export function Welcome({ onUseGallery, onSkip, topInset, bottomInset }: Props) 
         <Pressable onPress={onSkip} style={({ pressed }) => [styles.secondary, pressed && styles.pressed]} accessibilityRole="button">
           <Text style={styles.secondaryText}>Continua senza galleria</Text>
         </Pressable>
-        <Text style={styles.note}>Puoi cambiare idea quando vuoi dal pulsante Galleria.</Text>
+        <Text style={styles.note}>Puoi cambiare idea da Galleria.</Text>
       </View>
     </View>
   );
@@ -64,7 +60,6 @@ const styles = StyleSheet.create({
   wordmark: { color: C.text, fontFamily: F.bold, fontSize: 18, letterSpacing: -0.3 },
   // Centred between the brand and the buttons: no empty band on top.
   body: { flex: 1, justifyContent: 'center', gap: S.md, paddingVertical: S.xl },
-  kicker: { color: C.accent, fontFamily: F.monoSemi, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase' },
   title: { color: C.text, fontFamily: F.display, fontSize: 36, lineHeight: 39, letterSpacing: -1.3 },
   text: { color: C.muted, fontFamily: F.body, fontSize: 16, lineHeight: 23, maxWidth: 520 },
   // The two promises in one ruled panel, like the readout at the top of the map.

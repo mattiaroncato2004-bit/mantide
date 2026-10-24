@@ -47,7 +47,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 - **`locate` controlla prima le province italiane**, più precise del confine nazionale. Un punto in mare va alla zona più vicina entro circa 25 km, ma un punto dentro un altro paese non finisce mai in Italia.
 - **Le scale seguono dove sei** (richiesta del team, 17:45). Italia: regioni e province ISTAT. Altrove: le regioni di primo livello di Natural Earth (`world-regions.json`, 4.468 regioni, 1,3 MB); la scala Regionale mostra la tua regione. In Cina, la Nazionale mostra le regioni cinesi.
 - **Una sola schermata, niente schede** (richiesta del team, 17:40). Galleria, Interessi e Per te sono stati tolti:
-  - al primo avvio il benvenuto chiede la galleria, con l'opzione per escluderla; una frase sull'idea, poi le due cose che contano, Gemma 4 che analizza le foto e la privacy, in un riquadro (feedback del team, 19:00–19:02);
+  - al primo avvio il benvenuto chiede la galleria, con l'opzione per escluderla; il titolo riassume il prodotto (dove sei stato, cosa ami, cosa fare vicino a te), poi Gemma 4 e privacy in un riquadro, una riga ciascuno (feedback del team, 19:00–19:06);
   - lettura e analisi partono da sole e si vedono nell'intestazione;
   - gli interessi e gli eventi vivono nella scala Locale (pannello "Per te qui") e nella scheda di ogni luogo.
 - **Niente esagoni alla scala Locale:** erano utili al codice ma brutti da vedere (feedback del team). Tolti anche h3-js e il livello `hex`.
@@ -141,7 +141,12 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 19:03 · questo commit · Benvenuto: una frase sull'idea e un riquadro Gemma 4 / Privacy
+### 19:07 · questo commit · Benvenuto: il titolo riassume il prodotto
+- **Cosa:** titolo "Dove sei stato, cosa ami, cosa fare vicino a te." (mappa, interessi, eventi), una riga "Mantide lo scopre dalle foto che hai già.", riquadro Gemma 4 / Privacy a una riga ciascuno. Tolti la scritta sopra il titolo e il paragrafo.
+- **Perché:** il team trovava ancora troppo testo e un titolo che non riassumeva il progetto.
+- **Verifica:** `npx tsc --noEmit`; nel browser a 390×844 con dati cancellati.
+
+### 19:03 · add25f8 · Benvenuto: una frase sull'idea e un riquadro Gemma 4 / Privacy
 - **Cosa:** il testo sta al centro tra marchio e pulsanti (prima in fondo, con un vuoto in alto); sopra il titolo "Dal mondo al tuo quartiere"; una frase spiega l'idea (data e posizione delle foto → posti colorati → eventi vicini su misura); Gemma 4 e Privacy in un riquadro a due righe.
 - **Perché:** il team trovava la versione delle 19:01 vuota in alto e troppo scarna: serve una frase che dica cos'è il progetto.
 - **Verifica:** `npx tsc --noEmit`; nel browser a 390×844 con dati cancellati, tutto in una schermata senza scorrere.
