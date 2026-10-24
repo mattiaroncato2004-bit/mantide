@@ -1,7 +1,6 @@
 // The local scale's panel: events around you chosen from your interests, with the interests
 // Gemma found in your photos. Tapping an event dot on the map brings its card first; tapping a
-// card shows the event on the map. Kept light: 3 interests, one line of why per card; where Gemma
-// runs is said in the Galleria screen.
+// card shows the event on the map.
 import { useEffect, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, type ScrollViewInstance } from 'react-native';
 import { labelOf, type InterestId } from '../ai/interests';
@@ -15,6 +14,7 @@ type Props = {
   selectedEvent: string | null;
   onSelectEvent: (id: string) => void;
   status: string; // shown when there is nothing to recommend yet
+  deviceNote: string; // where Gemma runs
   onRemoveInterest: (id: InterestId) => void;
   bottomInset: number;
 };
@@ -22,7 +22,7 @@ type Props = {
 const day = (iso: string) => String(new Date(iso).getDate());
 const month = (iso: string) => new Date(iso).toLocaleDateString('it-IT', { month: 'short' }).replace('.', '');
 
-export function LocalPanel({ place, interests, recommendations, selectedEvent, onSelectEvent, status, onRemoveInterest, bottomInset }: Props) {
+export function LocalPanel({ place, interests, recommendations, selectedEvent, onSelectEvent, status, deviceNote, onRemoveInterest, bottomInset }: Props) {
   const cards = selectedEvent
     ? [...recommendations].sort((a, b) => Number(b.event.id === selectedEvent) - Number(a.event.id === selectedEvent))
     : recommendations;
@@ -34,12 +34,11 @@ export function LocalPanel({ place, interests, recommendations, selectedEvent, o
       <View style={styles.head}>
         <Text style={styles.label}>Per te qui</Text>
         <Text style={styles.title} numberOfLines={1}>{place}</Text>
-        <Text style={styles.sample}>eventi di esempio</Text>
       </View>
 
       {interests.length > 0 && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          {interests.slice(0, 3).map((i) => (
+          {interests.slice(0, 6).map((i) => (
             <Pressable
               key={i.id}
               onPress={() => onRemoveInterest(i.id)}
@@ -49,6 +48,7 @@ export function LocalPanel({ place, interests, recommendations, selectedEvent, o
               accessibilityLabel={`Togli ${labelOf(i.id)} dai tuoi interessi`}
             >
               <Text style={styles.chipText}>{labelOf(i.id)}</Text>
+              <Text style={styles.chipCount}>{i.photoCount}</Text>
               <Text style={styles.chipX}>✕</Text>
             </Pressable>
           ))}
@@ -78,7 +78,7 @@ export function LocalPanel({ place, interests, recommendations, selectedEvent, o
                     <Text style={styles.metaText}>{Math.round(r.distanceKm)} km</Text>
                     <Text style={styles.metaText}>{r.event.price}</Text>
                   </View>
-                  <Text style={styles.why} numberOfLines={1}>{why(r)}</Text>
+                  <Text style={styles.why} numberOfLines={2}>{why(r)}</Text>
                 </View>
               </Pressable>
             );
@@ -87,6 +87,7 @@ export function LocalPanel({ place, interests, recommendations, selectedEvent, o
       ) : (
         <Text style={styles.status}>{status}</Text>
       )}
+      <Text style={styles.note}>{deviceNote} Eventi di esempio, inventati per la demo.</Text>
     </View>
   );
 }
@@ -106,6 +107,7 @@ const styles = StyleSheet.create({
     paddingVertical: 7, paddingLeft: 10, paddingRight: 9, backgroundColor: C.card, borderWidth: 1, borderColor: C.line,
   },
   chipText: { color: C.text, fontFamily: F.medium, fontSize: 13.5 },
+  chipCount: { color: C.accent, fontFamily: F.monoMedium, fontSize: 12, fontVariant: ['tabular-nums'] },
   chipX: { color: C.faint, fontSize: 10, marginLeft: 1 },
   pressed: { opacity: 0.6 },
   cards: { gap: S.sm, paddingHorizontal: S.lg },
@@ -126,5 +128,5 @@ const styles = StyleSheet.create({
   metaText: { color: C.muted, fontFamily: F.mono, fontSize: 11.5, flexShrink: 1 },
   why: { color: C.accent, fontFamily: F.medium, fontSize: 13.5, lineHeight: 18 },
   status: { color: C.muted, fontFamily: F.body, fontSize: 15, lineHeight: 21, paddingHorizontal: S.lg },
-  sample: { marginLeft: 'auto', color: C.faint, fontFamily: F.mono, fontSize: 10.5 },
+  note: { color: C.faint, fontFamily: F.body, fontSize: 11.5, lineHeight: 15, paddingHorizontal: S.lg },
 });

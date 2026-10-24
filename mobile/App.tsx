@@ -508,6 +508,7 @@ function Home() {
             selectedEvent={selectedEvent}
             onSelectEvent={setSelectedEvent}
             status={localStatus}
+            deviceNote={whereGemmaRuns()}
             onRemoveInterest={(id) => setRemoved((r) => [...r, id])}
             bottomInset={insets.bottom}
           />
@@ -533,18 +534,15 @@ function Home() {
           title="La tua galleria"
           notice={
             choice === 'all' ? (
-              <View style={styles.consentLink}>
-                <Text style={styles.consentText}>{whereGemmaRuns()}</Text>
-                <Pressable onPress={skipGallery} accessibilityRole="button">
-                  <Text style={styles.consentLinkText}>Smetti di usare la galleria</Text>
-                </Pressable>
-              </View>
+              <Pressable onPress={skipGallery} style={styles.consentLink} accessibilityRole="button">
+                <Text style={styles.consentLinkText}>Smetti di usare la galleria</Text>
+              </Pressable>
             ) : (
               <View style={styles.consent}>
                 <Text style={styles.consentTitle}>La galleria non è collegata</Text>
                 <Text style={styles.consentText}>
                   Collegala per vedere qui le tue foto, segnare sulla mappa dove le hai scattate e ricevere eventi su misura.
-                  {' '}{whereGemmaRuns()}
+                  Gemma le guarda sul tuo dispositivo, mai nel cloud.
                 </Text>
                 <Pressable onPress={allowGallery} style={({ pressed }) => [styles.consentButton, pressed && styles.pressed]} accessibilityRole="button">
                   <Text style={styles.consentButtonText}>Usa la mia galleria</Text>
@@ -669,7 +667,7 @@ const styles = StyleSheet.create({
   consentText: { color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 21 },
   consentButton: { marginTop: 6, minHeight: 48, borderRadius: R.md, backgroundColor: C.accent, alignItems: 'center', justifyContent: 'center' },
   consentButtonText: { color: C.onAccent, fontFamily: F.bold, fontSize: 16 },
-  consentLink: { width: '100%', paddingHorizontal: 2, paddingBottom: 12, gap: 6 },
+  consentLink: { width: '100%', paddingHorizontal: 2, paddingBottom: 12 },
   consentLinkText: { color: C.muted, fontFamily: F.mono, fontSize: 12, textDecorationLine: 'underline' },
   timelineButton: { backgroundColor: C.surface, borderRadius: R.md,
     borderWidth: 1, borderColor: C.line, paddingVertical: 10, paddingHorizontal: 12,

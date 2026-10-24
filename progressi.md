@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 19:00. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
@@ -60,7 +60,6 @@ Ultimo aggiornamento: 24 ottobre 2026, 19:00. Hackathon: prototipo alle 19:00, c
 - **Toccare una scheda evento la mostra sulla mappa** (feedback del team, 18:35): l'app manda `selectedEvent` alla pagina, che ingrandisce quel puntino e ci si centra a zoom 12 nella parte di mappa libera tra intestazione e pannello. Anche il tocco sul puntino passa per `selectedEvent`, quindi i due gesti fanno la stessa cosa.
 - **Linee dei viaggi** (`tripLines` in `src/map/mapHtml.ts`): le foto ordinate per data; più di 4 giorni senza foto chiudono un viaggio e ne aprono un altro. È l'idea "unire i luoghi in ordine cronologico" dei metadati.
 - **Miniature come in Foto di iPhone:** gruppi con il numero, che si separano zoomando. Le miniature (160 px, base64) si mandano alla pagina solo quando cambiano.
-- **Pannello Locale alleggerito** (feedback del team, 18:56, "overload di informazioni"): 3 interessi invece di 6 e senza numero (lo dice già la frase arancione delle schede), il perché su una riga, "eventi di esempio" accanto al titolo. La nota su dove gira Gemma è passata nella schermata Galleria, vicino al consenso.
 - **Miniatura con numero → tutte le sue foto** (feedback del team, 18:52): il tocco manda `{type: 'photos', ids}` (le foglie del gruppo, `getClusterLeaves`) e si apre `PhotoGroup`, griglia dalla più vecchia; ogni foto si apre a schermo intero. Prima il tocco zoomava sul gruppo.
 - **Galleria all'estrema destra, separata dagli strumenti della mappa** (feedback del team, 18:53): apre "La tua galleria" con tutte le foto. Se la galleria non è collegata mostra il consenso ("Usa la mia galleria"); se lo è, il link per smettere. Il benvenuto non si riapre più da lì.
 - **Scala Locale: "Sei qui" e cerchi di distanza** (feedback del team, 18:50): un pallino blu con alone, sopra foto ed eventi, nel punto da cui l'app misura le distanze (il centro della scala; senza GPS è H-FARM). Fino a 3 cerchi tratteggiati a distanze tonde (1, 2, 5, 10, 20, 50, 100 km) fino all'evento più lontano, con l'etichetta a nord-est. Blu perché è il colore della posizione in ogni app di mappe, e l'arancione è già di visitati ed eventi.
@@ -142,13 +141,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 19:00. Hackathon: prototipo alle 19:00, c
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 19:00 · questo commit · Pannello Locale più leggero
-- **Cosa:** `LocalPanel` con 3 interessi senza numeri, perché su una riga, senza la nota in fondo; `whereGemmaRuns()` nella schermata Galleria.
-- **Perché:** il team trovava la schermata principale sovraccarica.
-- **Verifica:** `npx tsc --noEmit`; nel browser a 390×844 la scala Locale mostra titolo, 2–3 interessi e le schede in meno spazio, con più mappa libera.
-- **Da provare:** su Android.
-
-### 18:55 · 4bbb99a · "Sei qui" e cerchi di distanza, foto di un gruppo, Galleria a destra con consenso
+### 18:55 · questo commit · "Sei qui" e cerchi di distanza, foto di un gruppo, Galleria a destra con consenso
 - **Cosa:** a scala Locale pallino blu "Sei qui" e cerchi a 5, 10 e 20 km; tocco su una miniatura con numero → griglia con tutte le sue foto (`src/screens/PhotoGroup.tsx`); Galleria in fondo a destra, apre tutte le foto o il consenso.
 - **Perché:** il team non vedeva dov'era a scala Locale né quanto erano lontani gli eventi; voleva vedere le foto dietro il numero; Galleria attaccata a Linea del tempo confondeva.
 - **Verifica:** `npx tsc --noEmit`, `check-visited`, `npx expo export --platform android`. Nel browser a 390×844: Locale con "Sei qui" e cerchi 5/10/20 km; tocco sulla miniatura "3" → 3 foto di Treviso; Galleria → 45 foto; "Smetti di usare la galleria" → riquadro del consenso con "Usa la mia galleria".
