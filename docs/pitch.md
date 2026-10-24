@@ -2,7 +2,7 @@
 
 Demo night del 24 ottobre, dalle 19:20. Sfide: 02 DigitalOcean (miglior progetto AI open source) e 03 Google (Best of Gemma 4). Qui c'è il discorso; i gesti esatti sull'app e le risposte alle domande sono in [demo.md](demo.md).
 
-Circa 700 parole: a voce, con la demo, stanno in 5 minuti.
+Circa 750 parole: a voce, con la demo, stanno in 5 minuti.
 
 ## 0:00 · Apertura (30 s)
 
@@ -31,6 +31,10 @@ Circa 700 parole: a voce, con la demo, stanno in 5 minuti.
 > La differenza con Instagram è una sola, ed è tutto: qui quella conoscenza lavora per voi, non per chi vi vende pubblicità.
 
 ## 2:15 · Demo (1 min 45 s)
+
+Prima del primo gesto (15 s):
+
+> Una nota onesta: Mantide è un'app Android, e il piano era farla girare qui sull'emulatore. Ma con il wifi instabile di oggi non siamo riusciti nemmeno a scaricare Gemma 4 sul computer dell'emulatore. Quindi vedete la stessa app, con lo stesso codice, nella sua versione per il browser, con Gemma 4 che gira davvero su questo Mac.
 
 | Gesto | Cosa dite |
 |---|---|

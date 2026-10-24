@@ -30,7 +30,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 | Risposte di Gemma sulle 45 foto demo (riserva) | fatto | col prompt attuale il tema giusto è tra gli interessi in 43 foto su 45, ed è il primo in 41 |
 | Copione della demo | fatto | schermate attese prese da `scripts/simulate-demo.ts`: 6 paesi · 6/20 regioni · 8/110 province; interessi in testa architettura 16, natura 12, street art 10; Per te Globale → Berlino, Locale → H-FARM Open Campus |
 | Versione browser della stessa app (demo con schermate e tasti) | fatto | provata in Playwright a 390×844, tutte le schermate: Galleria 45 foto in 13 luoghi; mappa "6 paesi · 6/20 regioni · 8/110 province" con miniature; Interessi con Gemma dal vivo su 44 foto, zero errori (architettura 14, natura 11, street art 9, cibo 9); Per te Globale → Berlino; scheda Veneto (15 foto, H-FARM Open Campus); anteprima della foto |
-| Prima compilazione e prova sull'emulatore | **da fare** | – |
+| Prima compilazione e prova sull'emulatore | **non fatta per la demo** | il wifi instabile dell'evento non ha permesso di scaricare Gemma 4 sul computer dell'emulatore: la demo usa la versione browser con Gemma sul Mac (lo dice anche il pitch) |
 | Gemma direttamente sul telefono | non fatto | serve un telefono da 8 GB |
 
 ## Decisioni e perché
@@ -141,7 +141,12 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 19:08 · questo commit · Pitch di 5 minuti
+### 19:09 · questo commit · Pitch: perché la demo è nel browser
+- **Cosa:** in `docs/pitch.md`, prima della demo, la nota sull'emulatore: con il wifi instabile non è stato possibile scaricare Gemma 4 sul computer dell'emulatore, quindi la demo è la stessa app nel browser con Gemma sul Mac. Aggiornata la riga dell'emulatore in "Stato attuale".
+- **Perché:** richiesta del team, per essere trasparenti con la giuria.
+- **Verifica:** rilettura del pitch.
+
+### 19:08 · 7205c7f · Pitch di 5 minuti
 - **Cosa:** `docs/pitch.md`: apertura, problema (app a pagamento, interessi da menu), intuizione (la galleria come l'algoritmo di Instagram, ma per te), demo, perché open source (foto e spostamenti sono i dati più privati), chiusura. In `docs/demo.md` corretto dove sta il pulsante Galleria.
 - **Perché:** richiesta del team per la demo night.
 - **Verifica:** prezzi dei concorrenti presi da `docs/ricerca.md`.
