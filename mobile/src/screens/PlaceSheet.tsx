@@ -3,12 +3,12 @@
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { why, type Recommendation } from '../events/recommend';
 import type { Photo } from '../gallery/photos';
-import { C } from '../theme';
+import { C, F, R, S } from '../theme';
 import type { Level, Source } from '../types';
 
 export type SelectedPlace = { level: Level; id: string; name: string };
 
-const LEVEL_LABEL: Record<Level, string> = { country: 'Paese', region: 'Regione', province: 'Provincia', hex: 'Zona' };
+const LEVEL_LABEL: Record<Level, string> = { country: 'Paese', region: 'Regione', province: 'Provincia' };
 
 type Props = {
   place: SelectedPlace;
@@ -21,48 +21,77 @@ type Props = {
   bottomInset: number;
 };
 
-function sourcesText(sources: Source[], photoCount: number): string {
-  if (!sources.length) return 'Non ancora visitato';
-  const parts = sources.map((s) =>
-    s === 'manual' ? 'segnato a mano' : s === 'gps' ? 'eri qui col GPS' : `${photoCount} ${photoCount === 1 ? 'foto' : 'foto'}`,
-  );
-  return `Visitato · ${parts.join(' · ')}`;
+function sourceTag(s: Source, photoCount: number): string {
+  return s === 'manual' ? 'segnato a mano' : s === 'gps' ? 'eri qui col GPS' : `${photoCount} foto`;
 }
 
-const date = (iso: string) => new Date(iso).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+function sourcesText(sources: Source[], photoCount: number): string {
+  if (!sources.length) return 'Non ancora visitato';
+  return `Visitato: ${sources.map((s) => sourceTag(s, photoCount)).join(', ')}`;
+}
+
+const day = (iso: string) => String(new Date(iso).getDate());
+const month = (iso: string) => new Date(iso).toLocaleDateString('it-IT', { month: 'short' }).replace('.', '');
 
 export function PlaceSheet({ place, sources, photos, recommendations, onToggleManual, onOpenPhoto, onClose, bottomInset }: Props) {
   const manual = sources.includes('manual');
+  const visited = sources.length > 0;
   return (
     <View style={[styles.sheet, { paddingBottom: bottomInset + 16 }]}>
       <View style={styles.head}>
         <View style={styles.headText}>
-          <Text style={styles.kicker}>{LEVEL_LABEL[place.level]}</Text>
-          <Text style={styles.title}>{place.name}</Text>
-          <Text style={styles.sources}>{sourcesText(sources, photos.length)}</Text>
+          <Text style={styles.level}>{LEVEL_LABEL[place.level]}</Text>
+          <Text style={styles.title} numberOfLines={2}>{place.name}</Text>
         </View>
-        <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel="Chiudi">
-          <Text style={styles.close}>✕</Text>
+        <Pressable
+          onPress={onClose}
+          hitSlop={8}
+          style={({ pressed }) => [styles.close, pressed && styles.pressed]}
+          accessibilityRole="button"
+          accessibilityLabel="Chiudi"
+        >
+          <Text style={styles.closeText}>✕</Text>
         </Pressable>
       </View>
 
+      <View style={styles.sources} accessible accessibilityLabel={sourcesText(sources, photos.length)}>
+        <View style={[styles.mark, visited && styles.markOn]} />
+        <Text style={[styles.state, !visited && styles.stateOff]}>{visited ? 'Visitato' : 'Non ancora visitato'}</Text>
+        {sources.map((s) => (
+          <View key={s} style={styles.tag}>
+            <Text style={styles.tagText}>{sourceTag(s, photos.length)}</Text>
+          </View>
+        ))}
+      </View>
+
       {photos.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photos}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photos} style={styles.photoStrip}>
           {photos.slice(0, 12).map((p) => (
-            <Pressable key={p.id} onPress={() => onOpenPhoto(p.id)} accessibilityRole="imagebutton">
+            <Pressable key={p.id} onPress={() => onOpenPhoto(p.id)} accessibilityRole="imagebutton" style={({ pressed }) => pressed && styles.pressed}>
               <Image source={{ uri: p.uri }} style={styles.photo} />
             </Pressable>
           ))}
         </ScrollView>
       )}
 
-      {recommendations.slice(0, 2).map((r) => (
-        <View key={r.event.id} style={styles.event}>
-          <Text style={styles.eventMeta}>{date(r.event.start)} · {r.event.city}</Text>
-          <Text style={styles.eventTitle}>{r.event.title}</Text>
-          <Text style={styles.why}>{why(r)}</Text>
+      {recommendations.length > 0 && (
+        <View style={styles.events}>
+          <Text style={styles.sectionLabel}>Eventi per te</Text>
+          {recommendations.slice(0, 2).map((r) => (
+            <View key={r.event.id} style={styles.event}>
+              <View style={styles.date}>
+                <Text style={styles.day}>{day(r.event.start)}</Text>
+                <Text style={styles.month}>{month(r.event.start)}</Text>
+              </View>
+              <View style={styles.eventBody}>
+                <Text style={styles.eventTitle} numberOfLines={2}>{r.event.title}</Text>
+                <Text style={styles.eventCity}>{r.event.city}</Text>
+                <Text style={styles.why} numberOfLines={2}>{why(r)}</Text>
+              </View>
+            </View>
+          ))}
         </View>
-      ))}
+      )}
 
       <Pressable
         onPress={onToggleManual}
@@ -79,25 +108,42 @@ export function PlaceSheet({ place, sources, photos, recommendations, onToggleMa
 
 const styles = StyleSheet.create({
   sheet: {
-    position: 'absolute', left: 0, right: 0, bottom: 0,
-    backgroundColor: C.bg, borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    borderTopWidth: 1, borderColor: C.line, paddingTop: 16, paddingHorizontal: 16, gap: 12,
+    backgroundColor: C.bg, borderTopLeftRadius: R.lg, borderTopRightRadius: R.lg,
+    borderTopWidth: 1, borderColor: C.line, paddingTop: 14, paddingHorizontal: S.lg, gap: S.md,
+    boxShadow: '0 -12px 32px rgba(2, 8, 12, 0.45)',
   },
-  head: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  headText: { flex: 1, gap: 2 },
-  kicker: { color: C.accent, fontSize: 12, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' },
-  title: { color: C.text, fontSize: 22, fontWeight: '700' },
-  sources: { color: C.muted, fontSize: 14 },
-  close: { color: C.muted, fontSize: 18, padding: 4 },
-  photos: { gap: 6 },
-  photo: { width: 72, height: 72, borderRadius: 8, backgroundColor: C.line },
-  event: { backgroundColor: C.card, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: C.line, gap: 3 },
-  eventMeta: { color: C.muted, fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
-  eventTitle: { color: C.text, fontSize: 15, fontWeight: '700' },
-  why: { color: C.accent, fontSize: 13, fontWeight: '600' },
-  button: { backgroundColor: C.accent, borderRadius: 999, paddingVertical: 12, alignItems: 'center' },
-  buttonOff: { backgroundColor: 'transparent', borderWidth: 1, borderColor: C.line },
-  pressed: { opacity: 0.7 },
-  buttonText: { color: C.onAccent, fontWeight: '700', fontSize: 15 },
+  head: { flexDirection: 'row', alignItems: 'flex-start', gap: S.md },
+  headText: { flex: 1 },
+  level: { color: C.muted, fontFamily: F.monoMedium, fontSize: 12 },
+  title: { color: C.text, fontFamily: F.display, fontSize: 32, lineHeight: 35, letterSpacing: -1.1 },
+  close: {
+    width: 44, height: 44, borderRadius: R.sm, borderWidth: 1, borderColor: C.line,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  closeText: { color: C.muted, fontSize: 14 },
+  pressed: { opacity: 0.6 },
+  sources: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: S.sm, marginTop: -4 },
+  mark: { width: 9, height: 9, borderRadius: 2, borderWidth: 1.5, borderColor: C.faint, transform: [{ rotate: '45deg' }] },
+  markOn: { backgroundColor: C.accent, borderColor: C.accent },
+  state: { color: C.text, fontFamily: F.semi, fontSize: 15 },
+  stateOff: { color: C.muted },
+  tag: { borderRadius: R.sm, borderWidth: 1, borderColor: C.lineStrong, paddingVertical: 3, paddingHorizontal: 7 },
+  tagText: { color: C.muted, fontFamily: F.mono, fontSize: 11.5 },
+  photoStrip: { marginHorizontal: -S.lg },
+  photos: { gap: 6, paddingHorizontal: S.lg },
+  photo: { width: 76, height: 76, borderRadius: R.sm, backgroundColor: C.card },
+  events: { gap: 0 },
+  sectionLabel: { color: C.muted, fontFamily: F.medium, fontSize: 13.5, marginBottom: 4 },
+  event: { flexDirection: 'row', paddingVertical: 8, borderTopWidth: 1, borderTopColor: C.line },
+  date: { width: 44, marginRight: 10 },
+  day: { color: C.text, fontFamily: F.display, fontSize: 22, lineHeight: 24, letterSpacing: -0.5 },
+  month: { color: C.muted, fontFamily: F.monoMedium, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.6 },
+  eventBody: { flex: 1, gap: 2 },
+  eventTitle: { color: C.text, fontFamily: F.bold, fontSize: 15.5, lineHeight: 19, letterSpacing: -0.2 },
+  eventCity: { color: C.muted, fontFamily: F.mono, fontSize: 11.5 },
+  why: { color: C.accent, fontFamily: F.medium, fontSize: 13.5, lineHeight: 18 },
+  button: { backgroundColor: C.accent, borderRadius: R.md, minHeight: 52, alignItems: 'center', justifyContent: 'center' },
+  buttonOff: { backgroundColor: 'transparent', borderWidth: 1, borderColor: C.lineStrong },
+  buttonText: { color: C.onAccent, fontFamily: F.bold, fontSize: 16.5, letterSpacing: -0.2 },
   buttonTextOff: { color: C.text },
 });

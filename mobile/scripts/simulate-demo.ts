@@ -16,7 +16,8 @@ const places = photos.map((p) => locate(p.lat, p.lon));
 const countries = new Set(places.map((p) => p.country).filter(Boolean));
 const regions = new Set(places.map((p) => p.region).filter(Boolean));
 const provinces = new Set(places.map((p) => p.province).filter(Boolean));
-console.log(`Mappa: ${countries.size} paesi · ${regions.size}/${TOTALS.region} regioni · ${provinces.size}/${TOTALS.province} province`);
+const italianRegions = places.filter((p) => p.country === 'ITA').map((p) => p.region);
+console.log(`Mappa: ${countries.size} paesi · ${regions.size} regioni (${new Set(italianRegions).size}/${TOTALS.region} in Italia) · ${provinces.size}/${TOTALS.province} province`);
 console.log('  paesi:', [...countries].map((c) => nameOf('country', c)).join(', '));
 console.log('  province:', [...provinces].map((p) => nameOf('province', p)).join(', '));
 

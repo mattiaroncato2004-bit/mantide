@@ -82,10 +82,12 @@ Pannello **⋯ (Extended controls) → Location**: cercate H-FARM, Roncade e pre
 ## 9. Verifica finale
 
 1. All'avvio dell'app consentite la posizione.
-2. **Galleria → Leggi la galleria**; al permesso foto scegliete **"Consenti tutte"**, non "Seleziona foto".
-3. **Mappa**: il contatore dice **"6 paesi · 6/20 regioni · 8/110 province"**; zoomando compaiono le miniature delle foto.
-4. **Interessi → Analizza le foto con Gemma**: circa 5 minuti per 44 foto. In testa **architettura, natura, street art e cibo**, ognuno con circa 9–16 foto: Gemma analizza dal vivo, e i numeri cambiano di poco da un giro all'altro.
-5. **Per te**: su scala **Globale** il primo evento è "Berlin Wall Murals & Beats"; su scala **Locale** è "H-FARM Open Campus".
+2. Al benvenuto scegliete **"Usa la mia galleria"**; al permesso foto **"Consenti tutte"**, non "Seleziona foto". L'intestazione mostra la lettura e poi il lavoro di Gemma (circa 5 minuti per 44 foto).
+3. **Mappa**: il contatore dice **"6 paesi · 6 regioni · 8 province"**; zoomando compaiono le miniature delle foto.
+4. Scala **Locale**: in basso "Per te qui" con in testa **architettura, natura, street art e cibo** (circa 9–16 foto ciascuno: i numeri cambiano di poco da un'analisi all'altra) e come primo evento "H-FARM Open Campus".
+5. Scala **Globale**, tocco sulla **Germania**: nella scheda c'è "Berlin Wall Murals & Beats".
+6. **Linea del tempo**: il viaggio si riproduce da solo fino a "foto 45 di 45"; il cursore si trascina col dito.
+7. Tocco sui tre numeri in alto: **Passaporto** con livello Viaggiatore e "Ancora 4 paesi per diventare Esploratore".
 
 Gli stessi numeri si ottengono senza Android con `cd mobile && npx tsx scripts/simulate-demo.ts`. Poi registrate lo schermo mentre fate questo giro (Android Studio: **Running Devices → registra**): è il video di riserva della demo.
 

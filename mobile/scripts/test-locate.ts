@@ -17,6 +17,16 @@ const cases: [string, number, number, ReturnType<typeof locate>][] = [
 ];
 
 for (const [name, lat, lon, expected] of cases) {
-  assert.deepEqual(locate(lat, lon), expected, name);
+  const got = locate(lat, lon);
+  assert.deepEqual(expected.country === 'ITA' ? got : { country: got.country }, expected, name);
   console.log('ok', name, JSON.stringify(expected));
 }
+
+// Regions outside Italy (Natural Earth admin-1).
+const beijing = locate(39.9042, 116.4074);
+assert.equal(beijing.country, 'CHN');
+assert.ok(beijing.region?.startsWith('CHN-'), 'Pechino has a Chinese region');
+const lisbon = locate(38.7223, -9.1393);
+assert.equal(lisbon.country, 'PRT');
+assert.ok(lisbon.region, 'Lisbona has a region');
+console.log('ok regions abroad', JSON.stringify(beijing), JSON.stringify(lisbon));

@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 17:31. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 17:56. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
@@ -11,6 +11,12 @@ Ultimo aggiornamento: 24 ottobre 2026, 17:31. Hackathon: prototipo alle 19:00, c
 | Pezzo | Stato | Verificato come |
 |---|---|---|
 | Configurazione Android (permessi galleria e GPS, HTTP verso il computer) | fatto | manifest risolto con `npx expo config --type introspect` |
+| Una sola schermata: mappa con benvenuto al primo avvio, galleria e Gemma automatici, intestazione con l'avanzamento | fatto | browser a 390×844: benvenuto, lettura galleria, scala Locale con eventi |
+| Scala Locale: niente esagoni, eventi per te come puntini e pannello "Per te qui" con interessi | fatto | browser: "Per te qui · Treviso", primo evento H-FARM Open Campus, zoom 9 su te e gli eventi |
+| Linea del tempo: cursore da trascinare, ▶ per riprodurre, mappa fino alla data scelta, linea arancione e punta animata del viaggio | fatto | browser: riproduzione da "foto 1" a "foto 45 di 45", linee tra Italia, Lisbona, Berlino, Barcellona, Parigi, Londra |
+| Ridisegno con taste-skill v2 e ui-ux-pro-max: Bricolage Grotesque + IBM Plex Mono, pannelli d'inchiostro con filetti, un solo accento arancione | fatto | browser: tutte le schermate a 390×844 |
+| Passaporto: livello, paesi e % delle terre emerse, continenti, regioni e province del paese in cui sei, regioni per paese | fatto | `npx tsx scripts/test-passport.ts`: demo → 6/234 paesi, 1,3% terre emerse, Viaggiatore (mancano 4 a Esploratore), Italia 6/20 regioni e 8/110 province |
+| Regioni di tutti i paesi (Natural Earth admin-1) alle scale Nazionale e Regionale | fatto | `test-locate.ts`: Pechino → regione cinese, Lisbona → regione portoghese |
 | Mappa: globo, 4 scale, tocco per segnare, GPS, contatore | fatto | anteprima nel browser a 390×760 nelle 4 scale |
 | Scheda luogo: tocco su una zona → come è stata visitata, foto, eventi lì, pulsante per segnarla | fatto | `npx tsc --noEmit`; `scripts/simulate-demo.ts` (Veneto: 15 foto, primo evento H-FARM Open Campus) |
 | Linee dei viaggi: le foto unite in ordine cronologico | fatto | anteprima nel browser: linea tratteggiata tra le foto di Venezia |
@@ -18,8 +24,8 @@ Ultimo aggiornamento: 24 ottobre 2026, 17:31. Hackathon: prototipo alle 19:00, c
 | Punto → paese, regione, provincia (`locate`) | fatto | `npx tsx scripts/test-locate.ts`: 11 casi, compresi Lido di Venezia, Burano, Nizza |
 | Lettura della galleria e schermata Galleria | fatto | solo `npx tsc --noEmit` |
 | Gemma 4 E2B sul computer (`litert-lm serve`) | fatto | Mac M3 8 GB: 6–9 s a foto da 384 px, primo avvio 1–2 min |
-| Analisi delle foto nell'app, schermata Interessi | fatto | `npx tsx scripts/test-parse.ts` (lettura delle risposte, 6 casi); il resto solo `npx tsc --noEmit` |
-| Eventi inventati (46), consigli per scala, schermata Per te | fatto | `npx tsx scripts/test-recommend.ts` |
+| Analisi delle foto nell'app (ora automatica, senza schermata Interessi) | fatto | `npx tsx scripts/test-parse.ts` (lettura delle risposte, 6 casi); il resto solo `npx tsc --noEmit` |
+| Eventi inventati (46) e consigli (ora nella scala Locale e nella scheda luogo, senza schermata Per te) | fatto | `npx tsx scripts/test-recommend.ts` |
 | Galleria dimostrativa inventata (45 foto) | fatto | EXIF riletti per tutte le foto |
 | Risposte di Gemma sulle 45 foto demo (riserva) | fatto | col prompt attuale il tema giusto è tra gli interessi in 43 foto su 45, ed è il primo in 41 |
 | Copione della demo | fatto | schermate attese prese da `scripts/simulate-demo.ts`: 6 paesi · 6/20 regioni · 8/110 province; interessi in testa architettura 16, natura 12, street art 10; Per te Globale → Berlino, Locale → H-FARM Open Campus |
@@ -39,16 +45,26 @@ Ultimo aggiornamento: 24 ottobre 2026, 17:31. Hackathon: prototipo alle 19:00, c
 **Galleria e luoghi**
 - **`ACCESS_MEDIA_LOCATION` attivo** (`isAccessMediaLocationEnabled` in `app.json`): senza, Android toglie il GPS dalle foto. Verificato nel codice di expo-media-library: lo chiede a runtime e legge il file con `MediaStore.setRequireOriginal`.
 - **`locate` controlla prima le province italiane**, più precise del confine nazionale. Un punto in mare va alla zona più vicina entro circa 25 km, ma un punto dentro un altro paese non finisce mai in Italia.
-- **Regioni e province solo per l'Italia.** Altrove le scale Nazionale e Regionale mostrano il paese; la scala Locale (esagoni H3) funziona ovunque.
+- **Le scale seguono dove sei** (richiesta del team, 17:45). Italia: regioni e province ISTAT. Altrove: le regioni di primo livello di Natural Earth (`world-regions.json`, 4.468 regioni, 1,3 MB); la scala Regionale mostra la tua regione. In Cina, la Nazionale mostra le regioni cinesi.
+- **Una sola schermata, niente schede** (richiesta del team, 17:40). Galleria, Interessi e Per te sono stati tolti:
+  - al primo avvio il benvenuto chiede la galleria, con l'opzione per escluderla;
+  - lettura e analisi partono da sole e si vedono nell'intestazione;
+  - gli interessi e gli eventi vivono nella scala Locale (pannello "Per te qui") e nella scheda di ogni luogo.
+- **Niente esagoni alla scala Locale:** erano utili al codice ma brutti da vedere (feedback del team). Tolti anche h3-js e il livello `hex`.
 
 **Mappa**
 - **MapLibre GL JS dentro una WebView:** ha il globo, colora zone da GeoJSON, e la stessa pagina si prova nel browser.
 - **Sfondo Sentinel-2 cloudless 2016 di EOX (CC BY 4.0):** aspetto verde e fisico, licenza aperta. Le versioni dal 2018 in poi sono non commerciali: non usarle.
 - **Zone visitate quasi trasparenti con bordo arancione, non visitate sotto un velo chiaro:** il colore pieno sopra il satellite diventava marrone.
+- **Eventi alla scala Locale come puntini arancioni** (`events` nella pagina della mappa): il tocco manda `{type: 'event', id}` e la scheda di quell'evento passa in testa al pannello. L'inquadratura comprende te e gli eventi, sopra il pannello.
 - **Linee dei viaggi** (`tripLines` in `src/map/mapHtml.ts`): le foto ordinate per data; più di 4 giorni senza foto chiudono un viaggio e ne aprono un altro. È l'idea "unire i luoghi in ordine cronologico" dei metadati.
 - **Miniature come in Foto di iPhone:** gruppi con il numero, che si separano zoomando. Le miniature (160 px, base64) si mandano alla pagina solo quando cambiano.
+- **Linea del tempo** (richiesta del team, 17:51): cursore costruito su PanResponder (niente libreria nativa, funziona anche nel browser). La pagina della mappa riceve `timeline: {until}`, mostra solo le foto fino a lì, disegna la linea `journey` e anima la punta (`.tl-head`, marker HTML sopra le miniature) dal posto precedente al nuovo in 0,8 s, con la mappa che la segue. Mentre è aperta, pannello Locale e scheda luogo restano chiusi.
+- **Ridisegno "strumento da rilievo"** (richiesta del team, 17:46, con le skill taste-skill v2 `design-taste-frontend` e `ui-ux-pro-max`): token in `src/theme.ts` (colori `C`, font `F`, raggi `R` 6/10/18, spaziature `S` su griglia di 4); Bricolage Grotesque per titoli e luoghi, IBM Plex Mono per numeri, date e distanze; la scala attiva è bianco carta, l'arancione resta per "visitato" e le azioni principali.
+- **Passaporto per gli amanti del viaggio** (richiesta del team, 17:48): si apre toccando il contatore. Ogni numero ha accanto quanto manca. Livelli per numero di paesi: Turista 0, Viaggiatore 3, Esploratore 10, Giramondo 25, Leggenda 50. I paesi contati sono 234 (Natural Earth senza le 8 isole in "mare aperto"); la superficie è stimata da `locate.ts` su proiezione equirettangolare (Italia ≈ 300.000 km², verificato nel test).
+- **Contatore senza totali** ("6 paesi · 6 regioni · 8 province"): con le regioni del mondo "x/20" non ha più senso, e la riga stava su due righe.
 - **Toccare una zona apre la scheda del luogo, non segna subito:** prima vedi come è stata visitata, le foto e gli eventi lì, poi decidi se segnarla. Gli eventi di un luogo usano `recommendIn`, che condivide il punteggio con `recommend`.
-- **Protocollo app ↔ mappa:** l'app chiama `window.mantide.setState(...)`; la pagina risponde con `ready`, `toggle` (zona toccata), `photo` (foto toccata) ed `error`.
+- **Protocollo app ↔ mappa:** l'app chiama `window.mantide.setState(...)`; la pagina risponde con `ready`, `toggle` (zona toccata), `photo` (foto toccata), `event` (evento toccato) ed `error`.
 - **Confini scritti dentro la pagina** (`withGeo` in `src/map/mapHtml.ts`), non iniettati con `injectedJavaScriptBeforeContentLoaded`: su Android quella funzione dipende dalla versione della WebView di sistema, e se parte in ritardo la mappa resta senza zone.
 
 **Gemma**
@@ -88,6 +104,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 17:31. Hackathon: prototipo alle 19:00, c
 - **La mappa ha bisogno di internet:** MapLibre, h3-js e le tile arrivano da CDN.
 
 **Dati e repo**
+- **I font (expo-font) hanno aggiunto un plugin in `app.json`:** chi aveva già compilato deve rifare `npx expo run:android`.
 - **Dopo un `git pull` che cambia `mobile/package.json` serve `npm install`** in `mobile/` (anche quando non serve ricompilare: le librerie web sono solo JavaScript).
 - **WhatsApp cancella il GPS** dalle foto: le foto vere si copiano via cavo o da Google Foto.
 - **Foto personali in `demo-photos/`, modelli in `models/`:** cartelle escluse da git.
@@ -114,6 +131,29 @@ Ultimo aggiornamento: 24 ottobre 2026, 17:31. Hackathon: prototipo alle 19:00, c
 ## Registro
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
+
+### 17:56 · questo commit · Una sola schermata, ridisegno, regioni del mondo, Passaporto, linea del tempo `[native: rebuild]`
+- **Cosa:**
+  - **Una sola schermata:**
+    - tolte le schede e le schermate Galleria, Interessi e Per te;
+    - aggiunti `Welcome.tsx` (galleria sì/no) e `LocalPanel.tsx` ("Per te qui");
+    - lettura della galleria e Gemma partono da sole, e l'avanzamento sta nell'intestazione.
+  - **Scala Locale senza esagoni** (via h3-js e livello `hex`), con gli eventi come puntini.
+  - **Regioni di tutto il mondo:** `world-regions.json` e `locate()` con le regioni estere; Nazionale e Regionale seguono il paese in cui sei.
+  - **Passaporto:** `src/stats/passport.ts` (con `COUNTRY_INFO`, `regionCount`, `countryOfRegion` in `locate.ts`) e `PassportSheet.tsx`.
+  - **Linea del tempo:** `TimelineBar.tsx`, e `timeline`/`journey`/`tl-head` nella pagina della mappa.
+  - **Ridisegno di un aiutante** con le skill di design: `theme.ts`, le schermate, gli stili di `App.tsx`, i font Bricolage Grotesque e IBM Plex Mono (expo-font, plugin aggiunto in `app.json`).
+  - Documentazione aggiornata.
+- **Perché:** richieste del team dalle 17:40 alle 17:51: niente quadratini, interessi dentro la scala Locale, niente sezione galleria, Nazionale in base a dove sei, UI meno "AI slop", statistiche da viaggiatore, linea del tempo.
+- **Verifica:**
+  - `npx tsc --noEmit`; `test-locate` (Pechino → regione cinese, Lisbona → portoghese); `test-parse`; `test-recommend`; `test-passport` (6/234 paesi, 1,3% terre emerse, Viaggiatore).
+  - `simulate-demo`; `npx expo export --platform android` (750 moduli); `npx expo-doctor` 20/20.
+  - Nel browser:
+    - benvenuto, scala Locale "Per te qui · Treviso" con zoom 9;
+    - Passaporto;
+    - linea del tempo da foto 1 a 45 con le linee del viaggio;
+    - scala Nazionale con le regioni della Cina.
+- **Da provare:** tutto sull'emulatore, dopo `npm install` e `npx expo run:android`.
 
 ### 17:31 · questo commit · La stessa app nel browser
 - **Cosa:**

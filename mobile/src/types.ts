@@ -2,8 +2,9 @@
 
 export type Scale = 'global' | 'national' | 'regional' | 'local';
 
-// The map level each scale colors: countries, Italian regions, Italian provinces, H3 hexagons.
-export type Level = 'country' | 'region' | 'province' | 'hex';
+// The map level the global, national and regional scales color: countries, Italian regions,
+// Italian provinces. The local scale colors nothing: it shows photos and events around you.
+export type Level = 'country' | 'region' | 'province';
 
 // How a place became visited.
 export type Source = 'manual' | 'gps' | 'photo';
@@ -22,7 +23,12 @@ export type MapState = {
   visited: Record<Level, string[]>;
   points: [number, number][]; // [lon, lat] of the current position
   photos: MapPhoto[];
+  events: MapEvent[]; // drawn at the local scale only
+  timeline: { until: number } | null; // only photos taken until then, with the journey animated
 };
 
 // A geotagged photo on the map. thumb is a small "data:image/jpeg;base64,..." URI (see map/thumbs.ts).
 export type MapPhoto = { id: string; lon: number; lat: number; takenAt: number; thumb?: string };
+
+// An event for you, as a dot on the map at the local scale.
+export type MapEvent = { id: string; lon: number; lat: number };

@@ -1,15 +1,16 @@
-// Finds the country, Italian region and Italian province that contain a point.
+// Finds the country, region and (in Italy) province that contain a point.
 // Plain ray casting with a bounding-box prefilter: no dependency, fast enough
 // for a few thousand photos on a phone.
 import countries from './countries.json';
 import regions from './it-regions.json';
 import provinces from './it-provinces.json';
+import worldRegions from './world-regions.json';
 
 type Ring = number[][];
 type Geometry =
   | { type: 'Polygon'; coordinates: Ring[] }
   | { type: 'MultiPolygon'; coordinates: Ring[][] };
-type Props = { id: string; name: string; region?: string };
+type Props = { id: string; name: string; region?: string; country?: string; continent?: string };
 type Feature = { properties: Props; geometry: Geometry };
 type Indexed = Feature & { bbox: [number, number, number, number] };
 
@@ -39,6 +40,13 @@ function index(fc: { features: unknown[] }): Indexed[] {
 const COUNTRIES = index(countries);
 const REGIONS = index(regions);
 const PROVINCES = index(provinces);
+
+// First-level regions of every other country (Natural Earth admin-1), grouped by country.
+const WORLD_REGIONS = new Map<string, Indexed[]>();
+for (const f of index(worldRegions)) {
+  const country = f.properties.country!;
+  WORLD_REGIONS.set(country, [...(WORLD_REGIONS.get(country) ?? []), f]);
+}
 
 function inRing(lon: number, lat: number, ring: Ring): boolean {
   let inside = false;
@@ -100,21 +108,58 @@ function italy(province: Indexed | undefined): Place {
   return { country: 'ITA', region: province?.properties.region, province: province?.properties.id };
 }
 
-// Regions and provinces exist only for Italy; elsewhere only the country is known.
+// Italy has regions and provinces (ISTAT); every other country has its first-level regions.
 // Order matters near borders: a point inside France must never snap to an Italian province.
 export function locate(lat: number, lon: number): Place {
   const province = find(PROVINCES, lon, lat); // more detailed than the Italian country border
   if (province) return italy(province);
-  const country = find(COUNTRIES, lon, lat) ?? nearest(COUNTRIES, lon, lat);
-  if (country?.properties.id === 'ITA') return italy(nearest(PROVINCES, lon, lat));
-  return { country: country?.properties.id };
+  const country = (find(COUNTRIES, lon, lat) ?? nearest(COUNTRIES, lon, lat))?.properties.id;
+  if (country === 'ITA') return italy(nearest(PROVINCES, lon, lat));
+  const regions = (country && WORLD_REGIONS.get(country)) || [];
+  const region = find(regions, lon, lat) ?? nearest(regions, lon, lat);
+  return { country, region: region?.properties.id };
 }
 
 export const TOTALS = { region: REGIONS.length, province: PROVINCES.length };
 
+// Area in km² on an equirectangular projection around each ring's latitude: within a few percent
+// at this level of simplification, enough for "you've seen 4% of the land".
+function ringKm2(ring: Ring): number {
+  const k = Math.cos((ring.reduce((sum, c) => sum + c[1], 0) / ring.length) * (Math.PI / 180));
+  let twice = 0;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    twice += ring[j][0] * k * 111.32 * ring[i][1] * 110.57 - ring[i][0] * k * 111.32 * ring[j][1] * 110.57;
+  }
+  return Math.abs(twice) / 2;
+}
+
+function areaKm2(g: Geometry): number {
+  return polygons(g).reduce((sum, [outer, ...holes]) => sum + ringKm2(outer) - holes.reduce((h, r) => h + ringKm2(r), 0), 0);
+}
+
+// Every country with its continent and area, for the travel stats (src/stats/passport.ts).
+export const COUNTRY_INFO = COUNTRIES.map((f) => ({
+  id: f.properties.id,
+  name: f.properties.name,
+  continent: f.properties.continent ?? '',
+  areaKm2: areaKm2(f.geometry),
+}));
+
+// How many first-level regions a country has: the 20 ISTAT regions for Italy, Natural Earth elsewhere.
+export function regionCount(country: string): number {
+  return country === 'ITA' ? REGIONS.length : (WORLD_REGIONS.get(country)?.length ?? 0);
+}
+
+const REGION_COUNTRY = new Map<string, string>([
+  ...REGIONS.map((f): [string, string] => [f.properties.id, 'ITA']),
+  ...[...WORLD_REGIONS.entries()].flatMap(([country, list]) => list.map((f): [string, string] => [f.properties.id, country])),
+]);
+
+export const countryOfRegion = (id: string): string | undefined => REGION_COUNTRY.get(id);
+
 const NAMES: Record<'country' | 'region' | 'province', Map<string, string>> = {
   country: new Map(COUNTRIES.map((f) => [f.properties.id, f.properties.name])),
-  region: new Map(REGIONS.map((f) => [f.properties.id, f.properties.name])),
+  region: new Map([...REGIONS, ...[...WORLD_REGIONS.values()].flat()].map((f) => [f.properties.id, f.properties.name])),
   province: new Map(PROVINCES.map((f) => [f.properties.id, f.properties.name])),
 };
 

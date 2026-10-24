@@ -12,7 +12,10 @@ An open-source Android app that turns your gallery into a living map of the plac
 - **GPS.** Your current position marks the area you're in.
 - **Your gallery rebuilds your past.** The date and GPS stored in each photo place it on the map. Zoom in and your photos appear where you took them, clustered like the Photos app map.
 - **Your photos say what you love.** Gemma 4 looks at the content of your photos and builds an interest profile, with the photos that justify each interest. You can remove any interest.
-- **Suggestions at four scales.** Global (countries), National (regions), Regional (provinces), Local (hexagons of about 0.7 km²). At each scale the app suggests events that match your interests, and says why.
+- **Four scales that follow where you are.** Global (countries), National (the regions of the country you're in), Regional (its provinces in Italy, your region elsewhere), Local (the land around you).
+- **Timeline.** Drag the handle to travel back through your photos, or press play: the map shows only what you'd seen by then, and an orange line follows the journey from place to place.
+- **Your travel passport.** Tap the counter: countries visited and the share of the world's land you've seen, continents, regions and provinces of the country you're in with what's left, regions per country, and a traveller level (Turista → Viaggiatore → Esploratore → Giramondo → Leggenda) with the countries missing to the next one.
+- **Events for you, nearby.** At the local scale the map shows events around you that match your interests, and says why. Tap any region or country for the events there.
 
 ## Why
 
@@ -37,7 +40,7 @@ Your computer (local-ai/)
 |---|---|
 | App | Expo SDK 58 / React Native 0.88 (TypeScript), Android development build |
 | Map | MapLibre GL JS 5.6 in a WebView, globe projection, Sentinel-2 cloudless 2016 tiles, GeoJSON fills, clustered photo thumbnails |
-| Boundaries | Natural Earth (countries), openpolis/geojson-italy from ISTAT (Italian regions and provinces), H3 hexagons (micro-areas) |
+| Boundaries | Natural Earth (countries, and first-level regions of every country), openpolis/geojson-italy from ISTAT (Italian regions and provinces) |
 | AI | Gemma 4 E2B (2.58 GB) through the LiteRT-LM server on your own computer; a fixed list of 12 interests |
 | Profile and suggestions | Plain code: an interest's weight is its share of labelled photos; events are ranked by matching interests at the current scale |
 
@@ -63,7 +66,7 @@ Your computer (local-ai/)
    npm install
    npx expo run:android
    ```
-4. **Demo photos:** push them into the emulator ([demo-data/README.md](demo-data/README.md)), then in the app: **Galleria → Leggi la galleria**, **Interessi → Analizza le foto con Gemma**, **Per te**.
+4. **Demo photos:** push them into the emulator ([demo-data/README.md](demo-data/README.md)), then open the app and choose **Usa la mia galleria**: it reads the photos and Gemma starts on its own. Switch to **Locale** for the events around you.
 
 **Without Android: the same app in a browser.** Start Gemma with `litert-lm serve --port 9379 --cors-origin http://localhost:8081`, then:
 
@@ -101,7 +104,7 @@ npx tsx scripts/preview-map.ts /tmp/map.html   # the map page with sample data, 
 ## Credits
 
 - [Gemma 4](https://ai.google.dev/gemma) by Google (Apache 2.0), run with [LiteRT-LM](https://developers.google.com/edge/litert-lm)
-- [MapLibre GL JS](https://maplibre.org) (BSD-3-Clause) and [h3-js](https://github.com/uber/h3-js) (Apache 2.0)
+- [MapLibre GL JS](https://maplibre.org) (BSD-3-Clause)
 - Satellite imagery: [Sentinel-2 cloudless 2016](https://s2maps.eu) by EOX IT Services (CC BY 4.0), contains modified Copernicus Sentinel data
 - Boundaries: [Natural Earth](https://www.naturalearthdata.com) (public domain) and [openpolis/geojson-italy](https://github.com/openpolis/geojson-italy) (CC BY 4.0, ISTAT data), see [mobile/src/geo/README.md](mobile/src/geo/README.md)
 - Demo photos: Wikimedia Commons authors, listed in [demo-data/CREDITS.md](demo-data/CREDITS.md)

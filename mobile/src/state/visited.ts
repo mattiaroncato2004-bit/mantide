@@ -8,7 +8,7 @@ import type { Level, Source } from '../types';
 export type Visited = Record<Level, Record<string, Source[]>>;
 
 const KEY = 'visited:v1';
-const empty = (): Visited => ({ country: {}, region: {}, province: {}, hex: {} });
+const empty = (): Visited => ({ country: {}, region: {}, province: {} });
 
 export function ids(v: Visited, level: Level): string[] {
   return Object.keys(v[level]);

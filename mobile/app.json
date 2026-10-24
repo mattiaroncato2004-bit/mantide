@@ -32,7 +32,9 @@
         "expo-media-library",
         {
           "isAccessMediaLocationEnabled": true,
-          "granularPermissions": ["photo"]
+          "granularPermissions": [
+            "photo"
+          ]
         }
       ],
       [
@@ -48,7 +50,8 @@
             "usesCleartextTraffic": true
           }
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }

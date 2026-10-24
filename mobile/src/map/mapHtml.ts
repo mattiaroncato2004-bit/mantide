@@ -1,12 +1,14 @@
 // The map page shown inside the WebView. Plain JavaScript (no build step), so the
 // same page also runs in a desktop browser: see scripts/preview-map.ts.
 //
-// App → page: window.mantide.setState(partialMapState)
-// Page → app: {type: 'ready'} | {type: 'toggle', level, id, name} | {type: 'photo', id} | {type: 'error', message}
-// Boundaries are written into the page by withGeo() as window.__MANTIDE_GEO = {countries, regions, provinces}.
+// App → page: window.mantide.setState(partialMapState); `timeline: {until}` shows only the photos
+// taken until then and animates the journey to the latest one.
+// Page → app: {type: 'ready'} | {type: 'toggle', level, id, name} | {type: 'photo', id} | {type: 'event', id}
+//             | {type: 'error', message}
+// Boundaries are written into the page by withGeo() as window.__MANTIDE_GEO =
+// {countries, regions (Italy), provinces (Italy), worldRegions (first-level regions elsewhere)}.
 
 export const MAPLIBRE_VERSION = '5.6.0';
-export const H3_VERSION = '4.1.0';
 
 export const mapHtml = `<!doctype html>
 <html>
@@ -15,7 +17,6 @@ export const mapHtml = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@${MAPLIBRE_VERSION}/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@${MAPLIBRE_VERSION}/dist/maplibre-gl.js"></script>
-<script src="https://unpkg.com/h3-js@${H3_VERSION}/dist/h3-js.umd.js"></script>
 <style>
   html, body, #map { margin: 0; height: 100%; background: #071521; }
   .maplibregl-ctrl-attrib { font-size: 9px; }
@@ -30,6 +31,11 @@ export const mapHtml = `<!doctype html>
   .ph-badge { position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; padding: 0 5px;
     box-sizing: border-box; border-radius: 10px; background: #ff7a45; color: #1a0d06; text-align: center;
     font: 700 11px/20px -apple-system, Roboto, sans-serif; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); pointer-events: none; }
+  /* The head of the journey on the timeline: above the photo thumbnails, with a slow pulse. */
+  .tl-head { width: 18px; height: 18px; box-sizing: border-box; border: 3px solid #fff; border-radius: 50%;
+    background: #ff7a45; z-index: 5; animation: tl-pulse 1.6s ease-out infinite; }
+  @keyframes tl-pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 122, 69, 0.55); } 100% { box-shadow: 0 0 0 16px rgba(255, 122, 69, 0); } }
+  @media (prefers-reduced-motion: reduce) { .tl-head { animation: none; box-shadow: 0 0 0 6px rgba(255, 122, 69, 0.35); } }
 </style>
 </head>
 <body>
@@ -39,9 +45,7 @@ export const mapHtml = `<!doctype html>
 (function () {
   var ACCENT = '#ff7a45';
   var VEIL = '#eef3f1';
-  var HEX_RES = 8;      // about 0.7 km2 per hexagon
-  var HEX_RINGS = 8;    // hexagons drawn around the focus point at the local scale
-  var LEVEL = { global: 'country', national: 'region', regional: 'province', local: 'hex' };
+  var LEVEL = { global: 'country', national: 'region', regional: 'province' };
   var PHOTO_MIN_ZOOM = 1.8; // below this the globe stays clean
 
   function send(msg) {
@@ -51,13 +55,15 @@ export const mapHtml = `<!doctype html>
   }
   window.onerror = function (message) { send({ type: 'error', message: String(message) }); };
 
-  var GEO = window.__MANTIDE_GEO || { countries: { features: [] }, regions: { features: [] }, provinces: { features: [] } };
+  var GEO = window.__MANTIDE_GEO || { countries: { features: [] }, regions: { features: [] }, provinces: { features: [] }, worldRegions: { features: [] } };
   var state = {
     scale: 'global',
     focus: { country: 'ITA', region: '05', lat: 45.6297, lon: 12.3766 },
-    visited: { country: [], region: [], province: [], hex: [] },
+    visited: { country: [], region: [], province: [] },
     points: [],
-    photos: []
+    photos: [],
+    events: [],
+    timeline: null
   };
 
   var map = new maplibregl.Map({
@@ -90,6 +96,8 @@ export const mapHtml = `<!doctype html>
     map.addSource('areas', { type: 'geojson', data: collection([]) });
     map.addSource('points', { type: 'geojson', data: collection([]) });
     map.addSource('trips', { type: 'geojson', data: collection([]) });
+    map.addSource('events', { type: 'geojson', data: collection([]) });
+    map.addSource('journey', { type: 'geojson', data: collection([]) });
     // The cluster keeps the best rank of its photos, to show the newest one as its cover.
     map.addSource('photos', { type: 'geojson', data: collection([]), cluster: true, clusterRadius: 60, clusterMaxZoom: 15,
       clusterProperties: { top: ['max', ['get', 'rank']] } });
@@ -110,12 +118,23 @@ export const mapHtml = `<!doctype html>
     map.addLayer({ id: 'points', type: 'circle', source: 'points', paint: {
       'circle-radius': 4.5, 'circle-color': '#ffffff', 'circle-stroke-color': ACCENT, 'circle-stroke-width': 2
     } });
+    // The journey on the timeline: one solid line through every photo, in the order taken.
+    map.addLayer({ id: 'journey', type: 'line', source: 'journey',
+      layout: { 'line-join': 'round', 'line-cap': 'round' },
+      paint: { 'line-color': ACCENT, 'line-width': 3, 'line-opacity': 0.95 } });
+    // Events for you, at the local scale: orange dots with a white ring.
+    map.addLayer({ id: 'events', type: 'circle', source: 'events', paint: {
+      'circle-radius': 9, 'circle-color': ACCENT, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 3
+    } });
     // Invisible: only tells which photos and clusters are on screen. The markers are HTML.
     map.addLayer({ id: 'photos-hit', type: 'circle', source: 'photos', paint: {
       'circle-radius': 22, 'circle-opacity': 0, 'circle-stroke-width': 0
     } });
     map.on('render', updateMarkers);
 
+    map.on('click', 'events', function (e) {
+      send({ type: 'event', id: e.features[0].properties.id });
+    });
     map.on('click', 'areas-fill', function (e) {
       var p = e.features[0].properties;
       send({ type: 'toggle', level: p.level, id: p.id, name: p.name });
@@ -141,32 +160,23 @@ export const mapHtml = `<!doctype html>
     });
   }
 
-  // Hexagons around the focus point. A hexagon is visited when marked by hand
-  // or when a photo or the current position falls inside it.
-  function hexagons() {
-    var visited = new Set(state.visited.hex || []);
-    state.points.forEach(function (p) { visited.add(h3.latLngToCell(p[1], p[0], HEX_RES)); });
-    state.photos.forEach(function (p) { visited.add(h3.latLngToCell(p.lat, p.lon, HEX_RES)); });
-    var cells = h3.gridDisk(h3.latLngToCell(state.focus.lat, state.focus.lon, HEX_RES), HEX_RINGS);
-    return cells.map(function (cell) {
-      return { type: 'Feature',
-        geometry: { type: 'Polygon', coordinates: [h3.cellToBoundary(cell, true)] },
-        properties: { id: cell, name: 'Zona ' + cell.slice(-5), level: 'hex', visited: visited.has(cell) } };
-    });
-  }
-
-  // Regions and provinces exist only for Italy: elsewhere the national and
-  // regional scales show the focused country.
+  // The national and regional scales follow the country you are in. Italy has regions and
+  // provinces; elsewhere the national scale shows the country's regions and the regional
+  // scale your region. The local scale shows no areas, only the land, your photos and the
+  // events around you.
   function areas() {
     var f = state.focus;
     var level = LEVEL[state.scale];
-    if (state.scale === 'local') return hexagons();
+    if (state.scale === 'local') return [];
     if (state.scale === 'global') return withVisited(GEO.countries.features, level);
-    if (f.country !== 'ITA') {
-      return withVisited(GEO.countries.features.filter(function (x) { return x.properties.id === f.country; }), 'country');
+    if (f.country === 'ITA') {
+      if (state.scale === 'national') return withVisited(GEO.regions.features, level);
+      return withVisited(GEO.provinces.features.filter(function (x) { return x.properties.region === f.region; }), level);
     }
-    if (state.scale === 'national') return withVisited(GEO.regions.features, level);
-    return withVisited(GEO.provinces.features.filter(function (x) { return x.properties.region === f.region; }), level);
+    var regions = GEO.worldRegions.features.filter(function (x) { return x.properties.country === f.country; });
+    if (state.scale === 'regional') regions = regions.filter(function (x) { return x.properties.id === f.region; });
+    if (regions.length) return withVisited(regions, 'region');
+    return withVisited(GEO.countries.features.filter(function (x) { return x.properties.id === f.country; }), 'country');
   }
 
   function bbox(features) {
@@ -183,10 +193,24 @@ export const mapHtml = `<!doctype html>
     return b[0] === Infinity ? null : [[b[0], b[1]], [b[2], b[3]]];
   }
 
+  function eventFeatures() {
+    if (state.scale !== 'local') return [];
+    return state.events.map(function (e) {
+      return { type: 'Feature', geometry: { type: 'Point', coordinates: [e.lon, e.lat] }, properties: { id: e.id } };
+    });
+  }
+
   function moveCamera(features) {
     var center = [state.focus.lon, state.focus.lat];
     if (state.scale === 'global') return map.easeTo({ center: center, zoom: 1.4, duration: 1200 });
-    if (state.scale === 'local') return map.easeTo({ center: center, zoom: 12.4, duration: 1200 });
+    if (state.scale === 'local') {
+      // Frame you and the events around you, above the app's panel of event cards.
+      var lons = [center[0]].concat(state.events.map(function (e) { return e.lon; }));
+      var lats = [center[1]].concat(state.events.map(function (e) { return e.lat; }));
+      if (lons.length < 2) return map.easeTo({ center: center, zoom: 10.5, duration: 1200 });
+      return map.fitBounds([[Math.min.apply(null, lons), Math.min.apply(null, lats)], [Math.max.apply(null, lons), Math.max.apply(null, lats)]],
+        { padding: { top: 120, bottom: 330, left: 40, right: 40 }, maxZoom: 12, duration: 1200 });
+    }
     var b = bbox(features);
     // Room for the app's header card on top and scale switcher at the bottom.
     if (b) map.fitBounds(b, { padding: { top: 110, bottom: 90, left: 24, right: 24 }, duration: 1200 });
@@ -200,6 +224,7 @@ export const mapHtml = `<!doctype html>
       return { type: 'Feature', geometry: { type: 'Point', coordinates: p }, properties: {} };
     });
     map.getSource('points').setData(collection(points));
+    map.getSource('events').setData(collection(eventFeatures()));
     if (withCamera) moveCamera(features);
   }
 
@@ -209,10 +234,18 @@ export const mapHtml = `<!doctype html>
   var markers = {};     // key -> Marker, reused while the photos don't change
   var onScreen = {};
 
+  // On the timeline only the photos taken until the chosen moment exist.
+  function visiblePhotos() {
+    if (!state.timeline) return state.photos;
+    return state.photos.filter(function (p) { return p.takenAt && p.takenAt <= state.timeline.until; });
+  }
+
+  function byTime(a, b) { return a.takenAt - b.takenAt; }
+
   function photoFeatures() {
     photoThumbs = {};
     photoByRank = {};
-    return state.photos.map(function (p) {
+    return visiblePhotos().map(function (p) {
       // Photos with a thumbnail outrank those without; then the newest wins.
       var rank = (p.thumb ? 1e13 : 0) + (p.takenAt || 0);
       if (p.thumb) photoThumbs[p.id] = p.thumb;
@@ -225,8 +258,7 @@ export const mapHtml = `<!doctype html>
   // Trips: photos in time order; more than TRIP_GAP_DAYS without photos starts a new trip.
   var TRIP_GAP_DAYS = 4;
   function tripLines() {
-    var sorted = state.photos.filter(function (p) { return p.takenAt; })
-      .sort(function (a, b) { return a.takenAt - b.takenAt; });
+    var sorted = visiblePhotos().filter(function (p) { return p.takenAt; }).sort(byTime);
     var trips = [];
     var current = [];
     sorted.forEach(function (p, i) {
@@ -249,6 +281,46 @@ export const mapHtml = `<!doctype html>
     markers = {};
     onScreen = {};
     map.getSource('photos').setData(collection(photoFeatures()));
+  }
+
+  // The journey's head travels from the previous place to the new one; the map follows it.
+  var JOURNEY_MS = 800;
+  var head = null;        // [lon, lat] where the head is now
+  var headMarker = null;
+  var frame = 0;
+
+  function renderJourney() {
+    if (!map.getSource('journey')) return;
+    cancelAnimationFrame(frame);
+    var path = state.timeline ? visiblePhotos().slice().sort(byTime).map(function (p) { return [p.lon, p.lat]; }) : [];
+    if (!path.length) {
+      map.getSource('journey').setData(collection([]));
+      if (headMarker) headMarker.remove();
+      headMarker = null;
+      head = null;
+      return;
+    }
+    var to = path[path.length - 1];
+    var from = head || to;
+    var start = performance.now();
+    function step(now) {
+      var t = Math.min(1, (now - start) / JOURNEY_MS);
+      var e = t * (2 - t); // ease out
+      head = [from[0] + (to[0] - from[0]) * e, from[1] + (to[1] - from[1]) * e];
+      var line = path.slice(0, -1).concat([head]);
+      map.getSource('journey').setData(collection(line.length > 1
+        ? [{ type: 'Feature', geometry: { type: 'LineString', coordinates: line }, properties: {} }] : []));
+      if (!headMarker) {
+        var el = document.createElement('div');
+        el.className = 'tl-head';
+        headMarker = new maplibregl.Marker({ element: el }).setLngLat(head).addTo(map);
+      } else {
+        headMarker.setLngLat(head);
+      }
+      if (t < 1) frame = requestAnimationFrame(step);
+    }
+    frame = requestAnimationFrame(step);
+    map.easeTo({ center: to, duration: JOURNEY_MS + 200 });
   }
 
   function makeMarker(coords, clusterId, id, count) {
@@ -309,9 +381,11 @@ export const mapHtml = `<!doctype html>
     setState: function (next) {
       var moved = (next.scale && next.scale !== state.scale) ||
         (next.focus && JSON.stringify(next.focus) !== JSON.stringify(state.focus));
+      var timelineChanged = 'timeline' in next && JSON.stringify(next.timeline) !== JSON.stringify(state.timeline);
       Object.keys(next).forEach(function (k) { state[k] = next[k]; });
-      render(moved);
-      if (next.photos) renderPhotos();
+      render(moved && !state.timeline);
+      if (next.photos || timelineChanged) renderPhotos();
+      if (next.photos || timelineChanged) renderJourney();
     }
   };
 })();

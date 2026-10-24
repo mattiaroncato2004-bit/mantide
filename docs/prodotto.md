@@ -13,24 +13,26 @@ Il team è partito da due idee: una mappa dei luoghi visitati alla Been, e consi
 | Cosa | Da quale idea | Come entra nell'app |
 |---|---|---|
 | Segnare a mano paesi, regioni, province, micro-aree | mappa tipo Been | Il cuore dell'app, funziona anche senza AI |
-| 4 scale: Globale, Nazionale, Regionale, Locale | consigli | Coincidono con i livelli della mappa: paesi, regioni, province, esagoni H3 di circa 0,7 km² |
+| 4 scale: Globale, Nazionale, Regionale, Locale | consigli | Seguono dove sei: paesi; regioni del tuo paese; le sue province in Italia, la tua regione altrove; il territorio intorno a te |
 | GPS per sapere dove sei | mappa tipo Been | La posizione attuale segna la zona in cui ti trovi |
 | Foto collegate ai luoghi tramite i metadati | entrambe | Data e GPS di ogni foto ricostruiscono il passato |
 | Cartina fisica + zone colorate | consigli | Satellite a colori pieni dove sei stato, velo chiaro dove non sei stato |
-| Interessi dalle foto ed eventi per scala | consigli | Lo strato AI sopra la mappa |
+| Interessi dalle foto ed eventi | consigli | Alla scala Locale gli eventi vicini scelti dai tuoi interessi; alle altre scale, nella scheda di ogni luogo |
 | Tutto in locale | entrambe | Gemma 4 gira su hardware tuo, mai su un cloud di terzi |
 
 Un luogo risulta visitato in tre modi, e ogni luogo ricorda come: segnato a mano, dal GPS adesso, da una foto del passato.
 
 ## Le schermate
 
-1. **Mappa (home).** Globo satellitare, selettore delle 4 scale, contatore ("14 paesi · 3/20 regioni · 5/110 province"). Tocchi una zona per aprirne la scheda. Zoomando compaiono le miniature delle foto, raggruppate col numero, come la mappa di Foto su iPhone; un tocco apre la foto con luogo, data e cosa ci ha visto Gemma.
-2. **Galleria.** Le foto raggruppate per luogo. Tocchi un gruppo e la mappa vola lì.
-3. **Interessi.** "Le tue foto dicono che ami…": ogni interesse con il numero di foto, una barra e tre foto di prova. Ognuno si può togliere.
-4. **Per te.** Gli eventi della scala che stai guardando sulla mappa, con il perché ("Hai 10 foto di street art").
-5. **Scheda luogo.** Toccando una zona sulla mappa si apre dal basso: come è stata visitata (a mano, GPS, foto), le foto scattate lì, gli eventi per te in quel luogo, e il pulsante per segnarla.
+Una sola schermata, la mappa: niente schede da cercare.
 
-Sulla mappa ogni viaggio è anche una linea tratteggiata che unisce le foto nell'ordine in cui sono state scattate.
+1. **Benvenuto (primo avvio).** L'app chiede se può leggere la galleria: "Usa la mia galleria" oppure "Continua senza galleria". Senza galleria la mappa si riempie a mano e col GPS. Si cambia idea dal pulsante Galleria in alto.
+2. **Mappa.** Globo satellitare, contatore ("6 paesi · 6 regioni · 8 province"), selettore delle 4 scale. Nazionale e Regionale seguono il paese in cui sei: in Cina vedi le regioni cinesi. Zoomando compaiono le miniature delle foto, raggruppate, come nella mappa di Foto su iPhone, e una linea tratteggiata unisce ogni viaggio in ordine di data. Lettura della galleria e lavoro di Gemma si vedono nell'intestazione.
+3. **Scala Locale.** Niente zone disegnate: il territorio, le tue foto e gli eventi intorno a te come puntini arancioni. In basso "Per te qui": i tuoi interessi (si tolgono con un tocco) e le schede degli eventi, col perché ("Hai 14 foto di architettura e 11 di natura").
+4. **Scheda luogo.** Toccando un paese, una regione o una provincia: come è stato visitato (a mano, GPS, foto), le foto scattate lì, gli eventi per te in quel luogo, e il pulsante per segnarlo.
+5. **Linea del tempo.** Il pulsante "Linea del tempo" apre un cursore da trascinare col dito, con data e luogo: la mappa mostra solo le foto fino a quel giorno, e una linea arancione segue il viaggio da un posto all'altro, con la punta che si sposta e la mappa che la segue. ▶ riproduce tutto il viaggio.
+6. **Passaporto.** Toccando il contatore: livello da viaggiatore (Turista, Viaggiatore, Esploratore, Giramondo, Leggenda) e quanti paesi mancano al prossimo; paesi visitati e percentuale delle terre emerse; continenti; regioni e province del paese in cui sei, con quante ne mancano; regioni per paese.
+7. **Anteprima foto.** Toccando una miniatura: la foto, luogo, data e cosa ci ha visto Gemma.
 
 ## Come lavora l'AI
 
@@ -59,4 +61,4 @@ Leggere tutta la galleria di una persona è accettabile solo se le foto restano 
 - Gemma direttamente sul telefono per chi ha 8 GB di RAM, con un modulo Kotlin su LiteRT-LM e la scelta automatica in base alla RAM.
 - Tracciamento GPS in background (permesso dedicato e revisione del Play Store).
 - Eventi veri da fonti pubbliche, al posto del catalogo inventato.
-- Regioni e province anche fuori dall'Italia.
+- Province anche fuori dall'Italia.

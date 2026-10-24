@@ -1,26 +1,34 @@
-// Home of the app: the map of where you've been, at four scales, plus the tab bar.
+// Mantide: one screen, the map of where you've been at four scales. Your gallery fills it in;
+// at the local scale it shows events around you chosen from what you photograph.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
-import { MapView } from './src/map/MapView';
-import { locate, TOTALS } from './src/geo/locate';
-import { ids, useVisited } from './src/state/visited';
+import { useFonts } from 'expo-font';
 import {
-  askForAllPhotos, groupByPlace, loadPhotos, requestGallery, scanGallery,
-  type Photo, type PlaceGroup,
-} from './src/gallery/photos';
-import { GalleryScreen } from './src/screens/GalleryScreen';
-import { InterestsScreen, type InterestRow } from './src/screens/InterestsScreen';
-import { ForYouScreen } from './src/screens/ForYouScreen';
+  BricolageGrotesque_400Regular, BricolageGrotesque_500Medium, BricolageGrotesque_600SemiBold,
+  BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold,
+} from '@expo-google-fonts/bricolage-grotesque';
+import { IBMPlexMono_400Regular, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold } from '@expo-google-fonts/ibm-plex-mono';
+import { MapView } from './src/map/MapView';
 import { makeThumbs } from './src/map/thumbs';
-import { analyzePhoto, demoAnalysis, GEMMA_URL, loadAnalyses, sample, saveAnalyses, whereGemmaRuns, type Analysis } from './src/ai/gemma';
+import { locate, nameOf } from './src/geo/locate';
+import { ids, useVisited } from './src/state/visited';
+import { askForAllPhotos, forgetPhotos, loadPhotos, requestGallery, scanGallery, type Photo } from './src/gallery/photos';
+import {
+  analyzePhoto, demoAnalysis, GEMMA_URL, loadAnalyses, sample, saveAnalyses, whereGemmaRuns, type Analysis,
+} from './src/ai/gemma';
 import { labelOf, type InterestId } from './src/ai/interests';
 import { EVENTS, profileFromCounts, recommend, recommendIn, type Event } from './src/events/recommend';
+import { Welcome } from './src/screens/Welcome';
+import { LocalPanel } from './src/screens/LocalPanel';
 import { PlaceSheet, type SelectedPlace } from './src/screens/PlaceSheet';
-import { nameOf } from './src/geo/locate';
-import { C } from './src/theme';
+import { PassportSheet } from './src/screens/PassportSheet';
+import { TimelineBar } from './src/screens/TimelineBar';
+import { passport } from './src/stats/passport';
+import Storage from './src/storage';
+import { C, F, R } from './src/theme';
 import type { Focus, Level, MapState, Scale } from './src/types';
 
 const SCALES: { key: Scale; label: string }[] = [
@@ -30,54 +38,68 @@ const SCALES: { key: Scale; label: string }[] = [
   { key: 'local', label: 'Locale' },
 ];
 
-const TABS = ['Mappa', 'Galleria', 'Per te', 'Interessi'] as const;
-type Tab = (typeof TABS)[number];
-
 // Roncade (TV), home of H-FARM: the focus until the GPS answers.
 const DEFAULT_FOCUS: Focus = { country: 'ITA', region: '05', lat: 45.6297, lon: 12.3766 };
 
-// The map draws one dot per photo; past this many it only gets slower, not clearer.
+// The map draws one thumbnail per photo; past this many it only gets slower, not clearer.
 const MAX_POINTS = 1500;
 
+// The timeline's play button moves one photo forward this often.
+const PLAY_STEP_MS = 1100;
+
+// Whether the user let the app read the gallery: asked once, at first launch.
+type GalleryChoice = 'all' | 'none';
+const CHOICE_KEY = 'gallery:choice';
+
 export default function App() {
+  // The two type families of src/theme.ts. On failure the app still starts, with system fonts.
+  const [fontsLoaded, fontError] = useFonts({
+    BricolageGrotesque_400Regular, BricolageGrotesque_500Medium, BricolageGrotesque_600SemiBold,
+    BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold,
+    IBMPlexMono_400Regular, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold,
+  });
   return (
     <SafeAreaProvider>
       <StatusBar style="light" />
-      <Home />
+      {fontsLoaded || fontError ? <Home /> : <View style={styles.root} />}
     </SafeAreaProvider>
   );
 }
 
 function Home() {
   const insets = useSafeAreaInsets();
-  const [tab, setTab] = useState<Tab>('Mappa');
+  const [choice, setChoice] = useState<GalleryChoice | null | undefined>(undefined); // undefined: still loading
   const [scale, setScale] = useState<Scale>('global');
   const [focus, setFocus] = useState<Focus>(DEFAULT_FOCUS);
   const [here, setHere] = useState<[number, number] | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [scanning, setScanning] = useState(false);
-  const [galleryStatus, setGalleryStatus] = useState<string | null>(null);
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
   const [analyses, setAnalyses] = useState<Record<string, Analysis>>({});
-  const [analyzing, setAnalyzing] = useState(false);
-  const [aiStatus, setAiStatus] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState<string | null>(null); // gallery and Gemma progress, in the header
   const [removed, setRemoved] = useState<InterestId[]>([]);
-  const [opened, setOpened] = useState<string | null>(null); // photo id shown full screen
+  const [opened, setOpened] = useState<string | null>(null); // photo shown full screen
   const [selected, setSelected] = useState<SelectedPlace | null>(null); // area tapped on the map
+  const [selectedEvent, setSelectedEvent] = useState<string | null>(null); // event dot tapped on the map
+  const [passportOpen, setPassportOpen] = useState(false);
+  const [timelineOn, setTimelineOn] = useState(false);
+  const [timelineIndex, setTimelineIndex] = useState(0); // photo reached on the timeline, oldest first
+  const [playing, setPlaying] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const resumed = useRef(false);
   const { visited, toggleManual, mark } = useVisited();
 
   // The current position marks the area you are in and centers the scales on it.
   useEffect(() => {
     (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') return;
+      const { status: permission } = await Location.requestForegroundPermissionsAsync();
+      if (permission !== 'granted') return;
       const { coords } = await Location.getCurrentPositionAsync({});
       const place = locate(coords.latitude, coords.longitude);
       setFocus({
         country: place.country ?? DEFAULT_FOCUS.country,
-        region: place.region ?? DEFAULT_FOCUS.region,
+        region: place.region ?? '',
         lat: coords.latitude,
         lon: coords.longitude,
       });
@@ -87,8 +109,16 @@ function Home() {
   }, [mark]);
 
   useEffect(() => {
-    loadPhotos().then(setPhotos).catch((e) => console.warn('[photos] load failed', e));
-    loadAnalyses().then(setAnalyses).catch((e) => console.warn('[gemma] load failed', e));
+    Promise.all([Storage.getItem(CHOICE_KEY), loadPhotos(), loadAnalyses()])
+      .then(([saved, savedPhotos, savedAnalyses]) => {
+        setPhotos(savedPhotos);
+        setAnalyses(savedAnalyses);
+        setChoice(saved === 'all' || saved === 'none' ? saved : null);
+      })
+      .catch((e) => {
+        console.warn('[start] load failed', e);
+        setChoice(null);
+      });
   }, []);
 
   // Small thumbnails for the map, computed once per photo and cached.
@@ -97,55 +127,27 @@ function Home() {
     makeThumbs(photos.slice(0, MAX_POINTS)).then(setThumbs).catch((e) => console.warn('[thumbs]', e));
   }, [photos]);
 
-  const groups = useMemo(() => groupByPlace(photos), [photos]);
-
-  const scan = useCallback(async () => {
-    setScanning(true);
-    try {
-      const access = await requestGallery();
-      if (access === 'denied') {
-        setGalleryStatus('Senza il permesso alle foto non posso leggere la galleria. Attivalo nelle impostazioni.');
-        return;
-      }
-      if (access === 'limited') {
-        setGalleryStatus('Hai condiviso solo alcune foto: scegli "Consenti tutte" per vedere tutti i tuoi luoghi.');
-        await askForAllPhotos();
-      }
-      const found = await scanGallery((read, withGps) => setGalleryStatus(`Lette ${read} foto, ${withGps} con posizione`));
-      setPhotos(found);
-      mark('photo', found);
-    } catch (e) {
-      console.warn('[photos] scan failed', e);
-      setGalleryStatus(`Lettura interrotta: ${String(e)}`);
-    } finally {
-      setScanning(false);
-    }
-  }, [mark]);
-
   // Gemma looks at a sample of the photos (at most 3 per place and day) and labels each one.
-  const analyze = useCallback(async () => {
-    const todo = sample(photos).filter((p) => !analyses[p.id]);
+  const analyze = useCallback(async (list: Photo[], prior: Record<string, Analysis>) => {
+    const todo = sample(list).filter((p) => !prior[p.id]);
     if (!todo.length) {
-      setAiStatus('Tutte le foto scelte sono già state analizzate.');
+      setStatus(null);
       return;
     }
-    setAnalyzing(true);
-    const results = { ...analyses };
+    const results = { ...prior };
     try {
       for (const [i, photo] of todo.entries()) {
-        setAiStatus(`Foto ${i + 1} di ${todo.length}…`);
+        setStatus(`Gemma sta guardando le tue foto · ${i + 1} di ${todo.length}`);
         try {
-          const analysis = await analyzePhoto(photo.uri);
-          results[photo.id] = analysis;
+          results[photo.id] = await analyzePhoto(photo.uri);
           setAnalyses({ ...results });
           await saveAnalyses(results);
-          setAiStatus(`Foto ${i + 1} di ${todo.length}: ${analysis.scene} → ${analysis.interests.map(labelOf).join(', ')}`);
         } catch (e) {
           if (e instanceof TypeError) throw e; // network error: Gemma is not reachable
           console.warn('[gemma] photo skipped', photo.id, e);
         }
       }
-      setAiStatus(`Fatto: ${Object.keys(results).length} foto analizzate.`);
+      setStatus(null);
     } catch (e) {
       // Gemma unreachable: for demo photos, show the answers Gemma gave earlier on the same files.
       console.warn('[gemma]', e);
@@ -159,67 +161,123 @@ function Home() {
       }
       setAnalyses({ ...results });
       await saveAnalyses(results);
-      setAiStatus(
+      setStatus(
         reused
-          ? `Gemma non risponde su ${GEMMA_URL}: mostro le risposte che Gemma aveva già dato su ${reused} foto demo.`
-          : `Non trovo Gemma su ${GEMMA_URL}: avvia "litert-lm serve" sul computer (vedi local-ai/README.md).`,
+          ? `Gemma non risponde: uso le risposte che aveva già dato su ${reused} foto demo.`
+          : `Non trovo Gemma su ${GEMMA_URL}: avvia "litert-lm serve" sul computer.`,
       );
-    } finally {
-      setAnalyzing(false);
     }
-  }, [photos, analyses]);
+  }, []);
+
+  // Reads the gallery, marks the places it shows, then lets Gemma find your interests.
+  const readGallery = useCallback(async () => {
+    setBusy(true);
+    try {
+      const access = await requestGallery();
+      if (access === 'denied') {
+        setStatus('Senza il permesso alle foto la mappa si riempie solo a mano e col GPS.');
+        return;
+      }
+      if (access === 'limited') {
+        setStatus('Hai condiviso solo alcune foto: scegli "Consenti tutte" per vedere tutti i tuoi luoghi.');
+        await askForAllPhotos();
+      }
+      const found = await scanGallery((read, withGps) => setStatus(`Leggo la galleria · ${read} foto, ${withGps} con posizione`));
+      setPhotos(found);
+      mark('photo', found);
+      await analyze(found, await loadAnalyses());
+    } catch (e) {
+      console.warn('[photos] scan failed', e);
+      setStatus(`Lettura interrotta: ${String(e)}`);
+    } finally {
+      setBusy(false);
+    }
+  }, [mark, analyze]);
+
+  // On later launches, finish whatever Gemma had not looked at yet.
+  useEffect(() => {
+    if (resumed.current || choice !== 'all' || !photos.length) return;
+    resumed.current = true;
+    setBusy(true);
+    analyze(photos, analyses).finally(() => setBusy(false));
+  }, [choice, photos, analyses, analyze]);
+
+  const allowGallery = () => {
+    setChoice('all');
+    Storage.setItem(CHOICE_KEY, 'all');
+    resumed.current = true; // readGallery runs Gemma itself
+    readGallery();
+  };
+
+  const skipGallery = () => {
+    setChoice('none');
+    Storage.setItem(CHOICE_KEY, 'none');
+    setPhotos([]);
+    setThumbs({});
+    setAnalyses({});
+    forgetPhotos();
+    saveAnalyses({});
+    setStatus(null);
+  };
 
   const byId = useMemo(() => new Map(photos.map((p) => [p.id, p])), [photos]);
 
-  const interestRows: InterestRow[] = useMemo(() => {
-    const rows = new Map<InterestId, InterestRow>();
+  // Your interests: how many analysed photos show each one, minus the ones you removed.
+  const profile = useMemo(() => {
+    const counts: Partial<Record<InterestId, number>> = {};
     for (const [id, a] of Object.entries(analyses)) {
-      const photo = byId.get(id);
-      if (!photo) continue;
-      for (const interest of a.interests) {
-        if (removed.includes(interest)) continue;
-        const row = rows.get(interest) ?? { id: interest, count: 0, share: 0, photos: [] };
-        row.count++;
-        row.photos.push(photo);
-        rows.set(interest, row);
-      }
+      if (!byId.has(id)) continue;
+      for (const i of a.interests) if (!removed.includes(i)) counts[i] = (counts[i] ?? 0) + 1;
     }
-    const max = Math.max(1, ...[...rows.values()].map((r) => r.count));
-    return [...rows.values()].map((r) => ({ ...r, share: r.count / max })).sort((a, b) => b.count - a.count);
+    return profileFromCounts(counts);
   }, [analyses, byId, removed]);
 
-  const profile = useMemo(
-    () => profileFromCounts(Object.fromEntries(interestRows.map((r) => [r.id, r.count]))),
-    [interestRows],
-  );
-
-  const recommendations = useMemo(() => recommend(EVENTS, profile, scale, focus), [profile, scale, focus]);
+  const localRecommendations = useMemo(() => recommend(EVENTS, profile, 'local', focus), [profile, focus]);
 
   // The place sheet: photos taken in the tapped area and events there for you.
-  // Hexagons have no photo list here: their ids are computed inside the map page.
   const placePhotos = useMemo(() => {
-    if (!selected || selected.level === 'hex') return [];
+    if (!selected) return [];
     const level = selected.level;
     return photos.filter((p) => p[level] === selected.id);
   }, [selected, photos]);
 
   const placeRecommendations = useMemo(() => {
-    if (!selected || selected.level === 'hex') return [];
+    if (!selected) return [];
     const { level, id } = selected;
     const inPlace = (e: Event) =>
       level === 'country' ? e.country === id : level === 'region' ? e.region === id : locate(e.lat, e.lon).province === id;
     return recommendIn(EVENTS, profile, inPlace, focus);
   }, [selected, profile, focus]);
 
-  const openGroup = (group: PlaceGroup) => {
-    setFocus({
-      country: group.place.country ?? focus.country,
-      region: group.place.region ?? focus.region,
-      lat: group.lat,
-      lon: group.lon,
-    });
-    setScale(group.place.province ? 'regional' : 'national');
-    setTab('Mappa');
+  // Your photos oldest first: the timeline walks along them.
+  const journey = useMemo(() => [...photos].sort((a, b) => a.takenAt - b.takenAt), [photos]);
+  const reached = timelineOn ? journey[Math.min(timelineIndex, journey.length - 1)] : undefined;
+
+  // Play: one photo forward at a time, stopping at the newest.
+  useEffect(() => {
+    if (!playing) return;
+    const timer = setInterval(() => {
+      setTimelineIndex((i) => {
+        if (i >= journey.length - 1) {
+          setPlaying(false);
+          return i;
+        }
+        return i + 1;
+      });
+    }, PLAY_STEP_MS);
+    return () => clearInterval(timer);
+  }, [playing, journey.length]);
+
+  const openTimeline = () => {
+    setSelected(null);
+    setTimelineIndex(0);
+    setTimelineOn(true);
+    setPlaying(true);
+  };
+
+  const closeTimeline = () => {
+    setPlaying(false);
+    setTimelineOn(false);
   };
 
   const mapState: MapState = useMemo(
@@ -230,14 +288,15 @@ function Home() {
         country: ids(visited, 'country'),
         region: ids(visited, 'region'),
         province: ids(visited, 'province'),
-        hex: ids(visited, 'hex'),
       },
       points: here ? [here] : [],
       photos: photos.slice(0, MAX_POINTS).map((p) => ({
         id: p.id, lon: p.lon, lat: p.lat, takenAt: p.takenAt, thumb: thumbs[p.id],
       })),
+      events: scale === 'local' && !reached ? localRecommendations.map((r) => ({ id: r.event.id, lon: r.event.lon, lat: r.event.lat })) : [],
+      timeline: reached ? { until: reached.takenAt } : null,
     }),
-    [scale, focus, visited, here, photos, thumbs],
+    [scale, focus, visited, here, photos, thumbs, localRecommendations, reached],
   );
 
   const showToast = (text: string) => {
@@ -254,117 +313,166 @@ function Home() {
     showToast(hadManual ? `Segno tolto: ${name}` : `Segnato a mano: ${name}`);
   };
 
+  const changeScale = (next: Scale) => {
+    setScale(next);
+    setSelected(null);
+    setSelectedEvent(null);
+  };
+
   const countries = mapState.visited.country.length;
+  const regions = mapState.visited.region.length;
   const stats =
     `${countries} ${countries === 1 ? 'paese' : 'paesi'} · ` +
-    `${mapState.visited.region.length}/${TOTALS.region} regioni · ` +
-    `${mapState.visited.province.length}/${TOTALS.province} province`;
+    `${regions} ${regions === 1 ? 'regione' : 'regioni'} · ` +
+    `${mapState.visited.province.length} province`;
+
+  const travel = useMemo(() => passport(mapState.visited, focus.country), [mapState.visited, focus.country]);
+
+  const herePlace = locate(focus.lat, focus.lon);
+  const localName = herePlace.province ? nameOf('province', herePlace.province) : nameOf('country', herePlace.country);
+  const localStatus =
+    choice === 'none'
+      ? 'Attiva la galleria dal pulsante in alto: Gemma capirà cosa ti piace e qui compariranno gli eventi giusti.'
+      : busy
+        ? 'Gemma sta guardando le tue foto: gli eventi arrivano appena ha capito cosa ti piace.'
+        : 'Nessun evento qui vicino per i tuoi interessi.';
 
   return (
     <View style={styles.root}>
-      <View style={styles.body}>
-        {/* The map stays mounted under the other tabs, so it never reloads. */}
-        <MapView
-          state={mapState}
-          onToggle={(level: Level, id: string, name: string) => setSelected({ level, id, name })}
-          onPhoto={setOpened}
-        />
+      <MapView
+        state={mapState}
+        onToggle={(level: Level, id: string, name: string) => {
+          setSelectedEvent(null);
+          setSelected({ level, id, name });
+        }}
+        onPhoto={setOpened}
+        onEvent={(id) => setSelectedEvent(id)}
+      />
 
-        {tab === 'Mappa' && (
-          <>
-            <View style={[styles.header, { top: insets.top + 12 }]}>
-              <Text style={styles.title}>Dove sei stato</Text>
-              <Text style={styles.stats}>{stats}</Text>
-            </View>
-
-            {toast && (
-              <View style={[styles.toast, { top: insets.top + 84 }]}>
-                <Text style={styles.toastText}>{toast}</Text>
-              </View>
-            )}
-
-            {selected ? (
-              <PlaceSheet
-                place={selected}
-                sources={visited[selected.level][selected.id] ?? []}
-                photos={placePhotos}
-                recommendations={placeRecommendations}
-                onToggleManual={toggleSelected}
-                onOpenPhoto={setOpened}
-                onClose={() => setSelected(null)}
-                bottomInset={0}
-              />
-            ) : (
-              <View style={styles.scales} accessibilityRole="tablist">
-                {SCALES.map((s) => (
-                  <Pressable
-                    key={s.key}
-                    onPress={() => setScale(s.key)}
-                    accessibilityRole="tab"
-                    accessibilityState={{ selected: scale === s.key }}
-                    style={[styles.scale, scale === s.key && styles.scaleOn]}
-                  >
-                    <Text style={[styles.scaleText, scale === s.key && styles.scaleTextOn]}>{s.label}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            )}
-          </>
-        )}
-
-        {tab === 'Galleria' && (
-          <GalleryScreen
-            groups={groups}
-            status={galleryStatus}
-            scanning={scanning}
-            onScan={scan}
-            onOpen={openGroup}
-            topInset={insets.top}
-          />
-        )}
-
-        {tab === 'Interessi' && (
-          <InterestsScreen
-            rows={interestRows}
-            analyzed={Object.keys(analyses).length}
-            status={aiStatus}
-            running={analyzing}
-            canRun={photos.length > 0}
-            onRun={analyze}
-            onRemove={(id) => setRemoved((r) => [...r, id])}
-            deviceNote={whereGemmaRuns()}
-            topInset={insets.top}
-          />
-        )}
-
-        {tab === 'Per te' && (
-          <ForYouScreen
-            recommendations={recommendations}
-            scaleLabel={SCALES.find((s) => s.key === scale)?.label ?? ''}
-            hasProfile={interestRows.length > 0}
-            topInset={insets.top}
-          />
-        )}
-
-        {opened && byId.get(opened) && (
-          <PhotoPreview photo={byId.get(opened)!} analysis={analyses[opened]} onClose={() => setOpened(null)} />
-        )}
-      </View>
-
-      <View style={[styles.tabs, { paddingBottom: insets.bottom + 8 }]} accessibilityRole="tablist">
-        {TABS.map((t) => (
+      <View style={[styles.header, { top: insets.top + 12 }]}>
+        <View style={styles.headerTop}>
+          <Text style={styles.headerLabel}>Dove sei stato</Text>
           <Pressable
-            key={t}
-            onPress={() => setTab(t)}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: tab === t }}
-            style={styles.tab}
+            onPress={() => setChoice(null)}
+            style={({ pressed }) => [styles.galleryButton, choice === 'all' && styles.galleryOn, pressed && styles.pressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Scegli se usare la galleria"
+            hitSlop={8}
           >
-            <View style={[styles.tabDot, tab === t && styles.tabDotOn]} />
-            <Text style={[styles.tabText, tab === t && styles.tabTextOn]}>{t}</Text>
+            <View style={[styles.galleryDot, choice === 'all' && styles.galleryDotOn]} />
+            <Text style={[styles.galleryText, choice === 'all' && styles.galleryTextOn]}>Galleria</Text>
           </Pressable>
-        ))}
+        </View>
+        <Pressable
+          onPress={() => setPassportOpen(true)}
+          style={({ pressed }) => [styles.counts, pressed && styles.pressed]}
+          accessibilityRole="button"
+          accessibilityLabel={`${stats}. Apri il passaporto`}
+        >
+          {([
+            [countries, countries === 1 ? 'paese' : 'paesi'],
+            [regions, regions === 1 ? 'regione' : 'regioni'],
+            [mapState.visited.province.length, mapState.visited.province.length === 1 ? 'provincia' : 'province'],
+          ] as const).map(([n, label], i) => (
+            <View key={i} style={[styles.count, i > 0 && styles.countRule]}>
+              <Text style={styles.countN}>{n}</Text>
+              <Text style={styles.countLabel}>{label}</Text>
+            </View>
+          ))}
+        </Pressable>
+        <Text style={styles.passportHint}>{travel.level.name} · tocca per il passaporto</Text>
+        {status && <Text style={styles.status} numberOfLines={2}>{status}</Text>}
       </View>
+
+      {toast && (
+        <View style={[styles.toast, { top: insets.top + 132 }]} accessibilityLiveRegion="polite">
+          <Text style={styles.toastText}>{toast}</Text>
+        </View>
+      )}
+
+      <View style={[styles.bottom, { paddingBottom: (scale === 'local' || selected) && !timelineOn ? 0 : insets.bottom + 16 }]}>
+        {timelineOn && reached ? (
+          <TimelineBar
+            count={journey.length}
+            index={Math.min(timelineIndex, journey.length - 1)}
+            onChange={(i) => {
+              setPlaying(false);
+              setTimelineIndex(i);
+            }}
+            playing={playing}
+            onTogglePlay={() => {
+              if (timelineIndex >= journey.length - 1) setTimelineIndex(0);
+              setPlaying((p) => !p);
+            }}
+            date={new Date(reached.takenAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}
+            place={reached.province ? nameOf('province', reached.province) : nameOf('country', reached.country)}
+            first={String(new Date(journey[0].takenAt).getFullYear())}
+            last={String(new Date(journey[journey.length - 1].takenAt).getFullYear())}
+            onClose={closeTimeline}
+          />
+        ) : (
+          journey.length > 1 && (
+            <Pressable
+              onPress={openTimeline}
+              style={({ pressed }) => [styles.timelineButton, pressed && styles.pressed]}
+              accessibilityRole="button"
+            >
+              <Text style={styles.timelineButtonText}>▶ Linea del tempo</Text>
+            </Pressable>
+          )
+        )}
+        <View style={styles.scales} accessibilityRole="tablist">
+          {SCALES.map((s) => (
+            <Pressable
+              key={s.key}
+              onPress={() => changeScale(s.key)}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: scale === s.key }}
+              style={({ pressed }) => [styles.scale, scale === s.key && styles.scaleOn, pressed && scale !== s.key && styles.scalePressed]}
+            >
+              <Text style={[styles.scaleText, scale === s.key && styles.scaleTextOn]}>{s.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+
+        {timelineOn ? null : scale === 'local' ? (
+          <LocalPanel
+            place={localName}
+            interests={profile}
+            recommendations={localRecommendations}
+            selectedEvent={selectedEvent}
+            status={localStatus}
+            deviceNote={whereGemmaRuns()}
+            onRemoveInterest={(id) => setRemoved((r) => [...r, id])}
+            bottomInset={insets.bottom}
+          />
+        ) : (
+          selected && (
+            <PlaceSheet
+              place={selected}
+              sources={visited[selected.level][selected.id] ?? []}
+              photos={placePhotos}
+              recommendations={placeRecommendations}
+              onToggleManual={toggleSelected}
+              onOpenPhoto={setOpened}
+              onClose={() => setSelected(null)}
+              bottomInset={insets.bottom}
+            />
+          )
+        )}
+      </View>
+
+      {opened && byId.get(opened) && (
+        <PhotoPreview photo={byId.get(opened)!} analysis={analyses[opened]} onClose={() => setOpened(null)} />
+      )}
+
+      {passportOpen && (
+        <PassportSheet data={travel} onClose={() => setPassportOpen(false)} topInset={insets.top} bottomInset={insets.bottom} />
+      )}
+
+      {choice === null && (
+        <Welcome onUseGallery={allowGallery} onSkip={skipGallery} topInset={insets.top} bottomInset={insets.bottom} />
+      )}
     </View>
   );
 }
@@ -377,53 +485,102 @@ function PhotoPreview({ photo, analysis, onClose }: { photo: Photo; analysis?: A
     <Pressable style={styles.preview} onPress={onClose} accessibilityRole="button" accessibilityLabel="Chiudi la foto">
       <Image source={{ uri: photo.uri }} style={styles.previewImage} resizeMode="contain" />
       <View style={styles.previewInfo}>
-        <Text style={styles.title}>{where}</Text>
-        <Text style={styles.stats}>{when}</Text>
+        <Text style={styles.previewWhere}>{where}</Text>
+        <Text style={styles.previewWhen}>{when}</Text>
         {analysis && (
-          <Text style={styles.previewAi}>
-            Gemma: {analysis.scene} · {analysis.interests.map(labelOf).join(', ')}
-          </Text>
+          <View style={styles.previewAi}>
+            <Text style={styles.previewAiLabel}>Gemma ha visto</Text>
+            <Text style={styles.previewScene}>{analysis.scene}</Text>
+            <View style={styles.previewTags}>
+              {analysis.interests.map((i) => (
+                <View key={i} style={styles.previewTag}>
+                  <Text style={styles.previewTagText}>{labelOf(i)}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
         )}
       </View>
+      <Text style={styles.previewHint}>Tocca per chiudere</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.bg },
-  preview: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(5, 12, 16, 0.96)', justifyContent: 'center', padding: 16, gap: 16 },
-  previewImage: { width: '100%', height: '60%', borderRadius: 12 },
-  previewInfo: { gap: 4 },
-  previewAi: { color: C.accent, fontSize: 15, fontWeight: '600', marginTop: 6 },
-  body: { flex: 1 },
+
+  // Header: an instrument readout of what you've covered.
   header: {
-    position: 'absolute', left: 16, right: 16,
-    backgroundColor: C.surface, borderRadius: 14, paddingVertical: 12, paddingHorizontal: 16,
-    borderWidth: 1, borderColor: C.line,
+    position: 'absolute', left: 12, right: 12,
+    backgroundColor: C.surface, borderRadius: R.lg, borderWidth: 1, borderColor: C.line,
+    paddingTop: 12, paddingBottom: 14, paddingHorizontal: 16,
+    boxShadow: '0 10px 30px rgba(2, 8, 12, 0.45)',
   },
-  title: { color: C.text, fontSize: 22, fontWeight: '700' },
-  stats: { color: C.muted, fontSize: 14, marginTop: 4, fontVariant: ['tabular-nums'] },
+  headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerLabel: { color: C.muted, fontFamily: F.medium, fontSize: 14, letterSpacing: -0.1 },
+  galleryButton: {
+    flexDirection: 'row', alignItems: 'center', gap: 7, borderRadius: R.sm,
+    borderWidth: 1, borderColor: C.line, paddingVertical: 6, paddingHorizontal: 10,
+  },
+  galleryOn: { borderColor: C.lineStrong, backgroundColor: C.accentSoft },
+  galleryDot: { width: 7, height: 7, borderRadius: 2, borderWidth: 1.5, borderColor: C.faint },
+  galleryDotOn: { backgroundColor: C.accent, borderColor: C.accent },
+  galleryText: { color: C.muted, fontFamily: F.monoMedium, fontSize: 11.5, letterSpacing: 0.2 },
+  galleryTextOn: { color: C.text },
+  counts: { flexDirection: 'row', marginTop: 8 },
+  count: { paddingRight: 18 },
+  countRule: { paddingLeft: 16, borderLeftWidth: 1, borderLeftColor: C.line },
+  countN: {
+    color: C.text, fontFamily: F.display, fontSize: 30, lineHeight: 32, letterSpacing: -0.8,
+    fontVariant: ['tabular-nums'],
+  },
+  countLabel: { color: C.muted, fontFamily: F.mono, fontSize: 11.5, marginTop: 2 },
+  status: {
+    color: C.accent, fontFamily: F.mono, fontSize: 11.5, lineHeight: 16,
+    marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: C.line,
+  },
+  pressed: { opacity: 0.6 },
+  passportHint: { color: C.faint, fontFamily: F.mono, fontSize: 11, marginTop: 6 },
+
   toast: {
-    position: 'absolute', alignSelf: 'center',
-    backgroundColor: C.accent, borderRadius: 999, paddingVertical: 8, paddingHorizontal: 14,
+    position: 'absolute', alignSelf: 'center', maxWidth: '86%',
+    backgroundColor: C.bg, borderRadius: R.sm, borderWidth: 1, borderColor: C.lineStrong,
+    borderLeftWidth: 3, borderLeftColor: C.accent, paddingVertical: 10, paddingHorizontal: 14,
+    boxShadow: '0 8px 24px rgba(2, 8, 12, 0.5)',
   },
-  toastText: { color: C.onAccent, fontWeight: '600' },
+  toastText: { color: C.text, fontFamily: F.medium, fontSize: 14 },
+
+  // Scale switcher: a segmented dial; the active scale reads in paper white, orange stays for "visited".
+  bottom: { position: 'absolute', left: 0, right: 0, bottom: 0, gap: 10 },
   scales: {
-    position: 'absolute', left: 16, right: 16, bottom: 16,
-    flexDirection: 'row', backgroundColor: C.surface, borderRadius: 999, padding: 4,
-    borderWidth: 1, borderColor: C.line,
+    marginHorizontal: 12, flexDirection: 'row', backgroundColor: C.surface, borderRadius: R.md, padding: 3,
+    borderWidth: 1, borderColor: C.line, boxShadow: '0 10px 30px rgba(2, 8, 12, 0.45)',
   },
-  scale: { flex: 1, paddingVertical: 10, borderRadius: 999, alignItems: 'center' },
-  scaleOn: { backgroundColor: C.accent },
-  scaleText: { color: C.muted, fontSize: 13, fontWeight: '600' },
-  scaleTextOn: { color: C.onAccent },
-  tabs: {
-    flexDirection: 'row', backgroundColor: C.bg, paddingTop: 10,
-    borderTopWidth: 1, borderTopColor: C.line,
+  scale: { flex: 1, minHeight: 44, borderRadius: R.sm + 1, alignItems: 'center', justifyContent: 'center' },
+  scaleOn: { backgroundColor: C.text },
+  scalePressed: { backgroundColor: C.line },
+  scaleText: { color: C.muted, fontFamily: F.medium, fontSize: 14, letterSpacing: -0.1 },
+  scaleTextOn: { color: C.bg, fontFamily: F.bold },
+  timelineButton: {
+    alignSelf: 'flex-start', marginHorizontal: 12, backgroundColor: C.surface, borderRadius: R.md,
+    borderWidth: 1, borderColor: C.line, paddingVertical: 10, paddingHorizontal: 14,
   },
-  tab: { flex: 1, alignItems: 'center', gap: 5 },
-  tabDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'transparent' },
-  tabDotOn: { backgroundColor: C.accent },
-  tabText: { color: C.muted, fontSize: 12, fontWeight: '600' },
-  tabTextOn: { color: C.text },
+  timelineButtonText: { color: C.text, fontFamily: F.semi, fontSize: 14 },
+
+  // Photo preview: the picture first, then where, when and what Gemma read in it.
+  preview: {
+    position: 'absolute', top: 0, right: 0, bottom: 0, left: 0,
+    backgroundColor: '#05090b', justifyContent: 'center', paddingHorizontal: 20, gap: 20,
+  },
+  previewImage: { width: '100%', height: '56%', borderRadius: R.md },
+  previewInfo: { gap: 2 },
+  previewWhere: { color: C.text, fontFamily: F.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.8 },
+  previewWhen: { color: C.muted, fontFamily: F.mono, fontSize: 12.5 },
+  previewAi: { marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: C.line, gap: 6 },
+  previewAiLabel: { color: C.accent, fontFamily: F.monoMedium, fontSize: 11.5 },
+  previewScene: { color: C.text, fontFamily: F.body, fontSize: 16, lineHeight: 22 },
+  previewTags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 2 },
+  previewTag: { borderRadius: R.sm, borderWidth: 1, borderColor: C.lineStrong, paddingVertical: 4, paddingHorizontal: 8 },
+  previewTagText: { color: C.text, fontFamily: F.medium, fontSize: 13 },
+  previewHint: { color: C.faint, fontFamily: F.mono, fontSize: 11, textAlign: 'center' },
 });
