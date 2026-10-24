@@ -67,6 +67,7 @@ export const mapHtml = `<!doctype html>
     points: [],
     photos: [],
     events: [],
+    selectedEvent: null,
     timeline: null
   };
 
@@ -128,7 +129,8 @@ export const mapHtml = `<!doctype html>
       paint: { 'line-color': ACCENT, 'line-width': 3, 'line-opacity': 0.95 } });
     // Events for you, at the local scale: orange dots with a white ring.
     map.addLayer({ id: 'events', type: 'circle', source: 'events', paint: {
-      'circle-radius': 9, 'circle-color': ACCENT, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 3
+      'circle-radius': ['case', ['get', 'on'], 14, 9], 'circle-color': ACCENT,
+      'circle-stroke-color': '#ffffff', 'circle-stroke-width': ['case', ['get', 'on'], 5, 3]
     } });
     // Invisible: only tells which photos and clusters are on screen. The markers are HTML.
     map.addLayer({ id: 'photos-hit', type: 'circle', source: 'photos', paint: {
@@ -210,8 +212,16 @@ export const mapHtml = `<!doctype html>
   function eventFeatures() {
     if (state.scale !== 'local') return [];
     return state.events.map(function (e) {
-      return { type: 'Feature', geometry: { type: 'Point', coordinates: [e.lon, e.lat] }, properties: { id: e.id } };
+      return { type: 'Feature', geometry: { type: 'Point', coordinates: [e.lon, e.lat] }, properties: { id: e.id, on: e.id === state.selectedEvent } };
     });
+  }
+
+  // Centre the picked event in the map above the panel of event cards.
+  function showEvent() {
+    var e = state.events.filter(function (x) { return x.id === state.selectedEvent; })[0];
+    if (!e || state.scale !== 'local') return;
+    var top = state.chromeTop || 110, bottom = 400;
+    map.easeTo({ center: [e.lon, e.lat], zoom: 12, offset: [0, (top - bottom) / 2], duration: 900 });
   }
 
   function moveCamera(features) {
@@ -417,9 +427,11 @@ export const mapHtml = `<!doctype html>
       var moved = (next.scale && next.scale !== state.scale) ||
         (next.focus && JSON.stringify(next.focus) !== JSON.stringify(state.focus));
       var timelineChanged = 'timeline' in next && JSON.stringify(next.timeline) !== JSON.stringify(state.timeline);
+      var picked = next.selectedEvent && next.selectedEvent !== state.selectedEvent;
       Object.keys(next).forEach(function (k) { state[k] = next[k]; });
       if (next.chromeTop) document.documentElement.style.setProperty('--chrome-top', next.chromeTop + 'px');
       render(moved && !state.timeline);
+      if (picked && !moved) showEvent();
       if (next.photos || timelineChanged) renderPhotos();
       if (next.photos || timelineChanged) renderJourney();
     }

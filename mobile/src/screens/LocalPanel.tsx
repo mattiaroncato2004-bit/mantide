@@ -1,6 +1,8 @@
 // The local scale's panel: events around you chosen from your interests, with the interests
-// Gemma found in your photos. Tapping an event dot on the map brings its card first.
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+// Gemma found in your photos. Tapping an event dot on the map brings its card first; tapping a
+// card shows the event on the map.
+import { useEffect, useRef } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View, type ScrollViewInstance } from 'react-native';
 import { labelOf, type InterestId } from '../ai/interests';
 import { why, type InterestWeight, type Recommendation } from '../events/recommend';
 import { C, F, R, S } from '../theme';
@@ -10,6 +12,7 @@ type Props = {
   interests: InterestWeight[];
   recommendations: Recommendation[];
   selectedEvent: string | null;
+  onSelectEvent: (id: string) => void;
   status: string; // shown when there is nothing to recommend yet
   deviceNote: string; // where Gemma runs
   onRemoveInterest: (id: InterestId) => void;
@@ -19,10 +22,13 @@ type Props = {
 const day = (iso: string) => String(new Date(iso).getDate());
 const month = (iso: string) => new Date(iso).toLocaleDateString('it-IT', { month: 'short' }).replace('.', '');
 
-export function LocalPanel({ place, interests, recommendations, selectedEvent, status, deviceNote, onRemoveInterest, bottomInset }: Props) {
+export function LocalPanel({ place, interests, recommendations, selectedEvent, onSelectEvent, status, deviceNote, onRemoveInterest, bottomInset }: Props) {
   const cards = selectedEvent
     ? [...recommendations].sort((a, b) => Number(b.event.id === selectedEvent) - Number(a.event.id === selectedEvent))
     : recommendations;
+  // The picked card moves first: scroll back so it stays in view.
+  const list = useRef<ScrollViewInstance>(null);
+  useEffect(() => list.current?.scrollTo({ x: 0, animated: true }), [selectedEvent]);
   return (
     <View style={[styles.panel, { paddingBottom: bottomInset + 12 }]}>
       <View style={styles.head}>
@@ -50,11 +56,17 @@ export function LocalPanel({ place, interests, recommendations, selectedEvent, s
       )}
 
       {cards.length ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cards}>
+        <ScrollView ref={list} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cards}>
           {cards.map((r) => {
             const on = r.event.id === selectedEvent;
             return (
-              <View key={r.event.id} style={[styles.card, on && styles.cardOn]}>
+              <Pressable
+                key={r.event.id}
+                onPress={() => onSelectEvent(r.event.id)}
+                style={({ pressed }) => [styles.card, on && styles.cardOn, pressed && styles.pressed]}
+                accessibilityRole="button"
+                accessibilityLabel={`${r.event.title}: mostra sulla mappa`}
+              >
                 <View style={styles.date}>
                   <Text style={[styles.day, on && styles.dayOn]}>{day(r.event.start)}</Text>
                   <Text style={styles.month}>{month(r.event.start)}</Text>
@@ -68,7 +80,7 @@ export function LocalPanel({ place, interests, recommendations, selectedEvent, s
                   </View>
                   <Text style={styles.why} numberOfLines={2}>{why(r)}</Text>
                 </View>
-              </View>
+              </Pressable>
             );
           })}
         </ScrollView>

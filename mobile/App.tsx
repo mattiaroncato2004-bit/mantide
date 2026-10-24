@@ -81,7 +81,7 @@ function Home() {
   const [removed, setRemoved] = useState<InterestId[]>([]);
   const [opened, setOpened] = useState<string | null>(null); // photo shown full screen
   const [selected, setSelected] = useState<SelectedPlace | null>(null); // area tapped on the map
-  const [selectedEvent, setSelectedEvent] = useState<string | null>(null); // event dot tapped on the map
+  const [selectedEvent, setSelectedEvent] = useState<string | null>(null); // event dot or card tapped
   const [passportOpen, setPassportOpen] = useState(false);
   const [chromeTop, setChromeTop] = useState(120);
   const [timelineOn, setTimelineOn] = useState(false);
@@ -318,10 +318,11 @@ function Home() {
         id: p.id, lon: p.lon, lat: p.lat, takenAt: p.takenAt, thumb: thumbs[p.id],
       })),
       events: scale === 'local' && !reached ? localRecommendations.map((r) => ({ id: r.event.id, lon: r.event.lon, lat: r.event.lat })) : [],
+      selectedEvent,
       timeline: reached ? { until: reached.takenAt } : null,
       chromeTop,
     }),
-    [scale, focus, visited, here, photos, thumbs, localRecommendations, reached, chromeTop],
+    [scale, focus, visited, here, photos, thumbs, localRecommendations, selectedEvent, reached, chromeTop],
   );
 
   const showToast = (text: string) => {
@@ -500,6 +501,7 @@ function Home() {
             interests={profile}
             recommendations={localRecommendations}
             selectedEvent={selectedEvent}
+            onSelectEvent={setSelectedEvent}
             status={localStatus}
             deviceNote={whereGemmaRuns()}
             onRemoveInterest={(id) => setRemoved((r) => [...r, id])}

@@ -24,6 +24,7 @@ export type MapState = {
   points: [number, number][]; // [lon, lat] of the current position
   photos: MapPhoto[];
   events: MapEvent[]; // drawn at the local scale only
+  selectedEvent: string | null; // the event picked on the map or in the panel: bigger dot, map centred on it
   timeline: { until: number } | null; // only photos taken until then, with the journey animated
   chromeTop: number; // px from the top where the app's header ends: map controls go below it
 };

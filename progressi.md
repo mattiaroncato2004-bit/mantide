@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 18:30. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 18:38. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
@@ -57,6 +57,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:30. Hackathon: prototipo alle 19:00, c
 - **Sfondo Sentinel-2 cloudless 2016 di EOX (CC BY 4.0):** aspetto verde e fisico, licenza aperta. Le versioni dal 2018 in poi sono non commerciali: non usarle.
 - **Zone visitate quasi trasparenti con bordo arancione, non visitate sotto un velo chiaro:** il colore pieno sopra il satellite diventava marrone.
 - **Eventi alla scala Locale come puntini arancioni** (`events` nella pagina della mappa): il tocco manda `{type: 'event', id}` e la scheda di quell'evento passa in testa al pannello. L'inquadratura comprende te e gli eventi, sopra il pannello.
+- **Toccare una scheda evento la mostra sulla mappa** (feedback del team, 18:35): l'app manda `selectedEvent` alla pagina, che ingrandisce quel puntino e ci si centra a zoom 12 nella parte di mappa libera tra intestazione e pannello. Anche il tocco sul puntino passa per `selectedEvent`, quindi i due gesti fanno la stessa cosa.
 - **Linee dei viaggi** (`tripLines` in `src/map/mapHtml.ts`): le foto ordinate per data; più di 4 giorni senza foto chiudono un viaggio e ne aprono un altro. È l'idea "unire i luoghi in ordine cronologico" dei metadati.
 - **Miniature come in Foto di iPhone:** gruppi con il numero, che si separano zoomando. Le miniature (160 px, base64) si mandano alla pagina solo quando cambiano.
 - **Miniature a puntina** (18:30): la miniatura sta sopra il punto, con una punta bianca che lo indica. Centrata sul punto copriva le regioni piccole visitate (Greater London, Berlino), che sembravano spente.
@@ -137,7 +138,13 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:30. Hackathon: prototipo alle 19:00, c
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 18:30 · questo commit · Regioni visitate visibili in tutti i paesi con foto
+### 18:38 · questo commit · Scheda evento → evento sulla mappa
+- **Cosa:** le schede del pannello "Per te qui" si possono toccare: la scheda passa prima, il suo puntino si ingrandisce e la mappa ci si centra. Nuovo campo `selectedEvent` in `MapState`.
+- **Perché:** il team toccava una scheda per vedere dov'era l'evento e non succedeva niente.
+- **Verifica:** `npx tsc --noEmit`, `test-recommend`, `npx expo export --platform android`. Nel browser a 390×844: tocco sulla terza scheda (Trekking sul Montello) → scheda in testa, puntino grande a metà della mappa libera, zoom 12.
+- **Da provare:** su Android.
+
+### 18:30 · 28e58c3 · Regioni visitate visibili in tutti i paesi con foto
 - **Cosa:**
   - Miniature a puntina sopra il punto, non centrate su di esso.
   - Inquadratura Nazionale e Regionale sotto l'intestazione e sopra i pulsanti; senza le isole lontane.
