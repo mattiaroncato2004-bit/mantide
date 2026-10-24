@@ -15,7 +15,7 @@ import { GalleryScreen } from './src/screens/GalleryScreen';
 import { InterestsScreen, type InterestRow } from './src/screens/InterestsScreen';
 import { ForYouScreen } from './src/screens/ForYouScreen';
 import { makeThumbs } from './src/map/thumbs';
-import { analyzePhoto, GEMMA_URL, loadAnalyses, sample, saveAnalyses, type Analysis } from './src/ai/gemma';
+import { analyzePhoto, demoAnalysis, GEMMA_URL, loadAnalyses, sample, saveAnalyses, type Analysis } from './src/ai/gemma';
 import { labelOf, type InterestId } from './src/ai/interests';
 import { EVENTS, profileFromCounts, recommend } from './src/events/recommend';
 import { nameOf } from './src/geo/locate';
@@ -145,8 +145,23 @@ function Home() {
       }
       setAiStatus(`Fatto: ${Object.keys(results).length} foto analizzate.`);
     } catch (e) {
+      // Gemma unreachable: for demo photos, show the answers Gemma gave earlier on the same files.
       console.warn('[gemma]', e);
-      setAiStatus(`Non trovo Gemma su ${GEMMA_URL}: avvia "litert-lm serve" sul computer (vedi local-ai/README.md).`);
+      let reused = 0;
+      for (const photo of todo) {
+        const saved = !results[photo.id] && demoAnalysis(photo.filename);
+        if (saved) {
+          results[photo.id] = saved;
+          reused++;
+        }
+      }
+      setAnalyses({ ...results });
+      await saveAnalyses(results);
+      setAiStatus(
+        reused
+          ? `Gemma non risponde su ${GEMMA_URL}: mostro le risposte che Gemma aveva già dato su ${reused} foto demo.`
+          : `Non trovo Gemma su ${GEMMA_URL}: avvia "litert-lm serve" sul computer (vedi local-ai/README.md).`,
+      );
     } finally {
       setAnalyzing(false);
     }
