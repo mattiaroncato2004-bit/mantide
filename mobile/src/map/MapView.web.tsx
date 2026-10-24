@@ -21,12 +21,13 @@ type Props = {
   state: MapState;
   onToggle: (level: Level, id: string, name: string) => void;
   onPhoto?: (id: string) => void;
+  onPhotos?: (ids: string[]) => void; // a thumbnail with a number: all the photos behind it
   onEvent?: (id: string) => void;
 };
 
 type MapPage = Window & { mantide?: { setState: (s: MapState) => void } };
 
-export function MapView({ state, onToggle, onPhoto, onEvent }: Props) {
+export function MapView({ state, onToggle, onPhoto, onPhotos, onEvent }: Props) {
   const frame = useRef<HTMLIFrameElement>(null);
   const ready = useRef(false);
 
@@ -47,6 +48,8 @@ export function MapView({ state, onToggle, onPhoto, onEvent }: Props) {
         onToggle(msg.level, msg.id, msg.name);
       } else if (msg.type === 'photo') {
         onPhoto?.(msg.id);
+      } else if (msg.type === 'photos') {
+        onPhotos?.(msg.ids);
       } else if (msg.type === 'event') {
         onEvent?.(msg.id);
       } else if (msg.type === 'error') {

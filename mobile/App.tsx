@@ -25,6 +25,7 @@ import { Welcome } from './src/screens/Welcome';
 import { LocalPanel } from './src/screens/LocalPanel';
 import { PlaceSheet, type SelectedPlace } from './src/screens/PlaceSheet';
 import { PassportSheet } from './src/screens/PassportSheet';
+import { PhotoGroup } from './src/screens/PhotoGroup';
 import { TimelineBar } from './src/screens/TimelineBar';
 import { passport } from './src/stats/passport';
 import Storage from './src/storage';
@@ -80,6 +81,8 @@ function Home() {
   const [status, setStatus] = useState<string | null>(null); // gallery and Gemma progress, in the header
   const [removed, setRemoved] = useState<InterestId[]>([]);
   const [opened, setOpened] = useState<string | null>(null); // photo shown full screen
+  const [group, setGroup] = useState<string[] | null>(null); // the photos behind a numbered thumbnail
+  const [galleryOpen, setGalleryOpen] = useState(false); // all your photos, and the gallery consent
   const [selected, setSelected] = useState<SelectedPlace | null>(null); // area tapped on the map
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null); // event dot or card tapped
   const [passportOpen, setPassportOpen] = useState(false);
@@ -358,7 +361,7 @@ function Home() {
   const localName = herePlace.province ? nameOf('province', herePlace.province) : nameOf('country', herePlace.country);
   const localStatus =
     choice === 'none'
-      ? 'Attiva la galleria dal pulsante in alto: Gemma capirà cosa ti piace e qui compariranno gli eventi giusti.'
+      ? 'Collega la galleria dal pulsante Galleria qui sopra, a destra: Gemma capirà cosa ti piace e qui compariranno gli eventi giusti.'
       : busy
         ? 'Gemma sta guardando le tue foto: gli eventi arrivano appena ha capito cosa ti piace.'
         : 'Nessun evento qui vicino per i tuoi interessi.';
@@ -392,6 +395,7 @@ function Home() {
           setFocus({ country, region, lat, lon });
         }}
         onPhoto={setOpened}
+        onPhotos={setGroup}
         onEvent={(id) => setSelectedEvent(id)}
       />
 
@@ -458,15 +462,6 @@ function Home() {
                 <Text style={styles.timelineButtonText}>▶ Linea del tempo</Text>
               </Pressable>
             )}
-            <Pressable
-              onPress={() => setChoice(null)}
-              style={({ pressed }) => [styles.timelineButton, styles.galleryTool, pressed && styles.pressed]}
-              accessibilityRole="button"
-              accessibilityLabel="Scegli se usare la galleria"
-            >
-              <View style={[styles.galleryDot, choice === 'all' && styles.galleryDotOn]} />
-              <Text style={styles.timelineButtonText}>Galleria</Text>
-            </Pressable>
             {(focus.lat !== home.lat || focus.lon !== home.lon) && (
               <Pressable
                 onPress={() => {
@@ -479,6 +474,16 @@ function Home() {
                 <Text style={styles.timelineButtonText}>◎ Torna qui</Text>
               </Pressable>
             )}
+            {/* Far right, apart from the map tools on the left. */}
+            <Pressable
+              onPress={() => setGalleryOpen(true)}
+              style={({ pressed }) => [styles.timelineButton, styles.galleryTool, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Apri la galleria"
+            >
+              <View style={[styles.galleryDot, choice === 'all' && styles.galleryDotOn]} />
+              <Text style={styles.timelineButtonText}>Galleria</Text>
+            </Pressable>
           </View>
         )}
         <View style={styles.scales} accessibilityRole="tablist">
@@ -522,6 +527,45 @@ function Home() {
           )
         )}
       </View>
+
+      {galleryOpen && (
+        <PhotoGroup
+          photos={photos}
+          title="La tua galleria"
+          notice={
+            choice === 'all' ? (
+              <Pressable onPress={skipGallery} style={styles.consentLink} accessibilityRole="button">
+                <Text style={styles.consentLinkText}>Smetti di usare la galleria</Text>
+              </Pressable>
+            ) : (
+              <View style={styles.consent}>
+                <Text style={styles.consentTitle}>La galleria non è collegata</Text>
+                <Text style={styles.consentText}>
+                  Collegala per vedere qui le tue foto, segnare sulla mappa dove le hai scattate e ricevere eventi su misura.
+                  Gemma le guarda sul tuo dispositivo, mai nel cloud.
+                </Text>
+                <Pressable onPress={allowGallery} style={({ pressed }) => [styles.consentButton, pressed && styles.pressed]} accessibilityRole="button">
+                  <Text style={styles.consentButtonText}>Usa la mia galleria</Text>
+                </Pressable>
+              </View>
+            )
+          }
+          onOpen={setOpened}
+          onClose={() => setGalleryOpen(false)}
+          topInset={insets.top}
+          bottomInset={insets.bottom}
+        />
+      )}
+
+      {group && group.some((id) => byId.has(id)) && (
+        <PhotoGroup
+          photos={group.flatMap((id) => byId.get(id) ?? [])}
+          onOpen={setOpened}
+          onClose={() => setGroup(null)}
+          topInset={insets.top}
+          bottomInset={insets.bottom}
+        />
+      )}
 
       {opened && byId.get(opened) && (
         <PhotoPreview photo={byId.get(opened)!} analysis={analyses[opened]} onClose={() => setOpened(null)} />
@@ -578,7 +622,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10, paddingHorizontal: 4,
     boxShadow: '0 10px 30px rgba(2, 8, 12, 0.45)',
   },
-  galleryTool: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  galleryTool: { flexDirection: 'row', alignItems: 'center', gap: 7, marginLeft: 'auto' },
   galleryDot: { width: 7, height: 7, borderRadius: 2, borderWidth: 1.5, borderColor: C.faint },
   galleryDotOn: { backgroundColor: C.accent, borderColor: C.accent },
   counts: { flexDirection: 'row', alignItems: 'stretch' },
@@ -617,6 +661,14 @@ const styles = StyleSheet.create({
   scaleText: { color: C.muted, fontFamily: F.medium, fontSize: 14, letterSpacing: -0.1 },
   scaleTextOn: { color: C.bg, fontFamily: F.bold },
   tools: { flexDirection: 'row', gap: 6, marginHorizontal: 12 },
+  // The gallery screen: consent when the gallery is not connected, a way out when it is.
+  consent: { width: '100%', margin: 2, marginBottom: 14, padding: 16, gap: 8, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: C.surface },
+  consentTitle: { color: C.text, fontFamily: F.bold, fontSize: 17, letterSpacing: -0.3 },
+  consentText: { color: C.muted, fontFamily: F.body, fontSize: 14.5, lineHeight: 21 },
+  consentButton: { marginTop: 6, minHeight: 48, borderRadius: R.md, backgroundColor: C.accent, alignItems: 'center', justifyContent: 'center' },
+  consentButtonText: { color: C.onAccent, fontFamily: F.bold, fontSize: 16 },
+  consentLink: { width: '100%', paddingHorizontal: 2, paddingBottom: 12 },
+  consentLinkText: { color: C.muted, fontFamily: F.mono, fontSize: 12, textDecorationLine: 'underline' },
   timelineButton: { backgroundColor: C.surface, borderRadius: R.md,
     borderWidth: 1, borderColor: C.line, paddingVertical: 10, paddingHorizontal: 12,
   },

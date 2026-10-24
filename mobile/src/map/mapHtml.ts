@@ -3,8 +3,8 @@
 //
 // App → page: window.mantide.setState(partialMapState); `timeline: {until}` shows only the photos
 // taken until then and animates the journey to the latest one.
-// Page → app: {type: 'ready'} | {type: 'toggle', level, id, name} | {type: 'photo', id} | {type: 'event', id}
-//             | {type: 'error', message}
+// Page → app: {type: 'ready'} | {type: 'toggle', level, id, name} | {type: 'photo', id} | {type: 'photos', ids}
+//             | {type: 'event', id} | {type: 'error', message}
 // Boundaries are written into the page by withGeo() as window.__MANTIDE_GEO =
 // {countries, regions (Italy), provinces (Italy), worldRegions (first-level units elsewhere, with `group`
 // for Spain, France, UK, Portugal), worldGroups (the real regions of those four)}.
@@ -40,6 +40,15 @@ export const mapHtml = `<!doctype html>
     background: #ff7a45; z-index: 5; animation: tl-pulse 1.6s ease-out infinite; }
   @keyframes tl-pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 122, 69, 0.55); } 100% { box-shadow: 0 0 0 16px rgba(255, 122, 69, 0); } }
   @media (prefers-reduced-motion: reduce) { .tl-head { animation: none; box-shadow: 0 0 0 6px rgba(255, 122, 69, 0.35); } }
+  /* You, at the local scale: the blue dot of every maps app, above photos and events. */
+  .me { width: 22px; height: 22px; box-sizing: border-box; border: 4px solid #fff; border-radius: 50%;
+    background: #3d8bff; z-index: 6; animation: me-pulse 2s ease-out infinite; }
+  @keyframes me-pulse { 0% { box-shadow: 0 0 0 0 rgba(61, 139, 255, 0.6); } 100% { box-shadow: 0 0 0 22px rgba(61, 139, 255, 0); } }
+  @media (prefers-reduced-motion: reduce) { .me { animation: none; box-shadow: 0 0 0 7px rgba(61, 139, 255, 0.3); } }
+  .me-label, .ring-label { position: absolute; white-space: nowrap; border-radius: 6px; background: rgba(8, 15, 19, 0.85);
+    color: #fff; pointer-events: none; }
+  .me-label { top: 24px; left: 50%; transform: translateX(-50%); padding: 2px 7px; font: 700 11px/16px -apple-system, Roboto, sans-serif; }
+  .ring-label { padding: 1px 6px; font: 600 10.5px/15px ui-monospace, Menlo, monospace; }
 </style>
 </head>
 <body>
@@ -103,6 +112,7 @@ export const mapHtml = `<!doctype html>
     map.addSource('trips', { type: 'geojson', data: collection([]) });
     map.addSource('events', { type: 'geojson', data: collection([]) });
     map.addSource('journey', { type: 'geojson', data: collection([]) });
+    map.addSource('rings', { type: 'geojson', data: collection([]) });
     // The cluster keeps the best rank of its photos, to show the newest one as its cover.
     map.addSource('photos', { type: 'geojson', data: collection([]), cluster: true, clusterRadius: 60, clusterMaxZoom: 15,
       clusterProperties: { top: ['max', ['get', 'rank']] } });
@@ -116,6 +126,9 @@ export const mapHtml = `<!doctype html>
       'line-width': ['case', ['get', 'visited'], 2.6, 0.6],
       'line-opacity': 0.9
     } });
+    // Distance rings around you at the local scale, so "12 km" on a card has a size on the map.
+    map.addLayer({ id: 'rings', type: 'line', source: 'rings',
+      paint: { 'line-color': '#ffffff', 'line-width': 1.5, 'line-opacity': 0.8, 'line-dasharray': [3, 2] } });
     // Each trip is a dashed line through its photos in the order they were taken.
     map.addLayer({ id: 'trips', type: 'line', source: 'trips',
       layout: { 'line-join': 'round', 'line-cap': 'round' },
@@ -264,12 +277,61 @@ export const mapHtml = `<!doctype html>
     if (!map.getSource('areas')) return;
     var features = areas();
     map.getSource('areas').setData(collection(features));
-    var points = state.scale === 'global' ? [] : state.points.map(function (p) {
+    // At the local scale you are the blue dot instead (renderYou).
+    var points = state.scale === 'global' || state.scale === 'local' ? [] : state.points.map(function (p) {
       return { type: 'Feature', geometry: { type: 'Point', coordinates: p }, properties: {} };
     });
     map.getSource('points').setData(collection(points));
     map.getSource('events').setData(collection(eventFeatures()));
+    renderYou();
     if (withCamera) moveCamera(features);
+  }
+
+  // The local scale measures every distance from the focus: a blue dot there, and rings at round
+  // distances up to the farthest event. Without GPS the focus is H-FARM, and that's where you are.
+  var you = null, ringLabels = [], ringKey = '';
+  function km(a, b) {
+    var x = (b[0] - a[0]) * 111.32 * Math.cos(a[1] * Math.PI / 180), y = (b[1] - a[1]) * 110.57;
+    return Math.sqrt(x * x + y * y);
+  }
+  function ring(c, r) {
+    var coords = [];
+    for (var i = 0; i <= 72; i++) {
+      var t = (i / 72) * 2 * Math.PI;
+      coords.push([c[0] + (r / (111.32 * Math.cos(c[1] * Math.PI / 180))) * Math.cos(t), c[1] + (r / 110.57) * Math.sin(t)]);
+    }
+    return { type: 'Feature', geometry: { type: 'LineString', coordinates: coords }, properties: {} };
+  }
+  function renderYou() {
+    var local = state.scale === 'local';
+    var c = [state.focus.lon, state.focus.lat];
+    var far = local ? state.events.reduce(function (m, e) { return Math.max(m, km(c, [e.lon, e.lat])); }, 0) : 0;
+    var steps = local ? [1, 2, 5, 10, 20, 50, 100].filter(function (r) { return r <= Math.max(far, 5) * 1.15; }).slice(-3) : [];
+    var key = local ? c.join(',') + '|' + steps.join(',') : '';
+    if (key !== ringKey) {
+      ringKey = key;
+      map.getSource('rings').setData(collection(steps.map(function (r) { return ring(c, r); })));
+      ringLabels.forEach(function (m) { m.remove(); });
+      ringLabels = steps.map(function (r) {
+        var el = document.createElement('div');
+        el.className = 'ring-label';
+        el.textContent = r + ' km';
+        // North-east of you, clear of the photo pins that stand right above their place.
+        var d = r * Math.SQRT1_2;
+        return new maplibregl.Marker({ element: el }).setLngLat([c[0] + d / (111.32 * Math.cos(c[1] * Math.PI / 180)), c[1] + d / 110.57]).addTo(map);
+      });
+    }
+    if (!local) { if (you) { you.remove(); you = null; } return; }
+    var gps = state.points[0];
+    var label = !gps || km(c, gps) < 1 ? 'Sei qui' : 'Distanze da qui';
+    if (!you) {
+      var el = document.createElement('div');
+      el.className = 'me';
+      el.innerHTML = '<div class="me-label"></div>';
+      you = new maplibregl.Marker({ element: el }).setLngLat(c).addTo(map);
+    }
+    you.setLngLat(c);
+    you.getElement().firstChild.textContent = label;
   }
 
   // Photos: thumbnails stay out of the source (tiles stay light) and are looked up by id.
@@ -386,8 +448,9 @@ export const mapHtml = `<!doctype html>
     el.addEventListener('click', function (e) {
       e.stopPropagation(); // don't toggle the area under the photo
       if (clusterId === null) return send({ type: 'photo', id: id });
-      map.getSource('photos').getClusterExpansionZoom(clusterId).then(function (zoom) {
-        map.easeTo({ center: coords, zoom: zoom, duration: 600 });
+      // A thumbnail with a number opens all the photos behind it.
+      map.getSource('photos').getClusterLeaves(clusterId, 1000, 0).then(function (leaves) {
+        send({ type: 'photos', ids: leaves.map(function (l) { return l.properties.id; }) });
       }).catch(function () {});
     });
     // Thumbnails stand above their point like pins, so the place underneath stays visible.
