@@ -3,7 +3,7 @@
 //
 // App → page: window.mantide.setState(partialMapState)
 // Page → app: {type: 'ready'} | {type: 'toggle', level, id, name} | {type: 'photo', id} | {type: 'error', message}
-// Boundaries arrive before load in window.__MANTIDE_GEO = {countries, regions, provinces}.
+// Boundaries are written into the page by withGeo() as window.__MANTIDE_GEO = {countries, regions, provinces}.
 
 export const MAPLIBRE_VERSION = '5.6.0';
 export const H3_VERSION = '4.1.0';
@@ -34,6 +34,7 @@ export const mapHtml = `<!doctype html>
 </head>
 <body>
 <div id="map"></div>
+<!-- GEO -->
 <script>
 (function () {
   var ACCENT = '#ff7a45';
@@ -290,3 +291,9 @@ export const mapHtml = `<!doctype html>
 </script>
 </body>
 </html>`;
+
+// Writes the boundaries into the page itself, so they exist before the page script runs on every
+// Android WebView version (injectedJavaScriptBeforeContentLoaded depends on the system WebView).
+export function withGeo(geo: unknown): string {
+  return mapHtml.replace('<!-- GEO -->', `<script>window.__MANTIDE_GEO = ${JSON.stringify(geo)};</script>`);
+}

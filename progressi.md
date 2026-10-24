@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 17:25. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 17:30. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
@@ -42,7 +42,8 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 - **Sfondo Sentinel-2 cloudless 2016 di EOX (CC BY 4.0):** aspetto verde e fisico, licenza aperta. Le versioni dal 2018 in poi sono non commerciali: non usarle.
 - **Zone visitate quasi trasparenti con bordo arancione, non visitate sotto un velo chiaro:** il colore pieno sopra il satellite diventava marrone.
 - **Miniature come in Foto di iPhone:** gruppi con il numero, che si separano zoomando. Le miniature (160 px, base64) si mandano alla pagina solo quando cambiano.
-- **Protocollo app ↔ mappa:** l'app chiama `window.mantide.setState(...)`; la pagina risponde con `ready`, `toggle` (zona toccata), `photo` (foto toccata) ed `error`. I confini entrano una volta sola in `window.__MANTIDE_GEO`.
+- **Protocollo app ↔ mappa:** l'app chiama `window.mantide.setState(...)`; la pagina risponde con `ready`, `toggle` (zona toccata), `photo` (foto toccata) ed `error`.
+- **Confini scritti dentro la pagina** (`withGeo` in `src/map/mapHtml.ts`), non iniettati con `injectedJavaScriptBeforeContentLoaded`: su Android quella funzione dipende dalla versione della WebView di sistema, e se parte in ritardo la mappa resta senza zone.
 
 **Gemma**
 - **Gemma 4 E2B, non E4B:** etichettare una foto è classificazione, basta il modello piccolo (2,58 GB).
@@ -100,7 +101,12 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 17:25 · questo commit · Controlli senza Android e simulazione della demo
+### 17:30 · questo commit · Confini scritti dentro la pagina della mappa
+- **Cosa:** `withGeo()` in `src/map/mapHtml.ts` scrive i confini nella pagina; `MapView` e `scripts/preview-map.ts` la usano; tolto `injectedJavaScriptBeforeContentLoaded`.
+- **Perché:** togliere un comportamento che cambia tra le versioni della WebView di Android.
+- **Verifica:** `npx tsc --noEmit`; `npx expo export --platform android`; nel browser la pagina ha 242 paesi, 20 regioni e 110 province, e disegna zone e miniature senza errori.
+
+### 17:25 · cd359f9 · Controlli senza Android e simulazione della demo
 - **Cosa:**
   - `parseAnswer` spostato in `src/ai/parse.ts`, senza moduli nativi, con il test `scripts/test-parse.ts`.
   - `scripts/simulate-demo.ts`: luoghi, interessi e consigli alle 4 scale calcolati sui dati demo.

@@ -6,10 +6,10 @@ import countries from '../geo/countries.json';
 import regions from '../geo/it-regions.json';
 import provinces from '../geo/it-provinces.json';
 import type { Level, MapPhoto, MapState } from '../types';
-import { mapHtml } from './mapHtml';
+import { withGeo } from './mapHtml';
 
-// About 430 KB of boundaries, injected once before the page loads.
-const GEO_SCRIPT = `window.__MANTIDE_GEO = ${JSON.stringify({ countries, regions, provinces })}; true;`;
+// The map page with about 430 KB of boundaries written in, built once.
+const HTML = withGeo({ countries, regions, provinces });
 
 type Props = {
   state: MapState;
@@ -58,8 +58,7 @@ export function MapView({ state, onToggle, onPhoto }: Props) {
     <WebView<object>
       ref={webview}
       originWhitelist={['*']}
-      source={{ html: mapHtml }}
-      injectedJavaScriptBeforeContentLoaded={GEO_SCRIPT}
+      source={{ html: HTML }}
       onMessage={onMessage}
       style={styles.map}
     />
