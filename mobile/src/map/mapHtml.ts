@@ -88,6 +88,7 @@ export const mapHtml = `<!doctype html>
   map.on('load', function () {
     map.addSource('areas', { type: 'geojson', data: collection([]) });
     map.addSource('points', { type: 'geojson', data: collection([]) });
+    map.addSource('trips', { type: 'geojson', data: collection([]) });
     // The cluster keeps the best rank of its photos, to show the newest one as its cover.
     map.addSource('photos', { type: 'geojson', data: collection([]), cluster: true, clusterRadius: 60, clusterMaxZoom: 15,
       clusterProperties: { top: ['max', ['get', 'rank']] } });
@@ -101,6 +102,10 @@ export const mapHtml = `<!doctype html>
       'line-width': ['case', ['get', 'visited'], 2.2, 0.6],
       'line-opacity': 0.9
     } });
+    // Each trip is a dashed line through its photos in the order they were taken.
+    map.addLayer({ id: 'trips', type: 'line', source: 'trips',
+      layout: { 'line-join': 'round', 'line-cap': 'round' },
+      paint: { 'line-color': '#ffffff', 'line-width': 2, 'line-opacity': 0.85, 'line-dasharray': [1.5, 1.5] } });
     map.addLayer({ id: 'points', type: 'circle', source: 'points', paint: {
       'circle-radius': 4.5, 'circle-color': '#ffffff', 'circle-stroke-color': ACCENT, 'circle-stroke-width': 2
     } });
@@ -216,8 +221,29 @@ export const mapHtml = `<!doctype html>
     });
   }
 
+  // Trips: photos in time order; more than TRIP_GAP_DAYS without photos starts a new trip.
+  var TRIP_GAP_DAYS = 4;
+  function tripLines() {
+    var sorted = state.photos.filter(function (p) { return p.takenAt; })
+      .sort(function (a, b) { return a.takenAt - b.takenAt; });
+    var trips = [];
+    var current = [];
+    sorted.forEach(function (p, i) {
+      if (i > 0 && p.takenAt - sorted[i - 1].takenAt > TRIP_GAP_DAYS * 864e5) {
+        if (current.length > 1) trips.push(current);
+        current = [];
+      }
+      current.push([p.lon, p.lat]);
+    });
+    if (current.length > 1) trips.push(current);
+    return trips.map(function (coords) {
+      return { type: 'Feature', geometry: { type: 'LineString', coordinates: coords }, properties: {} };
+    });
+  }
+
   function renderPhotos() {
     if (!map.getSource('photos')) return;
+    map.getSource('trips').setData(collection(tripLines()));
     Object.keys(onScreen).forEach(function (k) { onScreen[k].remove(); });
     markers = {};
     onScreen = {};

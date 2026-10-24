@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 17:20. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 17:25. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
@@ -12,6 +12,7 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 |---|---|---|
 | Configurazione Android (permessi galleria e GPS, HTTP verso il computer) | fatto | manifest risolto con `npx expo config --type introspect` |
 | Mappa: globo, 4 scale, tocco per segnare, GPS, contatore | fatto | anteprima nel browser a 390×760 nelle 4 scale |
+| Linee dei viaggi: le foto unite in ordine cronologico | fatto | anteprima nel browser: linea tratteggiata tra le foto di Venezia |
 | Miniature delle foto sulla mappa, raggruppate, con anteprima al tocco | fatto | anteprima nel browser: gruppi con numero, separazione allo zoom, tocco → messaggio `photo` |
 | Punto → paese, regione, provincia (`locate`) | fatto | `npx tsx scripts/test-locate.ts`: 11 casi, compresi Lido di Venezia, Burano, Nizza |
 | Lettura della galleria e schermata Galleria | fatto | solo `npx tsc --noEmit` |
@@ -42,6 +43,7 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 - **MapLibre GL JS dentro una WebView:** ha il globo, colora zone da GeoJSON, e la stessa pagina si prova nel browser.
 - **Sfondo Sentinel-2 cloudless 2016 di EOX (CC BY 4.0):** aspetto verde e fisico, licenza aperta. Le versioni dal 2018 in poi sono non commerciali: non usarle.
 - **Zone visitate quasi trasparenti con bordo arancione, non visitate sotto un velo chiaro:** il colore pieno sopra il satellite diventava marrone.
+- **Linee dei viaggi** (`tripLines` in `src/map/mapHtml.ts`): le foto ordinate per data; più di 4 giorni senza foto chiudono un viaggio e ne aprono un altro. È l'idea "unire i luoghi in ordine cronologico" dei metadati.
 - **Miniature come in Foto di iPhone:** gruppi con il numero, che si separano zoomando. Le miniature (160 px, base64) si mandano alla pagina solo quando cambiano.
 - **Protocollo app ↔ mappa:** l'app chiama `window.mantide.setState(...)`; la pagina risponde con `ready`, `toggle` (zona toccata), `photo` (foto toccata) ed `error`.
 - **Confini scritti dentro la pagina** (`withGeo` in `src/map/mapHtml.ts`), non iniettati con `injectedJavaScriptBeforeContentLoaded`: su Android quella funzione dipende dalla versione della WebView di sistema, e se parte in ritardo la mappa resta senza zone.
@@ -102,7 +104,12 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 17:20 · questo commit · Dove gira Gemma, in base alla RAM `[native: rebuild]`
+### 17:25 · questo commit · Linee dei viaggi sulla mappa
+- **Cosa:** sorgente e livello `trips` nella pagina della mappa: una linea tratteggiata bianca per ogni viaggio, sotto le miniature.
+- **Perché:** ricostruire il passato in ordine cronologico, come chiedeva il team fin dall'idea iniziale.
+- **Verifica:** `npx tsc --noEmit`; nel browser la linea unisce le foto di Venezia nell'ordine giusto, senza errori in console.
+
+### 17:20 · d8494c3 · Dove gira Gemma, in base alla RAM `[native: rebuild]`
 - **Cosa:** expo-device; `whereGemmaRuns()` legge la RAM del dispositivo e la scheda Interessi spiega dove gira Gemma.
 - **Perché:** rendere visibile la scelta "sotto 8 GB Gemma gira sul tuo computer, mai nel cloud".
 - **Verifica:** `npx tsc --noEmit`, `npx expo export --platform android`, `npx expo-doctor`.
