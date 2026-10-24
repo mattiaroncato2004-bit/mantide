@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 17:10. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 17:15. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
@@ -19,7 +19,7 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 | Analisi delle foto nell'app, schermata Interessi | fatto | solo `npx tsc --noEmit` |
 | Eventi inventati (46), consigli per scala, schermata Per te | fatto | `npx tsx scripts/test-recommend.ts` |
 | Galleria dimostrativa inventata (45 foto) | fatto | EXIF riletti per tutte le foto |
-| Risposte di Gemma sulle 45 foto demo (riserva) | in corso | primo giro: tema giusto tra gli interessi in 42 foto su 45; secondo giro col prompt migliorato in corso |
+| Risposte di Gemma sulle 45 foto demo (riserva) | fatto | col prompt attuale il tema giusto è tra gli interessi in 43 foto su 45, ed è il primo in 41 |
 | Copione della demo | fatto | – |
 | Prima compilazione e prova sull'emulatore | **da fare** | – |
 | Gemma direttamente sul telefono | non fatto | serve un telefono da 8 GB |
@@ -100,7 +100,15 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 17:10 · questo commit · Riordino della documentazione, prompt migliorato
+### 17:15 · questo commit · Risposte di Gemma sulle foto demo
+- **Cosa:** `demo-data/analyses.json` (le 45 risposte di Gemma col prompt attuale) e `mobile/src/demo/demo.json` rigenerato.
+- **Perché:** sono la riserva della demo se Gemma non risponde, e la prova di quanto Gemma riconosce le passioni.
+- **Verifica:**
+  - Il tema giusto è tra gli interessi in 43 foto su 45, ed è il primo in 41 (col prompt precedente: 42 su 45).
+  - Interessi più frequenti: architettura 16, natura 12, street art 10, cibo 9.
+  - "Arte" è sceso da 20 a 5.
+
+### 17:10 · a47a56a · Riordino della documentazione, prompt migliorato
 - **Cosa:**
   - Ogni informazione in un posto solo:
     - README (inglese) per cosa fa l'app, architettura, cosa è vero e cosa inventato, come si avvia, crediti;
