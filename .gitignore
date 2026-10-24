@@ -1,0 +1,12 @@
+# Personal photos used for the demo: never commit them
+demo-photos/
+
+# Gemma model files (2.6 GB), downloaded separately
+models/
+*.litertlm
+
+# Python
+__pycache__/
+.venv/
+
+.DS_Store
