@@ -6,7 +6,8 @@
 // Page → app: {type: 'ready'} | {type: 'toggle', level, id, name} | {type: 'photo', id} | {type: 'event', id}
 //             | {type: 'error', message}
 // Boundaries are written into the page by withGeo() as window.__MANTIDE_GEO =
-// {countries, regions (Italy), provinces (Italy), worldRegions (first-level regions elsewhere)}.
+// {countries, regions (Italy), provinces (Italy), worldRegions (first-level units elsewhere, with `group`
+// for Spain, France, UK, Portugal), worldGroups (the real regions of those four)}.
 
 export const MAPLIBRE_VERSION = '5.6.0';
 
@@ -20,8 +21,8 @@ export const mapHtml = `<!doctype html>
 <style>
   html, body, #map { margin: 0; height: 100%; background: #071521; }
   .maplibregl-ctrl-attrib { font-size: 9px; }
-  /* The attribution button sits on the right, under the app's header, clear of the bottom panels. */
-  .maplibregl-ctrl-bottom-right { bottom: auto; top: 168px; }
+  /* The attribution button sits on the right, just under the app's header (chromeTop), clear of the bottom panels. */
+  .maplibregl-ctrl-bottom-right { bottom: auto; top: var(--chrome-top, 120px); }
   /* Photo markers, like the map in the iPhone Photos app. No position here: MapLibre sets it. */
   .ph { width: 44px; height: 44px; box-sizing: border-box; border: 2px solid #fff; border-radius: 8px;
     background: #24323d; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45); cursor: pointer; }
@@ -55,7 +56,7 @@ export const mapHtml = `<!doctype html>
   }
   window.onerror = function (message) { send({ type: 'error', message: String(message) }); };
 
-  var GEO = window.__MANTIDE_GEO || { countries: { features: [] }, regions: { features: [] }, provinces: { features: [] }, worldRegions: { features: [] } };
+  var GEO = window.__MANTIDE_GEO || { countries: { features: [] }, regions: { features: [] }, provinces: { features: [] }, worldRegions: { features: [] }, worldGroups: { features: [] } };
   var state = {
     scale: 'global',
     focus: { country: 'ITA', region: '05', lat: 45.6297, lon: 12.3766 },
@@ -101,14 +102,14 @@ export const mapHtml = `<!doctype html>
     // The cluster keeps the best rank of its photos, to show the newest one as its cover.
     map.addSource('photos', { type: 'geojson', data: collection([]), cluster: true, clusterRadius: 60, clusterMaxZoom: 15,
       clusterProperties: { top: ['max', ['get', 'rank']] } });
-    // Unvisited areas sit under a light veil; visited ones show the land in full color.
+    // Unvisited areas sit under a light veil; visited ones light up in orange.
     map.addLayer({ id: 'areas-fill', type: 'fill', source: 'areas', paint: {
       'fill-color': ['case', ['get', 'visited'], ACCENT, VEIL],
-      'fill-opacity': ['case', ['get', 'visited'], 0.06, 0.5]
+      'fill-opacity': ['case', ['get', 'visited'], 0.35, 0.5]
     } });
     map.addLayer({ id: 'areas-line', type: 'line', source: 'areas', paint: {
       'line-color': ['case', ['get', 'visited'], ACCENT, '#ffffff'],
-      'line-width': ['case', ['get', 'visited'], 2.2, 0.6],
+      'line-width': ['case', ['get', 'visited'], 2.6, 0.6],
       'line-opacity': 0.9
     } });
     // Each trip is a dashed line through its photos in the order they were taken.
@@ -173,9 +174,19 @@ export const mapHtml = `<!doctype html>
       if (state.scale === 'national') return withVisited(GEO.regions.features, level);
       return withVisited(GEO.provinces.features.filter(function (x) { return x.properties.region === f.region; }), level);
     }
-    var regions = GEO.worldRegions.features.filter(function (x) { return x.properties.country === f.country; });
-    if (state.scale === 'regional') regions = regions.filter(function (x) { return x.properties.id === f.region; });
-    if (regions.length) return withVisited(regions, 'region');
+    var units = GEO.worldRegions.features.filter(function (x) { return x.properties.country === f.country; });
+    var groups = GEO.worldGroups.features.filter(function (x) { return x.properties.country === f.country; });
+    if (state.scale === 'national') {
+      // Spain, France, UK, Portugal: their real regions; elsewhere the first-level units.
+      if (groups.length) return withVisited(groups, 'region');
+      if (units.length) return withVisited(units, 'region');
+    } else {
+      // Regional: the provinces or departments of your region, or your region itself.
+      var inside = units.filter(function (x) { return x.properties.group && x.properties.group === f.region; });
+      if (inside.length) return withVisited(inside, 'province');
+      var own = units.filter(function (x) { return x.properties.id === f.region; });
+      if (own.length) return withVisited(own, 'region');
+    }
     return withVisited(GEO.countries.features.filter(function (x) { return x.properties.id === f.country; }), 'country');
   }
 
@@ -392,6 +403,7 @@ export const mapHtml = `<!doctype html>
         (next.focus && JSON.stringify(next.focus) !== JSON.stringify(state.focus));
       var timelineChanged = 'timeline' in next && JSON.stringify(next.timeline) !== JSON.stringify(state.timeline);
       Object.keys(next).forEach(function (k) { state[k] = next[k]; });
+      if (next.chromeTop) document.documentElement.style.setProperty('--chrome-top', next.chromeTop + 'px');
       render(moved && !state.timeline);
       if (next.photos || timelineChanged) renderPhotos();
       if (next.photos || timelineChanged) renderJourney();

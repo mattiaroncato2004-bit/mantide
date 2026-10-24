@@ -5,12 +5,13 @@ import countries from '../geo/countries.json';
 import regions from '../geo/it-regions.json';
 import provinces from '../geo/it-provinces.json';
 import worldRegions from '../geo/world-regions.json';
+import worldGroups from '../geo/world-groups.json';
 import type { Level, MapState } from '../types';
 import { withGeo } from './mapHtml';
 
 const BRIDGE =
   '<script>window.ReactNativeWebView = { postMessage: function (m) { window.parent.postMessage(m, "*"); } };</script>';
-const HTML = withGeo({ countries, regions, provinces, worldRegions }).replace('<head>', `<head>\n${BRIDGE}`);
+const HTML = withGeo({ countries, regions, provinces, worldRegions, worldGroups }).replace('<head>', `<head>\n${BRIDGE}`);
 
 // A blob: URL, not srcDoc: a srcdoc page has a "null" origin and MapLibre never finishes loading
 // its GeoJSON sources there. A blob: page keeps the app's origin, so the app can still call it.

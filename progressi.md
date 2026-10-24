@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 18:11. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 18:19. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
@@ -59,6 +59,9 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:11. Hackathon: prototipo alle 19:00, c
 - **Eventi alla scala Locale come puntini arancioni** (`events` nella pagina della mappa): il tocco manda `{type: 'event', id}` e la scheda di quell'evento passa in testa al pannello. L'inquadratura comprende te e gli eventi, sopra il pannello.
 - **Linee dei viaggi** (`tripLines` in `src/map/mapHtml.ts`): le foto ordinate per data; più di 4 giorni senza foto chiudono un viaggio e ne aprono un altro. È l'idea "unire i luoghi in ordine cronologico" dei metadati.
 - **Miniature come in Foto di iPhone:** gruppi con il numero, che si separano zoomando. Le miniature (160 px, base64) si mandano alla pagina solo quando cambiano.
+- **Regioni vere di Spagna, Francia, Regno Unito e Portogallo** (feedback del team, 18:16): Natural Earth admin-1 per questi paesi sono province, dipartimenti e contee. `world-groups.json` le raggruppa per il campo `region` (Spagna 19: 17 comunità autonome + Ceuta e Melilla; Francia 18; Regno Unito 16; Portogallo 6); ogni unità in `world-regions.json` ha `group`. Come per l'Italia: Nazionale = regioni, Regionale = province o dipartimenti della regione. Toccando un paese, Regionale va sulla regione dove hai più foto. Dati salvati portati a `visited:v2` e `photos:v2`, con rilettura automatica della galleria.
+- **Regioni visitate ben visibili:** tinta arancione al 35% e bordo da 2,6 px. Prima erano quasi trasparenti e una regione piccola non si notava.
+- **Intestazione su una riga** (feedback del team, 18:20): paesi, regioni, province e livello su tutta la larghezza, fondo pieno; il pulsante Galleria è passato in basso accanto a "Linea del tempo" e "Torna qui". L'app misura l'altezza dell'intestazione e la manda alla mappa (`chromeTop`), che ci mette sotto il pulsante dei crediti.
 - **Le scale seguono il luogo che tocchi** (feedback del team, 18:05): toccando la Francia a Globale, Nazionale mostra le regioni francesi; il pulsante "◎ Torna dove sei" riporta alla posizione GPS (o a H-FARM senza GPS). Il centro di un luogo è il centro del suo pezzo più grande (`centerOf` in `locate.ts`), e Nazionale inquadra solo le regioni entro 20° da lì: altrimenti la Guyana francese fa allontanare la mappa su tutto il mondo.
 - **Linea del tempo** (richiesta del team, 17:51): cursore costruito su PanResponder (niente libreria nativa, funziona anche nel browser). La pagina della mappa riceve `timeline: {until}`, mostra solo le foto fino a lì, disegna la linea `journey` e anima la punta (`.tl-head`, marker HTML sopra le miniature) dal posto precedente al nuovo in 0,4 s, con la mappa che la segue. Riproduzione: una foto ogni 0,5 s (circa 20 s per 45 foto). Sulla linea niente data in testata: un trattino per foto, un trattino lungo con "mese 'aa" a ogni inizio viaggio (più di 4 giorni dalla foto precedente), arancioni quando superati. Mentre è aperta, pannello Locale e scheda luogo restano chiusi.
 - **Ridisegno "strumento da rilievo"** (richiesta del team, 17:46, con le skill taste-skill v2 `design-taste-frontend` e `ui-ux-pro-max`): token in `src/theme.ts` (colori `C`, font `F`, raggi `R` 6/10/18, spaziature `S` su griglia di 4); Bricolage Grotesque per titoli e luoghi, IBM Plex Mono per numeri, date e distanze; la scala attiva è bianco carta, l'arancione resta per "visitato" e le azioni principali.
@@ -132,6 +135,18 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:11. Hackathon: prototipo alle 19:00, c
 ## Registro
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
+
+### 18:19 · questo commit · Regioni vere di ES/FR/GB/PT, regioni che si accendono, intestazione compatta
+- **Cosa:**
+  - `world-groups.json` e campo `group`; `locate`, `regionCount`, `placeOfProvince` e la mappa usano le regioni vere.
+  - Regionale va dove hai più foto; tinta più forte per le regioni visitate.
+  - Intestazione a una riga con il livello; Galleria in basso.
+  - `chromeTop` per il pulsante dei crediti; chiavi dei dati salvate passate a v2.
+- **Perché:** la Spagna a scala Nazionale mostrava 52 province come regioni; le regioni visitate in Francia non si vedevano; nell'intestazione c'era spazio vuoto e trasparenze.
+- **Verifica:**
+  - Test: `test-locate` (Lisbona → regione "Lisbon", provincia di Lisbona), `test-passport` (Spagna 1/19, Francia 1/18, Portogallo 1/6, Regno Unito 1/16), `test-recommend`, `test-parse`.
+  - `npx expo export --platform android`.
+  - Nel browser: Spagna Nazionale con 17 comunità e la Cataluña accesa, Regionale con le 4 province catalane, intestazione e pulsanti in una riga a 390 px.
 
 ### 18:11 · questo commit · Scale che seguono il luogo toccato, linea del tempo più veloce e con trattini
 - **Cosa:**

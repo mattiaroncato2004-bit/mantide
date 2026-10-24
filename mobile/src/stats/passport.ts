@@ -70,7 +70,8 @@ export function passport(
       ? {
           name: nameOf('country', hereCountry),
           regions: regionsOf(hereCountry),
-          provinces: hereCountry === 'ITA' ? { visited: visited.province.length, total: TOTALS.province } : undefined,
+          // Italian province ids are plates ("TV"); units abroad look like "FRA-1234".
+          provinces: hereCountry === 'ITA' ? { visited: visited.province.filter((id) => !id.includes('-')).length, total: TOTALS.province } : undefined,
         }
       : undefined,
     byCountry: seen

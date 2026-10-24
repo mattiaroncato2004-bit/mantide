@@ -20,7 +20,8 @@ export type Photo = Place & {
   lon: number;
 };
 
-const KEY = 'photos:v1';
+// v2: photos carry the real regions of Spain, France, UK and Portugal (18:20).
+const KEY = 'photos:v2';
 
 export async function scanGallery(
   onProgress: (read: number, withGps: number) => void,

@@ -6,11 +6,12 @@ import countries from '../geo/countries.json';
 import regions from '../geo/it-regions.json';
 import provinces from '../geo/it-provinces.json';
 import worldRegions from '../geo/world-regions.json';
+import worldGroups from '../geo/world-groups.json';
 import type { Level, MapPhoto, MapState } from '../types';
 import { withGeo } from './mapHtml';
 
 // The map page with about 1.7 MB of boundaries written in, built once.
-const HTML = withGeo({ countries, regions, provinces, worldRegions });
+const HTML = withGeo({ countries, regions, provinces, worldRegions, worldGroups });
 
 type Props = {
   state: MapState;

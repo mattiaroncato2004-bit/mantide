@@ -25,6 +25,7 @@ export type MapState = {
   photos: MapPhoto[];
   events: MapEvent[]; // drawn at the local scale only
   timeline: { until: number } | null; // only photos taken until then, with the journey animated
+  chromeTop: number; // px from the top where the app's header ends: map controls go below it
 };
 
 // A geotagged photo on the map. thumb is a small "data:image/jpeg;base64,..." URI (see map/thumbs.ts).

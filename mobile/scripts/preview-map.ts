@@ -5,6 +5,7 @@ import countries from '../src/geo/countries.json';
 import regions from '../src/geo/it-regions.json';
 import provinces from '../src/geo/it-provinces.json';
 import worldRegions from '../src/geo/world-regions.json';
+import worldGroups from '../src/geo/world-groups.json';
 import { withGeo } from '../src/map/mapHtml';
 import type { MapPhoto, MapState } from '../src/types';
 
@@ -49,7 +50,7 @@ const sample: Partial<MapState> = {
 };
 
 const out = process.argv[2] ?? 'map-preview.html';
-const html = withGeo({ countries, regions, provinces, worldRegions })
+const html = withGeo({ countries, regions, provinces, worldRegions, worldGroups })
   .replace('</body>', `<script>window.addEventListener('load', function () { setTimeout(function () { window.mantide.setState(${JSON.stringify(sample)}); }, 500); });</script>\n</body>`);
 writeFileSync(out, html);
 console.log('wrote', out);

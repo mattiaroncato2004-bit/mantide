@@ -5,12 +5,13 @@ import countries from './countries.json';
 import regions from './it-regions.json';
 import provinces from './it-provinces.json';
 import worldRegions from './world-regions.json';
+import worldGroups from './world-groups.json';
 
 type Ring = number[][];
 type Geometry =
   | { type: 'Polygon'; coordinates: Ring[] }
   | { type: 'MultiPolygon'; coordinates: Ring[][] };
-type Props = { id: string; name: string; region?: string; country?: string; continent?: string };
+type Props = { id: string; name: string; region?: string; country?: string; continent?: string; group?: string };
 type Feature = { properties: Props; geometry: Geometry };
 type Indexed = Feature & { bbox: [number, number, number, number] };
 
@@ -41,12 +42,17 @@ const COUNTRIES = index(countries);
 const REGIONS = index(regions);
 const PROVINCES = index(provinces);
 
-// First-level regions of every other country (Natural Earth admin-1), grouped by country.
-const WORLD_REGIONS = new Map<string, Indexed[]>();
-for (const f of index(worldRegions)) {
-  const country = f.properties.country!;
-  WORLD_REGIONS.set(country, [...(WORLD_REGIONS.get(country) ?? []), f]);
+function byCountry(features: Indexed[]): Map<string, Indexed[]> {
+  const map = new Map<string, Indexed[]>();
+  for (const f of features) map.set(f.properties.country!, [...(map.get(f.properties.country!) ?? []), f]);
+  return map;
 }
+
+// First-level units of every other country (Natural Earth admin-1), by country. For Spain, France,
+// the UK and Portugal these are provinces, departments or counties: their real regions are
+// WORLD_GROUPS (the units dissolved by Natural Earth's "region" field), and each unit has `group`.
+const WORLD_REGIONS = byCountry(index(worldRegions));
+const WORLD_GROUPS = byCountry(index(worldGroups));
 
 function inRing(lon: number, lat: number, ring: Ring): boolean {
   let inside = false;
@@ -115,9 +121,11 @@ export function locate(lat: number, lon: number): Place {
   if (province) return italy(province);
   const country = (find(COUNTRIES, lon, lat) ?? nearest(COUNTRIES, lon, lat))?.properties.id;
   if (country === 'ITA') return italy(nearest(PROVINCES, lon, lat));
-  const regions = (country && WORLD_REGIONS.get(country)) || [];
-  const region = find(regions, lon, lat) ?? nearest(regions, lon, lat);
-  return { country, region: region?.properties.id };
+  const units = (country && WORLD_REGIONS.get(country)) || [];
+  const unit = find(units, lon, lat) ?? nearest(units, lon, lat);
+  // Spain, France, UK, Portugal: region = the real region, province = the unit inside it.
+  if (unit?.properties.group) return { country, region: unit.properties.group, province: unit.properties.id };
+  return { country, region: unit?.properties.id };
 }
 
 export const TOTALS = { region: REGIONS.length, province: PROVINCES.length };
@@ -145,20 +153,29 @@ export const COUNTRY_INFO = COUNTRIES.map((f) => ({
   areaKm2: areaKm2(f.geometry),
 }));
 
-// How many first-level regions a country has: the 20 ISTAT regions for Italy, Natural Earth elsewhere.
+// How many regions a country has: the 20 ISTAT regions for Italy, the real regions for Spain,
+// France, UK and Portugal, Natural Earth's first-level units elsewhere.
 export function regionCount(country: string): number {
-  return country === 'ITA' ? REGIONS.length : (WORLD_REGIONS.get(country)?.length ?? 0);
+  if (country === 'ITA') return REGIONS.length;
+  return (WORLD_GROUPS.get(country) ?? WORLD_REGIONS.get(country))?.length ?? 0;
 }
 
 const REGION_COUNTRY = new Map<string, string>([
   ...REGIONS.map((f): [string, string] => [f.properties.id, 'ITA']),
-  ...[...WORLD_REGIONS.entries()].flatMap(([country, list]) => list.map((f): [string, string] => [f.properties.id, country])),
+  ...[...WORLD_REGIONS.entries(), ...WORLD_GROUPS.entries()].flatMap(([country, list]) =>
+    list.map((f): [string, string] => [f.properties.id, country]),
+  ),
 ]);
 
 export const countryOfRegion = (id: string): string | undefined => REGION_COUNTRY.get(id);
 
-export const regionOfProvince = (id: string): string | undefined =>
-  PROVINCES.find((f) => f.properties.id === id)?.properties.region;
+// The country and region of a province: an Italian province, or a unit of Spain, France, UK, Portugal.
+export function placeOfProvince(id: string): { country: string; region: string } | undefined {
+  const italian = PROVINCES.find((f) => f.properties.id === id);
+  if (italian) return { country: 'ITA', region: italian.properties.region ?? '' };
+  const unit = [...WORLD_REGIONS.values()].flat().find((f) => f.properties.id === id);
+  return unit && { country: unit.properties.country!, region: unit.properties.group || unit.properties.id };
+}
 
 // Where the map goes when you tap a place: the middle of its largest piece, so France means
 // mainland France and not a point in the Atlantic between Paris and French Guiana.
@@ -177,7 +194,7 @@ function mainCenter(g: Geometry): [number, number] {
 }
 
 const CENTERS = new Map<string, [number, number]>(
-  [...COUNTRIES, ...REGIONS, ...PROVINCES, ...[...WORLD_REGIONS.values()].flat()].map((f) => [
+  [...COUNTRIES, ...REGIONS, ...PROVINCES, ...[...WORLD_REGIONS.values()].flat(), ...[...WORLD_GROUPS.values()].flat()].map((f) => [
     f.properties.id,
     mainCenter(f.geometry),
   ]),
@@ -187,8 +204,10 @@ export const centerOf = (id: string): [number, number] | undefined => CENTERS.ge
 
 const NAMES: Record<'country' | 'region' | 'province', Map<string, string>> = {
   country: new Map(COUNTRIES.map((f) => [f.properties.id, f.properties.name])),
-  region: new Map([...REGIONS, ...[...WORLD_REGIONS.values()].flat()].map((f) => [f.properties.id, f.properties.name])),
-  province: new Map(PROVINCES.map((f) => [f.properties.id, f.properties.name])),
+  region: new Map(
+    [...REGIONS, ...[...WORLD_REGIONS.values()].flat(), ...[...WORLD_GROUPS.values()].flat()].map((f) => [f.properties.id, f.properties.name]),
+  ),
+  province: new Map([...PROVINCES, ...[...WORLD_REGIONS.values()].flat()].map((f) => [f.properties.id, f.properties.name])),
 };
 
 // Human-readable name of a country, region or province id ("VE" → "Venezia").

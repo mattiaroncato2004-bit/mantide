@@ -13,7 +13,7 @@ import {
 import { IBMPlexMono_400Regular, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold } from '@expo-google-fonts/ibm-plex-mono';
 import { MapView } from './src/map/MapView';
 import { makeThumbs } from './src/map/thumbs';
-import { centerOf, countryOfRegion, locate, nameOf, regionOfProvince } from './src/geo/locate';
+import { centerOf, countryOfRegion, locate, nameOf, placeOfProvince } from './src/geo/locate';
 import { ids, useVisited } from './src/state/visited';
 import { askForAllPhotos, forgetPhotos, loadPhotos, requestGallery, scanGallery, type Photo } from './src/gallery/photos';
 import {
@@ -83,6 +83,7 @@ function Home() {
   const [selected, setSelected] = useState<SelectedPlace | null>(null); // area tapped on the map
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null); // event dot tapped on the map
   const [passportOpen, setPassportOpen] = useState(false);
+  const [chromeTop, setChromeTop] = useState(120);
   const [timelineOn, setTimelineOn] = useState(false);
   const [timelineIndex, setTimelineIndex] = useState(0); // photo reached on the timeline, oldest first
   const [playing, setPlaying] = useState(false);
@@ -197,13 +198,18 @@ function Home() {
     }
   }, [mark, analyze]);
 
-  // On later launches, finish whatever Gemma had not looked at yet.
+  // On later launches, finish whatever Gemma had not looked at yet; if the saved photos were
+  // dropped (a new data version), read the gallery again.
   useEffect(() => {
-    if (resumed.current || choice !== 'all' || !photos.length) return;
+    if (resumed.current || choice !== 'all') return;
     resumed.current = true;
+    if (!photos.length) {
+      readGallery();
+      return;
+    }
     setBusy(true);
     analyze(photos, analyses).finally(() => setBusy(false));
-  }, [choice, photos, analyses, analyze]);
+  }, [choice, photos, analyses, analyze, readGallery]);
 
   const allowGallery = () => {
     setChoice('all');
@@ -313,8 +319,9 @@ function Home() {
       })),
       events: scale === 'local' && !reached ? localRecommendations.map((r) => ({ id: r.event.id, lon: r.event.lon, lat: r.event.lat })) : [],
       timeline: reached ? { until: reached.takenAt } : null,
+      chromeTop,
     }),
-    [scale, focus, visited, here, photos, thumbs, localRecommendations, reached],
+    [scale, focus, visited, here, photos, thumbs, localRecommendations, reached, chromeTop],
   );
 
   const showToast = (text: string) => {
@@ -363,34 +370,39 @@ function Home() {
           setSelectedEvent(null);
           setSelected({ level, id, name });
           // The scales follow the place you tapped: France at Globale, then Nazionale shows French regions.
-          const [lon, lat] = centerOf(id) ?? [focus.lon, focus.lat];
-          const country = level === 'country' ? id : level === 'region' ? (countryOfRegion(id) ?? focus.country) : 'ITA';
-          const region = level === 'region' ? id : level === 'province' ? (regionOfProvince(id) ?? '') : (locate(lat, lon).region ?? '');
+          // A country goes to the region where you took most photos there (or its middle).
+          let country = focus.country;
+          let region = id;
+          if (level === 'country') {
+            country = id;
+            const counts = new Map<string, number>();
+            for (const p of photos) if (p.country === id && p.region) counts.set(p.region, (counts.get(p.region) ?? 0) + 1);
+            const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+            const [cx, cy] = centerOf(id) ?? [focus.lon, focus.lat];
+            region = top ?? locate(cy, cx).region ?? '';
+          } else if (level === 'region') {
+            country = countryOfRegion(id) ?? focus.country;
+          } else {
+            const owner = placeOfProvince(id);
+            country = owner?.country ?? focus.country;
+            region = owner?.region ?? focus.region;
+          }
+          const [lon, lat] = (level === 'country' ? centerOf(region) : undefined) ?? centerOf(id) ?? [focus.lon, focus.lat];
           setFocus({ country, region, lat, lon });
         }}
         onPhoto={setOpened}
         onEvent={(id) => setSelectedEvent(id)}
       />
 
-      <View style={[styles.header, { top: insets.top + 12 }]}>
-        <View style={styles.headerTop}>
-          <Text style={styles.headerLabel}>Dove sei stato</Text>
-          <Pressable
-            onPress={() => setChoice(null)}
-            style={({ pressed }) => [styles.galleryButton, choice === 'all' && styles.galleryOn, pressed && styles.pressed]}
-            accessibilityRole="button"
-            accessibilityLabel="Scegli se usare la galleria"
-            hitSlop={8}
-          >
-            <View style={[styles.galleryDot, choice === 'all' && styles.galleryDotOn]} />
-            <Text style={[styles.galleryText, choice === 'all' && styles.galleryTextOn]}>Galleria</Text>
-          </Pressable>
-        </View>
+      <View
+        style={[styles.header, { top: insets.top + 8 }]}
+        onLayout={(e) => setChromeTop(insets.top + 8 + e.nativeEvent.layout.height + 8)}
+      >
         <Pressable
           onPress={() => setPassportOpen(true)}
           style={({ pressed }) => [styles.counts, pressed && styles.pressed]}
           accessibilityRole="button"
-          accessibilityLabel={`${stats}. Apri il passaporto`}
+          accessibilityLabel={`${stats}. Livello ${travel.level.name}. Apri il passaporto`}
         >
           {([
             [countries, countries === 1 ? 'paese' : 'paesi'],
@@ -402,8 +414,11 @@ function Home() {
               <Text style={styles.countLabel}>{label}</Text>
             </View>
           ))}
+          <View style={[styles.count, styles.countRule, styles.levelCell]}>
+            <Text style={styles.level} numberOfLines={1}>{travel.level.name}</Text>
+            <Text style={styles.countLabel} numberOfLines={1}>passaporto ›</Text>
+          </View>
         </Pressable>
-        <Text style={styles.passportHint}>{travel.level.name} · tocca per il passaporto</Text>
         {status && <Text style={styles.status} numberOfLines={2}>{status}</Text>}
       </View>
 
@@ -442,6 +457,15 @@ function Home() {
                 <Text style={styles.timelineButtonText}>▶ Linea del tempo</Text>
               </Pressable>
             )}
+            <Pressable
+              onPress={() => setChoice(null)}
+              style={({ pressed }) => [styles.timelineButton, styles.galleryTool, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Scegli se usare la galleria"
+            >
+              <View style={[styles.galleryDot, choice === 'all' && styles.galleryDotOn]} />
+              <Text style={styles.timelineButtonText}>Galleria</Text>
+            </Pressable>
             {(focus.lat !== home.lat || focus.lon !== home.lon) && (
               <Pressable
                 onPress={() => {
@@ -451,7 +475,7 @@ function Home() {
                 style={({ pressed }) => [styles.timelineButton, pressed && styles.pressed]}
                 accessibilityRole="button"
               >
-                <Text style={styles.timelineButtonText}>◎ Torna dove sei</Text>
+                <Text style={styles.timelineButtonText}>◎ Torna qui</Text>
               </Pressable>
             )}
           </View>
@@ -545,37 +569,31 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.bg },
 
   // Header: an instrument readout of what you've covered.
+  // Header: one row of numbers across the whole width, on solid ink so nothing shows through.
   header: {
     position: 'absolute', left: 12, right: 12,
-    backgroundColor: C.surface, borderRadius: R.lg, borderWidth: 1, borderColor: C.line,
-    paddingTop: 12, paddingBottom: 14, paddingHorizontal: 16,
+    backgroundColor: C.bg, borderRadius: R.md, borderWidth: 1, borderColor: C.line,
+    paddingVertical: 10, paddingHorizontal: 4,
     boxShadow: '0 10px 30px rgba(2, 8, 12, 0.45)',
   },
-  headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  headerLabel: { color: C.muted, fontFamily: F.medium, fontSize: 14, letterSpacing: -0.1 },
-  galleryButton: {
-    flexDirection: 'row', alignItems: 'center', gap: 7, borderRadius: R.sm,
-    borderWidth: 1, borderColor: C.line, paddingVertical: 6, paddingHorizontal: 10,
-  },
-  galleryOn: { borderColor: C.lineStrong, backgroundColor: C.accentSoft },
+  galleryTool: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   galleryDot: { width: 7, height: 7, borderRadius: 2, borderWidth: 1.5, borderColor: C.faint },
   galleryDotOn: { backgroundColor: C.accent, borderColor: C.accent },
-  galleryText: { color: C.muted, fontFamily: F.monoMedium, fontSize: 11.5, letterSpacing: 0.2 },
-  galleryTextOn: { color: C.text },
-  counts: { flexDirection: 'row', marginTop: 8 },
-  count: { paddingRight: 18 },
-  countRule: { paddingLeft: 16, borderLeftWidth: 1, borderLeftColor: C.line },
+  counts: { flexDirection: 'row', alignItems: 'stretch' },
+  count: { flex: 1, paddingHorizontal: 10, justifyContent: 'center' },
+  countRule: { borderLeftWidth: 1, borderLeftColor: C.line },
+  levelCell: { flex: 1.7 },
+  level: { color: C.accent, fontFamily: F.bold, fontSize: 15.5, lineHeight: 28, letterSpacing: -0.3 },
   countN: {
-    color: C.text, fontFamily: F.display, fontSize: 30, lineHeight: 32, letterSpacing: -0.8,
+    color: C.text, fontFamily: F.display, fontSize: 26, lineHeight: 28, letterSpacing: -0.6,
     fontVariant: ['tabular-nums'],
   },
   countLabel: { color: C.muted, fontFamily: F.mono, fontSize: 11.5, marginTop: 2 },
   status: {
     color: C.accent, fontFamily: F.mono, fontSize: 11.5, lineHeight: 16,
-    marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: C.line,
+    marginTop: 10, marginHorizontal: 12, paddingTop: 8, borderTopWidth: 1, borderTopColor: C.line,
   },
   pressed: { opacity: 0.6 },
-  passportHint: { color: C.faint, fontFamily: F.mono, fontSize: 11, marginTop: 6 },
 
   toast: {
     position: 'absolute', alignSelf: 'center', maxWidth: '86%',
@@ -596,11 +614,11 @@ const styles = StyleSheet.create({
   scalePressed: { backgroundColor: C.line },
   scaleText: { color: C.muted, fontFamily: F.medium, fontSize: 14, letterSpacing: -0.1 },
   scaleTextOn: { color: C.bg, fontFamily: F.bold },
-  tools: { flexDirection: 'row', gap: 8, marginHorizontal: 12 },
+  tools: { flexDirection: 'row', gap: 6, marginHorizontal: 12 },
   timelineButton: { backgroundColor: C.surface, borderRadius: R.md,
-    borderWidth: 1, borderColor: C.line, paddingVertical: 10, paddingHorizontal: 14,
+    borderWidth: 1, borderColor: C.line, paddingVertical: 10, paddingHorizontal: 12,
   },
-  timelineButtonText: { color: C.text, fontFamily: F.semi, fontSize: 14 },
+  timelineButtonText: { color: C.text, fontFamily: F.semi, fontSize: 13.5 },
 
   // Photo preview: the picture first, then where, when and what Gemma read in it.
   preview: {
