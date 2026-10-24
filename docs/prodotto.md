@@ -24,12 +24,13 @@ Un luogo risulta visitato in tre modi, e ogni luogo ricorda come: segnato a mano
 
 ## Le schermate
 
-1. **Mappa (home).** Globo satellitare, selettore delle 4 scale, contatore ("14 paesi · 3/20 regioni · 5/110 province"). Tocchi una zona per segnarla. Zoomando compaiono le miniature delle foto, raggruppate col numero, come la mappa di Foto su iPhone; un tocco apre la foto con luogo, data e cosa ci ha visto Gemma.
+1. **Mappa (home).** Globo satellitare, selettore delle 4 scale, contatore ("14 paesi · 3/20 regioni · 5/110 province"). Tocchi una zona per aprirne la scheda. Zoomando compaiono le miniature delle foto, raggruppate col numero, come la mappa di Foto su iPhone; un tocco apre la foto con luogo, data e cosa ci ha visto Gemma.
 2. **Galleria.** Le foto raggruppate per luogo. Tocchi un gruppo e la mappa vola lì.
 3. **Interessi.** "Le tue foto dicono che ami…": ogni interesse con il numero di foto, una barra e tre foto di prova. Ognuno si può togliere.
-4. **Per te.** Gli eventi della scala che stai guardando sulla mappa, con il perché ("Hai 11 foto di street art").
+4. **Per te.** Gli eventi della scala che stai guardando sulla mappa, con il perché ("Hai 10 foto di street art").
+5. **Scheda luogo.** Toccando una zona sulla mappa si apre dal basso: come è stata visitata (a mano, GPS, foto), le foto scattate lì, gli eventi per te in quel luogo, e il pulsante per segnarla.
 
-Non fatta per mancanza di tempo: la scheda luogo dal basso (fonte del segno, foto scattate lì, eventi vicini).
+Sulla mappa ogni viaggio è anche una linea tratteggiata che unisce le foto nell'ordine in cui sono state scattate.
 
 ## Come lavora l'AI
 
@@ -59,4 +60,3 @@ Leggere tutta la galleria di una persona è accettabile solo se le foto restano 
 - Tracciamento GPS in background (permesso dedicato e revisione del Play Store).
 - Eventi veri da fonti pubbliche, al posto del catalogo inventato.
 - Regioni e province anche fuori dall'Italia.
-- La scheda luogo.

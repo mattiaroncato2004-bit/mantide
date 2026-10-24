@@ -70,19 +70,21 @@ function inScale(e: Event, scale: Scale, focus: Focus, distanceKm: number): bool
   }
 }
 
-export function recommend(
+// Scores the upcoming events that `keep` accepts; events sharing no interest with the profile are dropped.
+function rank(
   events: Event[],
   profile: InterestWeight[],
-  scale: Scale,
-  focus: Focus,
-  now = new Date(),
+  lat: number,
+  lon: number,
+  keep: (event: Event, distanceKm: number) => boolean,
+  now: Date,
 ): Recommendation[] {
   const recs: Recommendation[] = [];
   for (const event of events) {
     const endsAt = Date.parse(event.end ?? event.start) + DAY; // end date is inclusive
     if (endsAt <= now.getTime()) continue;
-    const distanceKm = haversineKm(focus.lat, focus.lon, event.lat, event.lon);
-    if (!inScale(event, scale, focus, distanceKm)) continue;
+    const distanceKm = haversineKm(lat, lon, event.lat, event.lon);
+    if (!keep(event, distanceKm)) continue;
     const matched = profile
       .filter((p) => p.weight > 0 && event.interests.includes(p.id))
       .sort((a, b) => b.weight - a.weight);
@@ -95,6 +97,28 @@ export function recommend(
   return recs
     .sort((a, b) => b.score - a.score || a.event.start.localeCompare(b.event.start))
     .slice(0, MAX_RESULTS);
+}
+
+// Events for the scale you are looking at on the map ("Per te" tab).
+export function recommend(
+  events: Event[],
+  profile: InterestWeight[],
+  scale: Scale,
+  focus: Focus,
+  now = new Date(),
+): Recommendation[] {
+  return rank(events, profile, focus.lat, focus.lon, (e, d) => inScale(e, scale, focus, d), now);
+}
+
+// Events inside one place, chosen by the caller (the place sheet on the map).
+export function recommendIn(
+  events: Event[],
+  profile: InterestWeight[],
+  inPlace: (event: Event) => boolean,
+  from: { lat: number; lon: number },
+  now = new Date(),
+): Recommendation[] {
+  return rank(events, profile, from.lat, from.lon, (e) => inPlace(e), now);
 }
 
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);

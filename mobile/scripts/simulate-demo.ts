@@ -4,7 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { locate, nameOf, TOTALS } from '../src/geo/locate';
 import { labelOf, type InterestId } from '../src/ai/interests';
-import { EVENTS, profileFromCounts, recommend, why } from '../src/events/recommend';
+import { EVENTS, profileFromCounts, recommend, recommendIn, why } from '../src/events/recommend';
 import type { Focus, Scale } from '../src/types';
 
 type DemoPhoto = { file: string; lat: number; lon: number };
@@ -34,3 +34,15 @@ for (const scale of ['global', 'national', 'regional', 'local'] as Scale[]) {
   console.log(`\nPer te · ${scale} (${recs.length})`);
   for (const r of recs.slice(0, 3)) console.log(`  ${r.event.title} (${r.event.city}) — ${why(r)}`);
 }
+
+// The place sheet, when you tap an area on the map.
+const sheets = [
+  { label: 'Regione Veneto', inPlace: (e: (typeof EVENTS)[number]) => e.region === '05', photos: places.filter((p) => p.region === '05').length },
+  { label: 'Provincia di Venezia', inPlace: (e: (typeof EVENTS)[number]) => locate(e.lat, e.lon).province === 'VE', photos: places.filter((p) => p.province === 'VE').length },
+];
+for (const sheet of sheets) {
+  const recs = recommendIn(EVENTS, profile, sheet.inPlace, focus, new Date('2026-10-24'));
+  console.log(`\nScheda · ${sheet.label}: ${sheet.photos} foto, ${recs.length} eventi`);
+  for (const r of recs.slice(0, 2)) console.log(`  ${r.event.title} (${r.event.city}) — ${why(r)}`);
+}
+

@@ -2,7 +2,7 @@
 
 Il contesto condiviso del progetto: stato, decisioni con il loro perché, insidie note e registro delle modifiche. Cosa fa l'app e com'è fatta: [README.md](README.md). Design del prodotto: [docs/prodotto.md](docs/prodotto.md). Le regole per aggiornare questo file sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 17:25. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
+Ultimo aggiornamento: 24 ottobre 2026, 17:20. Hackathon: prototipo alle 19:00, consegna alle 19:15, demo dalle 19:20. Scadenza interna del team: 18:30.
 
 ## Stato attuale
 
@@ -12,6 +12,7 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 |---|---|---|
 | Configurazione Android (permessi galleria e GPS, HTTP verso il computer) | fatto | manifest risolto con `npx expo config --type introspect` |
 | Mappa: globo, 4 scale, tocco per segnare, GPS, contatore | fatto | anteprima nel browser a 390×760 nelle 4 scale |
+| Scheda luogo: tocco su una zona → come è stata visitata, foto, eventi lì, pulsante per segnarla | fatto | `npx tsc --noEmit`; `scripts/simulate-demo.ts` (Veneto: 15 foto, primo evento H-FARM Open Campus) |
 | Linee dei viaggi: le foto unite in ordine cronologico | fatto | anteprima nel browser: linea tratteggiata tra le foto di Venezia |
 | Miniature delle foto sulla mappa, raggruppate, con anteprima al tocco | fatto | anteprima nel browser: gruppi con numero, separazione allo zoom, tocco → messaggio `photo` |
 | Punto → paese, regione, provincia (`locate`) | fatto | `npx tsx scripts/test-locate.ts`: 11 casi, compresi Lido di Venezia, Burano, Nizza |
@@ -45,6 +46,7 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 - **Zone visitate quasi trasparenti con bordo arancione, non visitate sotto un velo chiaro:** il colore pieno sopra il satellite diventava marrone.
 - **Linee dei viaggi** (`tripLines` in `src/map/mapHtml.ts`): le foto ordinate per data; più di 4 giorni senza foto chiudono un viaggio e ne aprono un altro. È l'idea "unire i luoghi in ordine cronologico" dei metadati.
 - **Miniature come in Foto di iPhone:** gruppi con il numero, che si separano zoomando. Le miniature (160 px, base64) si mandano alla pagina solo quando cambiano.
+- **Toccare una zona apre la scheda del luogo, non segna subito:** prima vedi come è stata visitata, le foto e gli eventi lì, poi decidi se segnarla. Gli eventi di un luogo usano `recommendIn`, che condivide il punteggio con `recommend`.
 - **Protocollo app ↔ mappa:** l'app chiama `window.mantide.setState(...)`; la pagina risponde con `ready`, `toggle` (zona toccata), `photo` (foto toccata) ed `error`.
 - **Confini scritti dentro la pagina** (`withGeo` in `src/map/mapHtml.ts`), non iniettati con `injectedJavaScriptBeforeContentLoaded`: su Android quella funzione dipende dalla versione della WebView di sistema, e se parte in ritardo la mappa resta senza zone.
 
@@ -104,12 +106,18 @@ Tutto il codice è scritto; **nessuna parte è ancora stata provata su Android**
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 17:25 · questo commit · Linee dei viaggi sulla mappa
+### 17:20 · questo commit · Scheda del luogo
+- **Cosa:** `src/screens/PlaceSheet.tsx`. Toccando una zona si apre dal basso con: tipo e nome del luogo; come è stato visitato (a mano, GPS, quante foto); le foto scattate lì (un tocco le apre); fino a 2 eventi per te in quel luogo; il pulsante "Segna come visitato" / "Togli il segno a mano". In `recommend.ts` il punteggio è condiviso tra `recommend` e il nuovo `recommendIn`.
+- **Perché:** era l'unica schermata del design ancora mancante, e segnare una zona al primo tocco era troppo facile da sbagliare.
+- **Verifica:** `npx tsc --noEmit`; `test-recommend.ts` passato; `npx expo export --platform android`; simulazione: Veneto 15 foto con primo evento "H-FARM Open Campus", provincia di Venezia 4 foto con primo evento "Biennale Arte".
+- **Da provare:** sull'emulatore. Per gli esagoni la scheda non mostra foto né eventi.
+
+### 17:18 · 9aa24e2 · Linee dei viaggi sulla mappa
 - **Cosa:** sorgente e livello `trips` nella pagina della mappa: una linea tratteggiata bianca per ogni viaggio, sotto le miniature.
 - **Perché:** ricostruire il passato in ordine cronologico, come chiedeva il team fin dall'idea iniziale.
 - **Verifica:** `npx tsc --noEmit`; nel browser la linea unisce le foto di Venezia nell'ordine giusto, senza errori in console.
 
-### 17:20 · d8494c3 · Dove gira Gemma, in base alla RAM `[native: rebuild]`
+### 17:17 · d8494c3 · Dove gira Gemma, in base alla RAM `[native: rebuild]`
 - **Cosa:** expo-device; `whereGemmaRuns()` legge la RAM del dispositivo e la scheda Interessi spiega dove gira Gemma.
 - **Perché:** rendere visibile la scelta "sotto 8 GB Gemma gira sul tuo computer, mai nel cloud".
 - **Verifica:** `npx tsc --noEmit`, `npx expo export --platform android`, `npx expo-doctor`.
@@ -119,12 +127,12 @@ Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta
 - **Cosa:** `docs/setup-android.md` copre tutti i passi in ordine, compresi Python, Git, la RAM dell'emulatore a 4 GB, la verifica finale coi numeri attesi e cosa fare in caso di errore. `local-ai/README.md` ha i comandi per Windows e la prova su una foto demo.
 - **Nota:** questo commit non aveva aggiornato `progressi.md`.
 
-### 17:30 · 1536ead · Confini scritti dentro la pagina della mappa
+### 17:10 · 1536ead · Confini scritti dentro la pagina della mappa
 - **Cosa:** `withGeo()` in `src/map/mapHtml.ts` scrive i confini nella pagina; `MapView` e `scripts/preview-map.ts` la usano; tolto `injectedJavaScriptBeforeContentLoaded`.
 - **Perché:** togliere un comportamento che cambia tra le versioni della WebView di Android.
 - **Verifica:** `npx tsc --noEmit`; `npx expo export --platform android`; nel browser la pagina ha 242 paesi, 20 regioni e 110 province, e disegna zone e miniature senza errori.
 
-### 17:25 · cd359f9 · Controlli senza Android e simulazione della demo
+### 17:09 · cd359f9 · Controlli senza Android e simulazione della demo
 - **Cosa:**
   - `parseAnswer` spostato in `src/ai/parse.ts`, senza moduli nativi, con il test `scripts/test-parse.ts`.
   - `scripts/simulate-demo.ts`: luoghi, interessi e consigli alle 4 scale calcolati sui dati demo.
@@ -135,7 +143,7 @@ Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta
   - La simulazione dà 6 paesi, 6 regioni e 8 province; interessi in testa architettura, natura e street art; Per te Globale → "Berlin Wall Murals & Beats", Locale → "H-FARM Open Campus: architettura sostenibile".
 - **Da provare:** tutto sull'emulatore.
 
-### 17:15 · 2cb5b11 · Risposte di Gemma sulle foto demo
+### 17:05 · 2cb5b11 · Risposte di Gemma sulle foto demo
 - **Cosa:** `demo-data/analyses.json` (le 45 risposte di Gemma col prompt attuale) e `mobile/src/demo/demo.json` rigenerato.
 - **Perché:** sono la riserva della demo se Gemma non risponde, e la prova di quanto Gemma riconosce le passioni.
 - **Verifica:**
@@ -143,7 +151,7 @@ Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta
   - Interessi più frequenti: architettura 16, natura 12, street art 10, cibo 9.
   - "Arte" è sceso da 20 a 5.
 
-### 17:10 · a47a56a · Riordino della documentazione, prompt migliorato
+### 17:04 · a47a56a · Riordino della documentazione, prompt migliorato
 - **Cosa:**
   - Ogni informazione in un posto solo:
     - README (inglese) per cosa fa l'app, architettura, cosa è vero e cosa inventato, come si avvia, crediti;

@@ -17,7 +17,8 @@ import { ForYouScreen } from './src/screens/ForYouScreen';
 import { makeThumbs } from './src/map/thumbs';
 import { analyzePhoto, demoAnalysis, GEMMA_URL, loadAnalyses, sample, saveAnalyses, whereGemmaRuns, type Analysis } from './src/ai/gemma';
 import { labelOf, type InterestId } from './src/ai/interests';
-import { EVENTS, profileFromCounts, recommend } from './src/events/recommend';
+import { EVENTS, profileFromCounts, recommend, recommendIn, type Event } from './src/events/recommend';
+import { PlaceSheet, type SelectedPlace } from './src/screens/PlaceSheet';
 import { nameOf } from './src/geo/locate';
 import { C } from './src/theme';
 import type { Focus, Level, MapState, Scale } from './src/types';
@@ -62,6 +63,7 @@ function Home() {
   const [aiStatus, setAiStatus] = useState<string | null>(null);
   const [removed, setRemoved] = useState<InterestId[]>([]);
   const [opened, setOpened] = useState<string | null>(null); // photo id shown full screen
+  const [selected, setSelected] = useState<SelectedPlace | null>(null); // area tapped on the map
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const { visited, toggleManual, mark } = useVisited();
@@ -186,10 +188,28 @@ function Home() {
     return [...rows.values()].map((r) => ({ ...r, share: r.count / max })).sort((a, b) => b.count - a.count);
   }, [analyses, byId, removed]);
 
-  const recommendations = useMemo(() => {
-    const profile = profileFromCounts(Object.fromEntries(interestRows.map((r) => [r.id, r.count])));
-    return recommend(EVENTS, profile, scale, focus);
-  }, [interestRows, scale, focus]);
+  const profile = useMemo(
+    () => profileFromCounts(Object.fromEntries(interestRows.map((r) => [r.id, r.count]))),
+    [interestRows],
+  );
+
+  const recommendations = useMemo(() => recommend(EVENTS, profile, scale, focus), [profile, scale, focus]);
+
+  // The place sheet: photos taken in the tapped area and events there for you.
+  // Hexagons have no photo list here: their ids are computed inside the map page.
+  const placePhotos = useMemo(() => {
+    if (!selected || selected.level === 'hex') return [];
+    const level = selected.level;
+    return photos.filter((p) => p[level] === selected.id);
+  }, [selected, photos]);
+
+  const placeRecommendations = useMemo(() => {
+    if (!selected || selected.level === 'hex') return [];
+    const { level, id } = selected;
+    const inPlace = (e: Event) =>
+      level === 'country' ? e.country === id : level === 'region' ? e.region === id : locate(e.lat, e.lon).province === id;
+    return recommendIn(EVENTS, profile, inPlace, focus);
+  }, [selected, profile, focus]);
 
   const openGroup = (group: PlaceGroup) => {
     setFocus({
@@ -226,7 +246,9 @@ function Home() {
     toastTimer.current = setTimeout(() => setToast(null), 1800);
   };
 
-  const onToggle = (level: Level, id: string, name: string) => {
+  const toggleSelected = () => {
+    if (!selected) return;
+    const { level, id, name } = selected;
     const hadManual = visited[level][id]?.includes('manual');
     toggleManual(level, id);
     showToast(hadManual ? `Segno tolto: ${name}` : `Segnato a mano: ${name}`);
@@ -242,7 +264,11 @@ function Home() {
     <View style={styles.root}>
       <View style={styles.body}>
         {/* The map stays mounted under the other tabs, so it never reloads. */}
-        <MapView state={mapState} onToggle={onToggle} onPhoto={setOpened} />
+        <MapView
+          state={mapState}
+          onToggle={(level: Level, id: string, name: string) => setSelected({ level, id, name })}
+          onPhoto={setOpened}
+        />
 
         {tab === 'Mappa' && (
           <>
@@ -257,19 +283,32 @@ function Home() {
               </View>
             )}
 
-            <View style={styles.scales} accessibilityRole="tablist">
-              {SCALES.map((s) => (
-                <Pressable
-                  key={s.key}
-                  onPress={() => setScale(s.key)}
-                  accessibilityRole="tab"
-                  accessibilityState={{ selected: scale === s.key }}
-                  style={[styles.scale, scale === s.key && styles.scaleOn]}
-                >
-                  <Text style={[styles.scaleText, scale === s.key && styles.scaleTextOn]}>{s.label}</Text>
-                </Pressable>
-              ))}
-            </View>
+            {selected ? (
+              <PlaceSheet
+                place={selected}
+                sources={visited[selected.level][selected.id] ?? []}
+                photos={placePhotos}
+                recommendations={placeRecommendations}
+                onToggleManual={toggleSelected}
+                onOpenPhoto={setOpened}
+                onClose={() => setSelected(null)}
+                bottomInset={0}
+              />
+            ) : (
+              <View style={styles.scales} accessibilityRole="tablist">
+                {SCALES.map((s) => (
+                  <Pressable
+                    key={s.key}
+                    onPress={() => setScale(s.key)}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: scale === s.key }}
+                    style={[styles.scale, scale === s.key && styles.scaleOn]}
+                  >
+                    <Text style={[styles.scaleText, scale === s.key && styles.scaleTextOn]}>{s.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
           </>
         )}
 
