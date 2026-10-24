@@ -111,3 +111,14 @@ export function locate(lat: number, lon: number): Place {
 }
 
 export const TOTALS = { region: REGIONS.length, province: PROVINCES.length };
+
+const NAMES: Record<'country' | 'region' | 'province', Map<string, string>> = {
+  country: new Map(COUNTRIES.map((f) => [f.properties.id, f.properties.name])),
+  region: new Map(REGIONS.map((f) => [f.properties.id, f.properties.name])),
+  province: new Map(PROVINCES.map((f) => [f.properties.id, f.properties.name])),
+};
+
+// Human-readable name of a country, region or province id ("VE" → "Venezia").
+export function nameOf(level: 'country' | 'region' | 'province', id: string | undefined): string {
+  return (id && NAMES[level].get(id)) || 'Luogo sconosciuto';
+}

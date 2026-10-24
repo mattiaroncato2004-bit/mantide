@@ -2,9 +2,11 @@
 
 Il contesto condiviso del progetto: stato attuale, architettura, decisioni con il loro perché, e un registro di ogni modifica. Chi modifica il repo (persona o agente) lo aggiorna nello stesso commit: le regole sono in [AGENTS.md](AGENTS.md).
 
-Ultimo aggiornamento: 24 ottobre 2026, 16:40.
+Ultimo aggiornamento: 24 ottobre 2026, 17:00.
 
-> **Decisione aperta: Expo o Kotlin nativo.** In locale è comparso `docs/scelte-e-setup-kotlin.md` (non ancora su GitHub): propone Kotlin + Jetpack Compose e un Redmi da 8 GB di RAM con Gemma sul telefono, al posto di Expo + emulatore. Finché il team non conferma, `mobile/` resta il progetto. La pagina della mappa (`mobile/src/map/mapHtml.ts`) e i confini (`mobile/src/geo/`) funzionano uguale in una WebView Android nativa.
+> **Decisione presa alle 16:45:** si resta su **Expo** (`mobile/`), demo sull'**emulatore** del computer da 16 GB, Gemma sul computer. La proposta Kotlin + Redmi (`docs/scelte-e-setup-kotlin.md`, solo in locale) non è stata adottata.
+>
+> **Scadenza interna: progetto finito entro le 18:30.** I dati sono inventati: galleria dimostrativa in `demo-data/` ed eventi in `mobile/src/events/` (in preparazione).
 
 ## Stato attuale
 
@@ -16,7 +18,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 16:40.
 | Prima compilazione Android | **non ancora fatta** | in attesa del computer con Android Studio |
 | Home: mappa con 4 scale, tocco per segnare, GPS, contatore, schede | fatto | `npx tsc --noEmit`; mappa provata nel browser a 390×760 nelle 4 scale (`scripts/preview-map.ts`) |
 | Assegnazione punto → paese, regione, provincia (`locate`) | fatto | `npx tsx scripts/test-locate.ts`: 11 casi, compresi Lido di Venezia, Burano, Nizza |
-| Lettura galleria (data, GPS, luogo) | da fare | – |
+| Lettura galleria (data, GPS, luogo) e schermata Galleria | fatto | `npx tsc --noEmit`; da provare sull'emulatore |
 | Gemma 4 sul computer (`local-ai/`) | da fare | – |
 | Interessi e consigli di eventi | da fare | – |
 | Gemma 4 dentro il telefono o emulatore | opzionale, dopo | – |
@@ -96,19 +98,27 @@ Il setup del computer che compila è in [docs/setup-android.md](docs/setup-andro
 
 ## Domande aperte
 
-- **Expo o Kotlin nativo** (vedi il riquadro in cima).
-- Demo su emulatore (computer da 16 GB) o sul Redmi da 8 GB.
 - Nome definitivo dell'app (provvisorio: Mantide, pacchetto `com.mantide.app`).
 
 ## Prossimi passi
 
-1. Lettura galleria: data e GPS di ogni foto, assegnazione a paese, regione, provincia ed esagono; schermata Galleria.
-2. Gemma 4 E2B: sul telefono se si conferma il Redmi da 8 GB, altrimenti `local-ai/` sul computer. Prompt che restituisce JSON.
+1. Gemma 4 E2B (`gemma-4-E2B-it.litertlm`) sul computer con `litert-lm serve`; nell'app, analisi delle foto → JSON di interessi.
+2. Galleria dimostrativa inventata (`demo-data/`) e catalogo eventi inventato (`mobile/src/events/`).
 3. Schermate Interessi e Per te.
 
 ## Registro
 
 Dal più recente. Ogni voce: commit, cosa, perché, come è stato verificato.
+
+### 17:00 · questo commit · Lettura della galleria
+- **Cosa:**
+  - `src/gallery/photos.ts`: permesso foto (con richiesta di "Consenti tutte" se l'accesso è parziale); lettura a pagine da 100 con `resolveWithFullInfo` per avere il GPS; ogni foto assegnata a paese, regione e provincia; salvataggio in kv-store; raggruppamento per provincia italiana o paese estero.
+  - `src/screens/GalleryScreen.tsx`: pulsante "Leggi la galleria" con avanzamento, gruppi con 4 miniature. Un tocco porta la mappa sul luogo alla scala giusta.
+  - Le foto lette segnano i luoghi con fonte `photo` e compaiono come punti sulla mappa (massimo 1500).
+  - `src/ai/interests.ts`: i 12 interessi fissi, condivisi da Gemma ed eventi.
+  - `src/theme.ts`: colori.
+- **Verifica:** `npx tsc --noEmit` pulito; test di `locate` ancora verdi.
+- **Da provare:** la lettura vera sull'emulatore (permessi, GPS dagli EXIF).
 
 ### 16:40 · questo commit · Home con mappa a 4 scale
 - **Cosa:**

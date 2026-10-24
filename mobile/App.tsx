@@ -1,5 +1,5 @@
 // Home of the app: the map of where you've been, at four scales, plus the tab bar.
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -7,6 +7,12 @@ import * as Location from 'expo-location';
 import { MapView } from './src/map/MapView';
 import { locate, TOTALS } from './src/geo/locate';
 import { ids, useVisited } from './src/state/visited';
+import {
+  askForAllPhotos, groupByPlace, loadPhotos, requestGallery, scanGallery,
+  type Photo, type PlaceGroup,
+} from './src/gallery/photos';
+import { GalleryScreen } from './src/screens/GalleryScreen';
+import { C } from './src/theme';
 import type { Focus, Level, MapState, Scale } from './src/types';
 
 const SCALES: { key: Scale; label: string }[] = [
@@ -19,8 +25,7 @@ const SCALES: { key: Scale; label: string }[] = [
 const TABS = ['Mappa', 'Galleria', 'Per te', 'Interessi'] as const;
 type Tab = (typeof TABS)[number];
 
-const COMING: Record<Exclude<Tab, 'Mappa'>, string> = {
-  Galleria: 'Le tue foto raggruppate per luogo e data. Tocchi un gruppo e la mappa vola lì.',
+const COMING: Record<'Per te' | 'Interessi', string> = {
   'Per te': 'Eventi della scala che stai guardando, scelti in base a quello che fotografi.',
   Interessi: 'Quello che le tue foto dicono di te, con le foto che lo dimostrano.',
 };
@@ -28,14 +33,8 @@ const COMING: Record<Exclude<Tab, 'Mappa'>, string> = {
 // Roncade (TV), home of H-FARM: the focus until the GPS answers.
 const DEFAULT_FOCUS: Focus = { country: 'ITA', region: '05', lat: 45.6297, lon: 12.3766 };
 
-const C = {
-  bg: '#0b1820',
-  surface: 'rgba(11, 24, 32, 0.9)',
-  line: 'rgba(242, 245, 243, 0.14)',
-  text: '#f2f5f3',
-  muted: '#9fb3ad',
-  accent: '#ff7a45',
-};
+// The map draws one dot per photo; past this many it only gets slower, not clearer.
+const MAX_POINTS = 1500;
 
 export default function App() {
   return (
@@ -52,6 +51,9 @@ function Home() {
   const [scale, setScale] = useState<Scale>('global');
   const [focus, setFocus] = useState<Focus>(DEFAULT_FOCUS);
   const [here, setHere] = useState<[number, number] | null>(null);
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [scanning, setScanning] = useState(false);
+  const [galleryStatus, setGalleryStatus] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const { visited, toggleManual, mark } = useVisited();
@@ -70,9 +72,49 @@ function Home() {
         lon: coords.longitude,
       });
       setHere([coords.longitude, coords.latitude]);
-      mark('gps', place);
+      mark('gps', [place]);
     })().catch((e) => console.warn('[gps]', e));
   }, [mark]);
+
+  useEffect(() => {
+    loadPhotos().then(setPhotos).catch((e) => console.warn('[photos] load failed', e));
+  }, []);
+
+  const groups = useMemo(() => groupByPlace(photos), [photos]);
+
+  const scan = useCallback(async () => {
+    setScanning(true);
+    try {
+      const access = await requestGallery();
+      if (access === 'denied') {
+        setGalleryStatus('Senza il permesso alle foto non posso leggere la galleria. Attivalo nelle impostazioni.');
+        return;
+      }
+      if (access === 'limited') {
+        setGalleryStatus('Hai condiviso solo alcune foto: scegli "Consenti tutte" per vedere tutti i tuoi luoghi.');
+        await askForAllPhotos();
+      }
+      const found = await scanGallery((read, withGps) => setGalleryStatus(`Lette ${read} foto, ${withGps} con posizione`));
+      setPhotos(found);
+      mark('photo', found);
+    } catch (e) {
+      console.warn('[photos] scan failed', e);
+      setGalleryStatus(`Lettura interrotta: ${String(e)}`);
+    } finally {
+      setScanning(false);
+    }
+  }, [mark]);
+
+  const openGroup = (group: PlaceGroup) => {
+    setFocus({
+      country: group.place.country ?? focus.country,
+      region: group.place.region ?? focus.region,
+      lat: group.lat,
+      lon: group.lon,
+    });
+    setScale(group.place.province ? 'regional' : 'national');
+    setTab('Mappa');
+  };
 
   const mapState: MapState = useMemo(
     () => ({
@@ -84,9 +126,12 @@ function Home() {
         province: ids(visited, 'province'),
         hex: ids(visited, 'hex'),
       },
-      points: here ? [here] : [],
+      points: [
+        ...photos.slice(0, MAX_POINTS).map((p): [number, number] => [p.lon, p.lat]),
+        ...(here ? [here] : []),
+      ],
     }),
-    [scale, focus, visited, here],
+    [scale, focus, visited, here, photos],
   );
 
   const showToast = (text: string) => {
@@ -113,7 +158,7 @@ function Home() {
         {/* The map stays mounted under the other tabs, so it never reloads. */}
         <MapView state={mapState} onToggle={onToggle} />
 
-        {tab === 'Mappa' ? (
+        {tab === 'Mappa' && (
           <>
             <View style={[styles.header, { top: insets.top + 12 }]}>
               <Text style={styles.title}>Dove sei stato</Text>
@@ -140,7 +185,20 @@ function Home() {
               ))}
             </View>
           </>
-        ) : (
+        )}
+
+        {tab === 'Galleria' && (
+          <GalleryScreen
+            groups={groups}
+            status={galleryStatus}
+            scanning={scanning}
+            onScan={scan}
+            onOpen={openGroup}
+            topInset={insets.top}
+          />
+        )}
+
+        {(tab === 'Per te' || tab === 'Interessi') && (
           <View style={[styles.coming, { paddingTop: insets.top + 24 }]}>
             <Text style={styles.title}>{tab}</Text>
             <Text style={styles.comingText}>{COMING[tab]}</Text>
@@ -181,7 +239,7 @@ const styles = StyleSheet.create({
     position: 'absolute', alignSelf: 'center',
     backgroundColor: C.accent, borderRadius: 999, paddingVertical: 8, paddingHorizontal: 14,
   },
-  toastText: { color: '#1a0d06', fontWeight: '600' },
+  toastText: { color: C.onAccent, fontWeight: '600' },
   scales: {
     position: 'absolute', left: 16, right: 16, bottom: 16,
     flexDirection: 'row', backgroundColor: C.surface, borderRadius: 999, padding: 4,
@@ -190,7 +248,7 @@ const styles = StyleSheet.create({
   scale: { flex: 1, paddingVertical: 10, borderRadius: 999, alignItems: 'center' },
   scaleOn: { backgroundColor: C.accent },
   scaleText: { color: C.muted, fontSize: 13, fontWeight: '600' },
-  scaleTextOn: { color: '#1a0d06' },
+  scaleTextOn: { color: C.onAccent },
   coming: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: C.bg, paddingHorizontal: 24, gap: 12 },
   comingText: { color: C.muted, fontSize: 16, lineHeight: 23, maxWidth: 420 },
   comingTag: { color: C.accent, fontSize: 12, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },

@@ -44,14 +44,17 @@ export function useVisited() {
     [update],
   );
 
+  // Marks every country, region and province of the given places, in one save.
   const mark = useCallback(
-    (source: Source, place: Place) =>
+    (source: Source, places: Place[]) =>
       update((v) => {
-        for (const level of ['country', 'region', 'province'] as const) {
-          const id = place[level];
-          if (!id) continue;
-          const sources = v[level][id] ?? [];
-          if (!sources.includes(source)) v[level][id] = [...sources, source];
+        for (const place of places) {
+          for (const level of ['country', 'region', 'province'] as const) {
+            const id = place[level];
+            if (!id) continue;
+            const sources = v[level][id] ?? [];
+            if (!sources.includes(source)) v[level][id] = [...sources, source];
+          }
         }
       }),
     [update],
