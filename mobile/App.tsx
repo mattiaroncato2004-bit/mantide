@@ -83,6 +83,7 @@ function Home() {
   const [opened, setOpened] = useState<string | null>(null); // photo shown full screen
   const [group, setGroup] = useState<string[] | null>(null); // the photos behind a numbered thumbnail
   const [galleryOpen, setGalleryOpen] = useState(false); // all your photos, and the gallery consent
+  const [reusedAnswers, setReusedAnswers] = useState(0); // demo photos labelled with Gemma's earlier answers
   const [selected, setSelected] = useState<SelectedPlace | null>(null); // area tapped on the map
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null); // event dot or card tapped
   const [passportOpen, setPassportOpen] = useState(false);
@@ -168,11 +169,9 @@ function Home() {
       }
       setAnalyses({ ...results });
       await saveAnalyses(results);
-      setStatus(
-        reused
-          ? `Gemma non risponde: uso le risposte che aveva già dato su ${reused} foto demo.`
-          : `Non trovo Gemma su ${GEMMA_URL}: avvia "litert-lm serve" sul computer.`,
-      );
+      // With earlier answers the app works as usual: say so quietly in the Locale panel, not in the header.
+      setReusedAnswers(reused);
+      setStatus(reused ? null : `Non trovo Gemma su ${GEMMA_URL}: avvia "litert-lm serve" sul computer.`);
     }
   }, []);
 
@@ -512,7 +511,7 @@ function Home() {
             selectedEvent={selectedEvent}
             onSelectEvent={setSelectedEvent}
             status={localStatus}
-            deviceNote={whereGemmaRuns()}
+            deviceNote={reusedAnswers ? 'Gemma non risponde da qui: interessi dalle risposte che aveva già dato sulle foto demo.' : whereGemmaRuns()}
             onRemoveInterest={(id) => setRemoved((r) => [...r, id])}
             bottomInset={insets.bottom}
           />

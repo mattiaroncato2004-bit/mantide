@@ -93,6 +93,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 **Dati inventati e riserve**
 - **Galleria demo:** un viaggiatore immaginario di Roncade, appassionato di street art, cibo, montagna, musica e architettura. Foto vere da Wikimedia Commons (CC0, pubblico dominio, CC BY, CC BY-SA) con GPS e date inventati negli EXIF.
 - **46 eventi inventati** sulle 4 scale, 3 a H-FARM.
+- **La riserva di Gemma si dice nel pannello Locale, non nell'intestazione** (feedback del team, 19:40): quando Gemma non risponde (per esempio dal telefono, che non raggiunge `127.0.0.1:9379`) la nota in fondo a "Per te qui" dice che gli interessi vengono dalle risposte già date sulle foto demo. L'intestazione resta pulita; mostra ancora l'errore se non c'è nessuna risposta da riusare.
 - **Riserve dichiarate a schermo:** `src/demo/demo.json` (generato da `scripts/build-demo.ts`) contiene per ogni foto demo GPS, data e la risposta di Gemma calcolata prima (`local-ai/precompute_demo.py`). L'app lo usa solo se una foto demo arriva senza GPS o se Gemma non risponde, e lo scrive.
 
 ## Insidie note
@@ -142,7 +143,13 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 19:22 · questo commit · Annullate le percentuali nell'intestazione (6661c06)
+### 19:42 · questo commit · Nota sulla riserva di Gemma spostata nel pannello Locale
+- **Cosa:** `reusedAnswers` in `App.tsx`; l'intestazione non mostra più "Gemma non risponde: uso le risposte…", la nota di `LocalPanel` sì.
+- **Perché:** dal telefono (stesso hotspot del Mac, `http://<ip del Mac>:8081`) Gemma non è raggiungibile e la scritta in alto era brutta.
+- **Verifica:** `npx tsc --noEmit`; nel browser con le chiamate a Gemma bloccate: intestazione pulita, nota in fondo al pannello Locale.
+- **Da provare:** sul telefono.
+
+### 19:22 · f95bb5a · Annullate le percentuali nell'intestazione (6661c06)
 - **Cosa:** intestazione di nuovo con soli numeri: paesi, regioni, province, livello.
 - **Perché:** il team ha cambiato idea.
 - **Verifica:** `npx tsc --noEmit`.
