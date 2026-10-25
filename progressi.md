@@ -87,6 +87,7 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 - **Profilo e consigli calcolati dal codice** (`src/events/recommend.ts`): il peso di un interesse è la sua quota tra le foto etichettate; un evento senza interessi in comune non compare.
 
 **Versione browser**
+- **Dal telefono:** stesso wifi del Mac e `http://<ip del Mac>:8081` (il server di Expo ascolta già su tutta la rete). Un telefono che fa da hotspot non raggiunge il Mac collegato a lui: le sue richieste non arrivano mai (provato due volte); con due dispositivi sullo stesso hotspot o sul wifi di casa funziona.
 - **La stessa app nel browser, non un mockup:** i pezzi che dipendono dal telefono hanno un gemello `.web.ts(x)` accanto (archivio, galleria, rimpicciolimento foto, miniature, mappa); Metro sceglie da solo. Sul web la galleria è quella demo, con le foto caricate da Wikimedia (che permette la lettura cross-origin), e Gemma si chiama su `127.0.0.1:9379`.
 - **La mappa nel browser è un iframe con indirizzo `blob:`**, non `srcDoc`: una pagina srcdoc ha origine "null" e MapLibre non finisce mai di caricare le sorgenti GeoJSON.
 
@@ -144,7 +145,13 @@ Ultimo aggiornamento: 24 ottobre 2026, 18:55. Hackathon: prototipo alle 19:00, c
 
 Dal più recente. Ogni voce: orario, commit, cosa, perché, verifica, cosa resta da provare.
 
-### 19:46 · questo commit · `/?nuovo` per ripartire dal benvenuto
+### 25 ottobre, 10:53 · questo commit · App visibile subito su Safari, errori a schermo
+- **Cosa:** `App.tsx` mostra l'app dopo al massimo 1,5 s anche se i font non sono ancora arrivati (expo-font su web aspetta fino a 12 s); `src/storage.web.ts` mostra a schermo, in un riquadro rosso, ogni errore non gestito.
+- **Perché:** dal telefono (Safari) l'app restava nera: lo sfondo c'era, quindi il codice girava ma aspettava i font.
+- **Verifica:** `npx tsc --noEmit`; nel browser del Mac via `http://192.168.178.59:8081/?nuovo` il benvenuto compare subito, nessun errore.
+- **Da provare:** su Safari dell'iPhone, sullo stesso wifi del Mac.
+
+### 19:46 · df5a4f4 · `/?nuovo` per ripartire dal benvenuto
 - **Cosa:** nella versione browser, aprire l'app con `?nuovo` cancella i dati salvati e mostra il benvenuto.
 - **Perché:** dal telefono non c'era modo di rivedere il benvenuto.
 - **Verifica:** `npx tsc --noEmit`; nel browser `http://localhost:8081/?nuovo` → benvenuto, localStorage vuoto, indirizzo tornato a `/`.

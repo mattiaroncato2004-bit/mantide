@@ -10,6 +10,15 @@ try {
   }
 } catch {}
 
+// On a phone there is no console to look at: show any uncaught error on screen.
+window.addEventListener('error', (e) => {
+  const box = document.createElement('pre');
+  box.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;margin:0;padding:10px;white-space:pre-wrap;' +
+    'background:#2a0c0c;color:#ffd7d7;font:12px/1.4 monospace;border-radius:8px';
+  box.textContent = `Errore: ${e.message}\n${e.filename ?? ''}:${e.lineno ?? ''}`;
+  document.body.appendChild(box);
+});
+
 const Storage = {
   async getItem(key: string): Promise<string | null> {
     try {

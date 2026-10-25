@@ -59,10 +59,17 @@ export default function App() {
     BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold,
     IBMPlexMono_400Regular, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold,
   });
+  // Safari on iPhone can wait up to expo-font's 12 s timeout, on a black screen: start anyway after
+  // 1.5 s, and the fonts swap in when they arrive.
+  const [waited, setWaited] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setWaited(true), 1500);
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <SafeAreaProvider>
       <StatusBar style="light" />
-      {fontsLoaded || fontError ? <Home /> : <View style={styles.root} />}
+      {fontsLoaded || fontError || waited ? <Home /> : <View style={styles.root} />}
     </SafeAreaProvider>
   );
 }
