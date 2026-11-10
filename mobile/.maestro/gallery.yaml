@@ -16,4 +16,7 @@ appId: com.mantide.app
     visible: "6 countries · 11 regions · 13 provinces.*"
     timeout: 120000
 - tapOn: "Local"
-- assertVisible: ".*Gemma isn't reachable from here.*"
+# The analysis starts after the thumbnails are made, then falls back on the first failed call.
+- extendedWaitUntil:
+    visible: ".*Gemma isn't reachable from here.*"
+    timeout: 90000

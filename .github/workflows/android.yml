@@ -74,3 +74,9 @@ jobs:
             adb install -r apk/app-release.apk
             maestro test mobile/.maestro/smoke.yaml
             maestro test mobile/.maestro/gallery.yaml
+      - name: Keep Maestro's screenshots and screen hierarchy when a flow fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-debug
+          path: ~/.maestro/tests
