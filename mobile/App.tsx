@@ -11,6 +11,9 @@ import {
   BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold,
 } from '@expo-google-fonts/bricolage-grotesque';
 import { IBMPlexMono_400Regular, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold } from '@expo-google-fonts/ibm-plex-mono';
+import { MapCanvas } from './src/map/MapCanvas';
+import { areasInView, distanceRings, journeyLine, levelForZoom, makePhotoIndex } from './src/map/model';
+import type { CameraTarget, MapView as MapViewState } from './src/map/types';
 import { MapView } from './src/map/MapView';
 import { makeThumbs } from './src/map/thumbs';
 import { centerOf, countryOfRegion, locate, nameOf, placeOfProvince } from './src/geo/locate';
@@ -21,7 +24,7 @@ import {
 } from './src/ai/gemma';
 import { GemmaUnreachable } from './src/ai/call';
 import { labelOf, type InterestId } from './src/ai/interests';
-import { SAMPLE_EVENTS as EVENTS, profileFromCounts, recommend, recommendIn, type Event } from './src/events/recommend';
+import { SAMPLE_EVENTS as EVENTS, haversineKm, profileFromCounts, recommend, recommendIn, type Event } from './src/events/recommend';
 import { Welcome } from './src/screens/Welcome';
 import { LocalPanel } from './src/screens/LocalPanel';
 import { PlaceSheet, type SelectedPlace } from './src/screens/PlaceSheet';
@@ -339,6 +342,27 @@ function Home() {
     [scale, focus, visited, here, photos, thumbs, localRecommendations, selectedEvent, reached, chromeTop],
   );
 
+  // The shared map model drives the web map; Android keeps the WebView map until it is replaced.
+  const [view, setView] = useState<MapViewState>({ zoom: 1.4, bounds: [-180, -85, 180, 85], center: [DEFAULT_FOCUS.lon, DEFAULT_FOCUS.lat] });
+  const shownPhotos = useMemo(
+    () => (timelineOn && reached ? photos.filter((p) => p.takenAt <= reached.takenAt) : photos),
+    [photos, timelineOn, reached],
+  );
+  const photoIndex = useMemo(() => makePhotoIndex(shownPhotos), [shownPhotos]);
+  const areas = useMemo(
+    () => areasInView(levelForZoom(view.zoom), view.bounds, mapState.visited),
+    [view, mapState.visited],
+  );
+  const clusters = useMemo(() => photoIndex.clusters(view.bounds, view.zoom), [photoIndex, view]);
+  const farthestEventKm = Math.max(0, ...mapState.events.map((e) => haversineKm(focus.lat, focus.lon, e.lat, e.lon)));
+  const cameraKey = useRef(0);
+  const camera: CameraTarget = useMemo(() => {
+    cameraKey.current += 1;
+    const zoom = { global: 1.4, national: 4.6, regional: 6.8, local: 10 }[scale];
+    const center: [number, number] = timelineOn && reached ? [reached.lon, reached.lat] : [focus.lon, focus.lat];
+    return { key: cameraKey.current, center, zoom: timelineOn ? Math.max(3, Math.min(zoom, 5)) : zoom };
+  }, [scale, focus.lon, focus.lat, timelineOn, reached]);
+
   const showToast = (text: string) => {
     clearTimeout(toastTimer.current);
     setToast(text);
@@ -375,42 +399,65 @@ function Home() {
         ? t('local.waiting')
         : t('local.none');
 
+  // Tapping an area: its sheet opens and the scales follow it (France at Global → French regions).
+  const onAreaPress = (level: Level, id: string, name: string) => {
+    setSelectedEvent(null);
+    setSelected({ level, id, name: nameOf(level, id) || name });
+    // The scales follow the place you tapped: France at Globale, then Nazionale shows French regions.
+    // A country goes to the region where you took most photos there (or its middle).
+    let country = focus.country;
+    let region = id;
+    if (level === 'country') {
+      country = id;
+      const counts = new Map<string, number>();
+      for (const p of photos) if (p.country === id && p.region) counts.set(p.region, (counts.get(p.region) ?? 0) + 1);
+      const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+      const [cx, cy] = centerOf(id) ?? [focus.lon, focus.lat];
+      region = top ?? locate(cy, cx).region ?? '';
+    } else if (level === 'region') {
+      country = countryOfRegion(id) ?? focus.country;
+    } else {
+      const owner = placeOfProvince(id);
+      country = owner?.country ?? focus.country;
+      region = owner?.region ?? focus.region;
+    }
+    const [lon, lat] = (level === 'country' ? centerOf(region) : undefined) ?? centerOf(id) ?? [focus.lon, focus.lat];
+    setFocus({ country, region, lat, lon });
+    // Tapping goes one scale down, with the place's sheet still open: a country opens its regions,
+    // a region (Lazio at Nazionale) its provinces. Provinces stay at Regionale: Locale has no areas.
+    if (level === 'country') setScale('national');
+    else if (level === 'region') setScale('regional');
+  };
+
   return (
     <View style={styles.root}>
+      {Platform.OS === 'web' ? (
+        <MapCanvas
+          basemap="satellite"
+          areas={areas}
+          clusters={clusters}
+          thumbs={thumbs}
+          journey={timelineOn && reached ? journeyLine(photos, reached.takenAt) : null}
+          events={mapState.events.map((e) => ({ ...e, selected: e.id === selectedEvent }))}
+          you={scale === 'local' ? { lon: focus.lon, lat: focus.lat, label: t('map.youAreHere') } : null}
+          rings={scale === 'local' ? distanceRings([focus.lon, focus.lat], farthestEventKm) : []}
+          camera={camera}
+          sheetHeight={scale === 'local' || selected ? 300 : 150}
+          onViewChange={setView}
+          onAreaPress={(level, id) => onAreaPress(level, id, nameOf(level, id))}
+          onClusterPress={(key) => setGroup(photoIndex.leaves(key))}
+          onPhotoPress={setOpened}
+          onEventPress={setSelectedEvent}
+        />
+      ) : (
       <MapView
         state={mapState}
-        onToggle={(level: Level, id: string, name: string) => {
-          setSelectedEvent(null);
-          setSelected({ level, id, name: nameOf(level, id) || name });
-          // The scales follow the place you tapped: France at Globale, then Nazionale shows French regions.
-          // A country goes to the region where you took most photos there (or its middle).
-          let country = focus.country;
-          let region = id;
-          if (level === 'country') {
-            country = id;
-            const counts = new Map<string, number>();
-            for (const p of photos) if (p.country === id && p.region) counts.set(p.region, (counts.get(p.region) ?? 0) + 1);
-            const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
-            const [cx, cy] = centerOf(id) ?? [focus.lon, focus.lat];
-            region = top ?? locate(cy, cx).region ?? '';
-          } else if (level === 'region') {
-            country = countryOfRegion(id) ?? focus.country;
-          } else {
-            const owner = placeOfProvince(id);
-            country = owner?.country ?? focus.country;
-            region = owner?.region ?? focus.region;
-          }
-          const [lon, lat] = (level === 'country' ? centerOf(region) : undefined) ?? centerOf(id) ?? [focus.lon, focus.lat];
-          setFocus({ country, region, lat, lon });
-          // Tapping goes one scale down, with the place's sheet still open: a country opens its regions,
-          // a region (Lazio at Nazionale) its provinces. Provinces stay at Regionale: Locale has no areas.
-          if (level === 'country') setScale('national');
-          else if (level === 'region') setScale('regional');
-        }}
+        onToggle={(level: Level, id: string, name: string) => onAreaPress(level, id, name)}
         onPhoto={setOpened}
         onPhotos={setGroup}
         onEvent={(id) => setSelectedEvent(id)}
       />
+      )}
 
       <View
         style={[styles.header, { top: insets.top + 8 }]}
