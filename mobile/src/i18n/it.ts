@@ -137,7 +137,7 @@ export const it = {
   'continent.southAmerica': 'Sud America',
   'continent.oceania': 'Oceania',
 
-  'gemma.web': 'Versione browser: Gemma 4 gira su questo computer, nessuna foto va nel cloud.',
+  'gemma.web': 'Versione browser: Gemma 4 gira su un computer tuo, mai nel cloud.',
   'gemma.unknownRam': 'Gemma 4 gira sul tuo computer, in rete locale.',
   'gemma.enoughRam': '{device} ha {gb} GB di RAM: abbastanza per Gemma sul telefono (prossima versione). Oggi gira sul tuo computer.',
   'gemma.littleRam': '{device} ha {gb} GB di RAM: per Gemma ne servono {min}, quindi gira sul tuo computer, in rete locale.',

@@ -12,7 +12,11 @@ assert.equal(t('test.hello', { name: 'Ada' }), 'Hello, Ada');
 assert.equal(tc('count.countries', 1), '1 country');
 assert.equal(tc('count.countries', 6), '6 countries');
 
+// The public web demo runs on a visitor's browser: nothing of ours runs on their computer.
+assert.ok(!t('gemma.web').includes('this computer'), t('gemma.web'));
+
 setLocaleForTests('it');
+assert.ok(!t('gemma.web').includes('questo computer'), t('gemma.web'));
 assert.equal(tc('count.countries', 1), '1 paese');
 assert.equal(tc('count.countries', 6), '6 paesi');
 

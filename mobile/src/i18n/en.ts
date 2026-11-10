@@ -137,7 +137,7 @@ export const en = {
   'continent.southAmerica': 'South America',
   'continent.oceania': 'Oceania',
 
-  'gemma.web': 'Browser version: Gemma 4 runs on this computer, no photo goes to the cloud.',
+  'gemma.web': 'Browser version: Gemma 4 runs on a computer you own, never in the cloud.',
   'gemma.unknownRam': 'Gemma 4 runs on your computer, on your local network.',
   'gemma.enoughRam': '{device} has {gb} GB of RAM: enough for Gemma on the phone (next version). Today it runs on your computer.',
   'gemma.littleRam': '{device} has {gb} GB of RAM: Gemma needs {min}, so it runs on your computer, on your local network.',

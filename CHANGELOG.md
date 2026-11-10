@@ -8,8 +8,8 @@
 - English identifiers throughout (interest ids, sample events); Gemma now describes photos in English, and the 45 demo answers were regenerated.
 - Sample events move forward by whole weeks, so the demo never runs out of upcoming events.
 - Web demo deployable under `/mantide/` on GitHub Pages; the browser never asks for location; `?reset` starts again from the welcome screen.
-- CI: typecheck, unit tests, a check against hard-coded UI text, the Android JavaScript bundle, and an end-to-end test of the web demo.
-- Android: release APK built on GitHub and smoke-tested on an emulator.
+- CI: typecheck, unit tests, checks against hard-coded UI text, leftover Italian, broken doc links and a README out of step with CI, the Android JavaScript bundle, and an end-to-end test of the web demo.
+- Android: release APK built on GitHub and run on an emulator, including reading the 45 demo photos from the gallery.
 - Documentation in English; the hackathon notes became [docs/hackathon.md](docs/hackathon.md).
 
 ## 0.1.0 · 24 October 2026 · Hacktoberfest @ H-FARM

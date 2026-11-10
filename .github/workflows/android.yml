@@ -57,13 +57,18 @@ jobs:
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
-      - name: Install the APK and run the smoke test
+      - name: Install the APK and run the smoke tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           arch: x86_64
           target: google_apis
           disable-animations: true
+          # The demo gallery goes into the emulator, located at H-FARM like the demo traveller's home.
           script: |
+            adb emu geo fix 12.3766 45.6297
+            adb push demo-data/photos/. /sdcard/Pictures/mantide-demo/
+            adb shell content call --method scan_volume --uri content://media --arg external_primary
             adb install -r apk/app-release.apk
             maestro test mobile/.maestro/smoke.yaml
+            maestro test mobile/.maestro/gallery.yaml

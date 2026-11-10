@@ -1,0 +1,19 @@
+# Reading the gallery on Android: the 45 demo photos are pushed to the emulator first (android.yml),
+# with the emulator's location at H-FARM. Gemma isn't running, so the app must fall back to the
+# answers prepared for the demo photos and say so.
+# Run: maestro test .maestro/gallery.yaml
+appId: com.mantide.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+- tapOn: "Use my gallery"
+- tapOn:
+    text: "Allow all"
+    optional: true
+- extendedWaitUntil:
+    visible: "6 countries · 11 regions · 13 provinces.*"
+    timeout: 120000
+- tapOn: "Local"
+- assertVisible: ".*Gemma isn't reachable from here.*"

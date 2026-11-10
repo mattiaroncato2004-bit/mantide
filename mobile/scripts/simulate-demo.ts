@@ -11,7 +11,7 @@ type DemoPhoto = { file: string; lat: number; lon: number };
 const photos: DemoPhoto[] = JSON.parse(readFileSync('../demo-data/photos.json', 'utf8'));
 const analyses: Record<string, { interests: InterestId[] }> = JSON.parse(readFileSync('../demo-data/analyses.json', 'utf8'));
 
-// Places visited, as the map will color them after "Leggi la galleria".
+// Places visited, as the map colours them after "Use my gallery".
 const places = photos.map((p) => locate(p.lat, p.lon));
 const countries = new Set(places.map((p) => p.country).filter(Boolean));
 const regions = new Set(places.map((p) => p.region).filter(Boolean));

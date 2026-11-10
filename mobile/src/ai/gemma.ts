@@ -72,7 +72,7 @@ export async function analyzePhoto(uri: string): Promise<Analysis> {
       ],
     }),
   });
-  if (!response.ok) throw new Error(`Gemma ha risposto ${response.status}`);
+  if (!response.ok) throw new Error(`Gemma answered ${response.status}`);
   const body = await response.json();
   const analysis = parseAnswer(body.choices?.[0]?.message?.content ?? '');
   if (!analysis) throw new Error("Can't read Gemma's answer");

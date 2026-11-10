@@ -65,7 +65,7 @@ The same code runs in a browser, where platform-specific pieces have a `.web.ts(
 |---|---|
 | Reading photos, dates and GPS from the gallery | Real |
 | Map, regions, visited areas, timeline, passport | Real |
-| Interests | Real: Gemma 4 E2B labels each photo on your hardware |
+| Interests | Real: Gemma 4 E2B labels a sample of your photos on your hardware |
 | Events | **Sample:** 46 invented events around Italy and Europe ([events.json](mobile/src/events/events.json)); real open-data events are next |
 | Demo gallery | **Sample:** 45 open-licensed photos with invented GPS and dates for a fictional traveller ([demo-data/](demo-data/)) |
 | Web demo | Gemma can't run for a visitor: it shows the answers Gemma gave earlier on the demo photos, and says so |
@@ -79,21 +79,29 @@ cd mobile
 npm ci
 npm run typecheck
 npm test
-npm run export:web && npm run e2e     # build the web demo and test it end to end
-npx expo start --web                  # or develop it at http://localhost:8081
+npx expo export --platform android --output-dir /tmp/android-bundle   # the Android JavaScript bundle builds
+npm run export:web                                                     # the web demo, as published
+npx playwright install --with-deps chromium                            # once: the browser for the end-to-end test
+npm run e2e                                                            # the web demo, end to end
+npx expo start --web                                                   # or develop it at http://localhost:8081
 ```
 
 On Android, with an emulator or a phone: [docs/android-setup.md](docs/android-setup.md). Gemma 4 on your computer: [local-ai/README.md](local-ai/README.md).
 
 ## Status and roadmap
 
-**Verified on every push:**
+**Verified in CI:**
 
-- typecheck and unit tests;
-- the web demo, end to end;
-- the Android release APK, built and opened on an emulator: the welcome screen, the map, and the Local panel ([android.yml](.github/workflows/android.yml)).
+- **Every push** ([ci.yml](.github/workflows/ci.yml)): typecheck, unit tests, and the web demo end to end.
+- **Every push to `main`** ([android.yml](.github/workflows/android.yml)): the Android release APK is built and run on an emulator. The run checks:
+  - the welcome screen;
+  - the main screen and the Local panel;
+  - reading the 45 demo photos from the gallery, down to "6 countries · 11 regions · 13 provinces".
 
-**Not yet verified:** the app on a physical Android phone.
+**Not yet verified:**
+
+- **A physical Android phone.**
+- **Gemma called from a phone.** The emulator test runs without Gemma and checks the fallback to prepared answers.
 
 **Next** ([design](docs/superpowers/specs/2026-11-10-mantide-v1-design.md)):
 
