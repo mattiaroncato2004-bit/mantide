@@ -20,3 +20,4 @@ appId: com.mantide.app
 - extendedWaitUntil:
     visible: ".*Gemma isn't reachable from here.*"
     timeout: 90000
+- takeScreenshot: local-panel-after-gallery

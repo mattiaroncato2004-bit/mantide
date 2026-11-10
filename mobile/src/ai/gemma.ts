@@ -10,6 +10,7 @@ import { parseAnswer, type Analysis } from './parse';
 import type { Photo } from '../gallery/photos';
 import demo from '../demo/demo.json';
 import { t } from '../i18n';
+import { postToGemma } from './call';
 
 export type { Analysis } from './parse';
 
@@ -55,25 +56,19 @@ export const demoAnalysis = (filename: string): Analysis | null => DEMO[filename
 
 export async function analyzePhoto(uri: string): Promise<Analysis> {
   const image = await imageForGemma(uri);
-  const response = await fetch(`${GEMMA_URL}/v1/chat/completions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: GEMMA_MODEL,
-      temperature: 0,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'image_url', image_url: { url: image } },
-            { type: 'text', text: PROMPT },
-          ],
-        },
-      ],
-    }),
-  });
-  if (!response.ok) throw new Error(`Gemma answered ${response.status}`);
-  const body = await response.json();
+  const body = (await postToGemma(GEMMA_URL, {
+    model: GEMMA_MODEL,
+    temperature: 0,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          { type: 'image_url', image_url: { url: image } },
+          { type: 'text', text: PROMPT },
+        ],
+      },
+    ],
+  })) as { choices?: { message?: { content?: string } }[] };
   const analysis = parseAnswer(body.choices?.[0]?.message?.content ?? '');
   if (!analysis) throw new Error("Can't read Gemma's answer");
   return analysis;

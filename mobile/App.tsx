@@ -19,6 +19,7 @@ import { askForAllPhotos, forgetPhotos, loadPhotos, requestGallery, scanGallery,
 import {
   analyzePhoto, demoAnalysis, GEMMA_URL, loadAnalyses, sample, saveAnalyses, whereGemmaRuns, type Analysis,
 } from './src/ai/gemma';
+import { GemmaUnreachable } from './src/ai/call';
 import { labelOf, type InterestId } from './src/ai/interests';
 import { SAMPLE_EVENTS as EVENTS, profileFromCounts, recommend, recommendIn, type Event } from './src/events/recommend';
 import { Welcome } from './src/screens/Welcome';
@@ -161,7 +162,7 @@ function Home() {
           setAnalyses({ ...results });
           await saveAnalyses(results);
         } catch (e) {
-          if (e instanceof TypeError) throw e; // network error: Gemma is not reachable
+          if (e instanceof GemmaUnreachable) throw e; // no answer at all: switch to the prepared answers
           console.warn('[gemma] photo skipped', photo.id, e);
         }
       }
@@ -428,7 +429,7 @@ function Home() {
           ] as const).map(([n, label], i) => (
             <View key={i} style={[styles.count, i > 0 && styles.countRule]}>
               <Text style={styles.countN}>{n}</Text>
-              <Text style={styles.countLabel} numberOfLines={1}>{label}</Text>
+              <Text style={styles.countLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{label}</Text>
             </View>
           ))}
           <View style={[styles.count, styles.countRule, styles.levelCell]}>
