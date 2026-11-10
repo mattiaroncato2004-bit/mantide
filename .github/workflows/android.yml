@@ -65,9 +65,11 @@ jobs:
           target: google_apis
           disable-animations: true
           # The demo gallery goes into the emulator, located at H-FARM like the demo traveller's home.
+          # Right after boot the shared storage refuses writes for a while: wait, then retry the copy.
           script: |
             adb emu geo fix 12.3766 45.6297
-            adb push demo-data/photos/. /sdcard/Pictures/mantide-demo/
+            sleep 30 && adb shell mkdir -p /sdcard/Pictures/mantide-demo
+            for i in 1 2 3 4 5; do adb push demo-data/photos/. /sdcard/Pictures/mantide-demo/ && break; echo "push failed, retrying"; sleep 15; done; adb shell ls /sdcard/Pictures/mantide-demo | wc -l
             adb shell content call --method scan_volume --uri content://media --arg external_primary
             adb install -r apk/app-release.apk
             maestro test mobile/.maestro/smoke.yaml
