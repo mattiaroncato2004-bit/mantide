@@ -14,7 +14,6 @@ import { IBMPlexMono_400Regular, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold 
 import { MapCanvas } from './src/map/MapCanvas';
 import { areasInView, distanceRings, journeyLine, levelForZoom, makePhotoIndex } from './src/map/model';
 import type { CameraTarget, MapView as MapViewState } from './src/map/types';
-import { MapView } from './src/map/MapView';
 import { makeThumbs } from './src/map/thumbs';
 import { centerOf, countryOfRegion, locate, nameOf, placeOfProvince } from './src/geo/locate';
 import { ids, useVisited } from './src/state/visited';
@@ -342,7 +341,7 @@ function Home() {
     [scale, focus, visited, here, photos, thumbs, localRecommendations, selectedEvent, reached, chromeTop],
   );
 
-  // The shared map model drives the web map; Android keeps the WebView map until it is replaced.
+  // The shared map model drives both maps (native MapLibre on Android, MapLibre GL JS on the web).
   const [view, setView] = useState<MapViewState>({ zoom: 1.4, bounds: [-180, -85, 180, 85], center: [DEFAULT_FOCUS.lon, DEFAULT_FOCUS.lat] });
   const shownPhotos = useMemo(
     () => (timelineOn && reached ? photos.filter((p) => p.takenAt <= reached.takenAt) : photos),
@@ -431,33 +430,23 @@ function Home() {
 
   return (
     <View style={styles.root}>
-      {Platform.OS === 'web' ? (
-        <MapCanvas
-          basemap="satellite"
-          areas={areas}
-          clusters={clusters}
-          thumbs={thumbs}
-          journey={timelineOn && reached ? journeyLine(photos, reached.takenAt) : null}
-          events={mapState.events.map((e) => ({ ...e, selected: e.id === selectedEvent }))}
-          you={scale === 'local' ? { lon: focus.lon, lat: focus.lat, label: t('map.youAreHere') } : null}
-          rings={scale === 'local' ? distanceRings([focus.lon, focus.lat], farthestEventKm) : []}
-          camera={camera}
-          sheetHeight={scale === 'local' || selected ? 300 : 150}
-          onViewChange={setView}
-          onAreaPress={(level, id) => onAreaPress(level, id, nameOf(level, id))}
-          onClusterPress={(key) => setGroup(photoIndex.leaves(key))}
-          onPhotoPress={setOpened}
-          onEventPress={setSelectedEvent}
-        />
-      ) : (
-      <MapView
-        state={mapState}
-        onToggle={(level: Level, id: string, name: string) => onAreaPress(level, id, name)}
-        onPhoto={setOpened}
-        onPhotos={setGroup}
-        onEvent={(id) => setSelectedEvent(id)}
+      <MapCanvas
+        basemap="satellite"
+        areas={areas}
+        clusters={clusters}
+        thumbs={thumbs}
+        journey={timelineOn && reached ? journeyLine(photos, reached.takenAt) : null}
+        events={mapState.events.map((e) => ({ ...e, selected: e.id === selectedEvent }))}
+        you={scale === 'local' ? { lon: focus.lon, lat: focus.lat, label: t('map.youAreHere') } : null}
+        rings={scale === 'local' ? distanceRings([focus.lon, focus.lat], farthestEventKm) : []}
+        camera={camera}
+        sheetHeight={scale === 'local' || selected ? 300 : 150}
+        onViewChange={setView}
+        onAreaPress={(level, id) => onAreaPress(level, id, nameOf(level, id))}
+        onClusterPress={(key) => setGroup(photoIndex.leaves(key))}
+        onPhotoPress={setOpened}
+        onEventPress={setSelectedEvent}
       />
-      )}
 
       <View
         style={[styles.header, { top: insets.top + 8 }]}

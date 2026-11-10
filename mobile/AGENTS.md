@@ -24,7 +24,7 @@ npm run e2e                  # Playwright test of that build
 |---|---|
 | `App.tsx` | The single screen: map, header, scale switcher, panels and sheets. No router |
 | `src/i18n/` | Every visible string, English (`en.ts`, source of truth) and Italian (`it.ts`) |
-| `src/map/` | The MapLibre page (`mapHtml.ts`), its WebView (`MapView.tsx`), photo thumbnails (`thumbs.ts`) |
+| `src/map/` | The map: the shared model (`model.ts`) and style (`style.ts`), two renderers with the same props (`MapCanvas.tsx` native MapLibre, `MapCanvas.web.tsx` MapLibre GL JS), photo thumbnails (`thumbs.ts`) |
 | `src/geo/` | Boundaries, place names and `locate()`: point → country, region, province |
 | `src/gallery/` | Reading the gallery |
 | `src/ai/` | Gemma client (`gemma.ts`), the parser of its answers (`parse.ts`), the 12 interests |

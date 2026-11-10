@@ -1,6 +1,6 @@
 // For every country of the demo photos, checks that each visited region is one of the areas the
 // map draws at the national scale, and each visited province one of the areas at the regional
-// scale (same rules as areas() in src/map/mapHtml.ts). Run: npx tsx scripts/check-visited.ts
+// scale (the hackathon's scale rules; src/map/model.ts areasInView() now draws by zoom). Run: npx tsx scripts/check-visited.ts
 import { readFileSync } from 'node:fs';
 import regions from '../src/geo/it-regions.json';
 import provinces from '../src/geo/it-provinces.json';

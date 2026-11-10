@@ -1,6 +1,6 @@
 // Visual tokens. The look is a field-survey instrument laid over the satellite map: ink panels,
 // a characterful grotesque for places and headings, a mono for counts, dates and distances.
-// One accent only, the same orange the map uses for "visited" (src/map/mapHtml.ts ACCENT).
+// One accent only, the same orange the map uses for "visited" (src/map/style.ts).
 
 export const C = {
   bg: '#0a1217', // sheets and panels
