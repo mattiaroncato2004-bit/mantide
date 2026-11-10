@@ -1,5 +1,5 @@
 # Smoke test of the release APK on an emulator: the app starts without a development server,
-# shows the welcome, and the map with the Local panel works without the gallery.
+# shows the welcome, and the map with its sheet works without the gallery.
 # Run: maestro test .maestro/smoke.yaml
 appId: com.mantide.app
 ---
@@ -11,7 +11,12 @@ appId: com.mantide.app
 - tapOn: "Continue without gallery"
 - assertVisible:
     id: "map-canvas"
-- assertVisible: "Global"
-- tapOn: "Local"
-- assertVisible: "For you here"
+- assertVisible: "Your world"
+- swipe:
+    start: 50%, 92%
+    end: 50%, 50%
+    duration: 800
+- assertVisible:
+    id: "sheet-mid"
+- assertVisible: "Connect your gallery"
 - assertNotVisible: "Error"

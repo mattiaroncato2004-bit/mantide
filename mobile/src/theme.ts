@@ -14,7 +14,8 @@ export const C = {
   accent: '#ff7a45',
   accentSoft: 'rgba(255, 122, 69, 0.14)',
   onAccent: '#1a0d06',
-  material: 'rgba(28, 28, 30, 0.92)', // sheets and floating buttons over the map
+  material: 'rgba(28, 28, 30, 0.92)', // floating buttons and small panels over the map
+  sheet: '#1c1c1e', // the bottom sheet: opaque, so pins and labels never show through its text
   materialLine: 'rgba(255, 255, 255, 0.10)',
 };
 

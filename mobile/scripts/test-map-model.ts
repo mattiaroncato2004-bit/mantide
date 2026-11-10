@@ -1,6 +1,6 @@
 // The map model shared by the Android and web renderers. Run: npx tsx scripts/test-map-model.ts
 import assert from 'node:assert/strict';
-import { areasInView, distanceRings, levelForZoom, makePhotoIndex, placeAt } from '../src/map/model';
+import { areasInView, distanceRings, frameOf, levelForZoom, makePhotoIndex, placeAt, placeLevelForZoom } from '../src/map/model';
 
 // Zoom decides what lights up.
 assert.equal(levelForZoom(1.4), 'country');
@@ -43,5 +43,21 @@ assert.equal(distanceRings([12.37, 45.63], 25).map((r) => r.km).join(','), '5,10
 assert.deepEqual(placeAt(12.37, 45.63, 'province'), { level: 'province', id: 'TV' });
 assert.deepEqual(placeAt(12.37, 45.63, 'region'), { level: 'region', id: '05' });
 assert.deepEqual(placeAt(-30, 40, 'country'), null);
+
+// The sheet talks about the place around the lit areas: the world far out, the country while its
+// regions are lit, the region while its provinces are, the province up close.
+assert.equal(placeLevelForZoom(1.4), null);
+assert.equal(placeLevelForZoom(5), 'country');
+assert.equal(placeLevelForZoom(7), 'region');
+assert.equal(placeLevelForZoom(10), 'province');
+
+// Tapping an area flies one step in, so the sheet then talks about that area.
+for (const [level, id] of [['country', 'ITA'], ['country', 'FRA'], ['region', '12'], ['region', '05'], ['province', 'TV']] as const) {
+  const frame = frameOf(level, id)!;
+  assert.equal(placeLevelForZoom(frame.zoom), level, `${id}: zoom ${frame.zoom}`);
+  assert.deepEqual(placeAt(frame.center[0], frame.center[1], level), { level, id }, `${id}: centre ${frame.center}`);
+}
+assert.ok(frameOf('country', 'RUS')!.zoom < frameOf('country', 'ITA')!.zoom, 'a bigger country is framed from farther');
+assert.equal(frameOf('region', 'nowhere'), null);
 
 console.log('map model: ok');

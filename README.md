@@ -20,10 +20,10 @@ Mantide is an open-source Android app for travellers. It reads the date and GPS 
 
 ## What it does
 
-- **A map of where you've been** on a satellite globe, at four scales: world, country, region, around you. Real regions for every country; tap a place to zoom in.
+- **A map of where you've been** on a satellite globe: far out the countries you've visited light up, closer their regions, then provinces. Real regions for every country; tap a place to fly into it.
 - **Your gallery rebuilds your past:** photos appear where you took them, grouped like the iPhone Photos map; tap a group to see them all.
 - **Your photos say what you love:** Gemma 4 labels a sample of your photos with 12 interests; you can remove any of them.
-- **Events for you, nearby,** each with why it was picked; tap one to see it on the map.
+- **Events for you where you're looking,** each with why it was picked and one of your photos that explains it; tap one to see it on the map.
 - **A timeline** that replays your journeys, and a **passport** with your level, the share of the world you've seen and what's left.
 
 In English and Italian, following your phone's language.

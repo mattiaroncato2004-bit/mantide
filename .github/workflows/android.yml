@@ -74,6 +74,7 @@ jobs:
             adb install -r apk/app-release.apk
             maestro test mobile/.maestro/smoke.yaml
             maestro test mobile/.maestro/gallery.yaml
+            maestro test mobile/.maestro/back.yaml
       - name: Keep Maestro's screenshots, screen hierarchy and device logs
         if: always()
         uses: actions/upload-artifact@v4

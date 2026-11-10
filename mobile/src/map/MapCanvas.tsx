@@ -3,6 +3,7 @@
 import { Camera, GeoJSONSource, Layer, Map, Marker, type CameraRef } from '@maplibre/maplibre-react-native';
 import { useEffect, useRef } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { C, F } from '../theme';
 import type { Level } from '../types';
 import { baseStyle, OVERLAY_LAYERS } from './style';
@@ -13,6 +14,7 @@ const layers = (source: string) => OVERLAY_LAYERS.filter((l) => 'source' in l &&
 
 export function MapCanvas(p: MapCanvasProps) {
   const camera = useRef<CameraRef>(null);
+  const insets = useSafeAreaInsets();
 
   // A new camera key moves the camera, framing above the sheet.
   useEffect(() => {
@@ -28,7 +30,9 @@ export function MapCanvas(p: MapCanvasProps) {
       testID="map-canvas"
       mapStyle={baseStyle(p.basemap)}
       logo={false}
-      onRegionDidChange={({ nativeEvent: v }) => p.onViewChange({ zoom: v.zoom, bounds: v.bounds, center: v.center })}
+      // Credits top-left: the bottom belongs to the sheet, the top-right to the map buttons.
+      attributionPosition={{ top: insets.top + 8, left: 8 }}
+      onRegionDidChange={({ nativeEvent: v }) => p.onViewChange({ zoom: v.zoom, bounds: v.bounds, center: v.center, user: v.userInteraction })}
     >
       <Camera ref={camera} initialViewState={{ center: [12.37, 45.63], zoom: 1.4 }} />
 
@@ -75,15 +79,16 @@ export function MapCanvas(p: MapCanvasProps) {
             <View style={styles.point} />
             {c.count > 1 && (
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>{c.count > 999 ? '999+' : c.count}</Text>
+                <Text style={styles.badgeText} testID="pin-count">{c.count > 999 ? '999+' : c.count}</Text>
               </View>
             )}
           </Pressable>
         </Marker>
       ))}
 
+      {/* Above the photo pins, which would otherwise cover its label. */}
       {p.you && (
-        <Marker lngLat={[p.you.lon, p.you.lat]} anchor="top">
+        <Marker lngLat={[p.you.lon, p.you.lat]} anchor="top" style={styles.above}>
           <View style={styles.youWrap}>
             <View style={styles.you} />
             <Text style={styles.label}>{p.you.label}</Text>
@@ -114,6 +119,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center',
   },
   badgeText: { color: '#111', fontFamily: F.bold, fontSize: 11 },
+  above: { zIndex: 10, elevation: 10 },
   youWrap: { alignItems: 'center' },
   you: { width: 22, height: 22, borderRadius: 11, borderWidth: 4, borderColor: '#fff', backgroundColor: '#3d8bff' },
   label: {

@@ -1,44 +1,42 @@
-// The photos behind a thumbnail with a number on the map: tapping "4" shows all 4, oldest first.
-// Tapping one opens it full screen. The Gallery button reuses it for all your photos.
-import type { ReactNode } from 'react';
+// The photos behind a numbered pin, or all the photos of a place: a grid, oldest first, under the
+// places and dates they span. Tapping one opens it full screen.
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { nameOf } from '../geo/locate';
 import { formatDate, t, tc } from '../i18n';
 import type { Photo } from '../gallery/photos';
-import { C, F, R, S } from '../theme';
+import { C, F } from '../theme';
 
 type Props = {
   photos: Photo[];
+  thumbs: Record<string, string>;
   title?: string; // default: the places of the photos
-  notice?: ReactNode; // shown above the photos
-  onOpen: (id: string) => void;
-  onClose: () => void;
+  onOpen(id: string): void;
+  onClose(): void;
   topInset: number;
   bottomInset: number;
 };
 
 const date = (ms: number) => formatDate(ms, 'medium');
+const where = (p: Photo) => (p.province ? nameOf('province', p.province) : nameOf('country', p.country));
 
-export function PhotoGroup({ photos, title, notice, onOpen, onClose, topInset, bottomInset }: Props) {
+export function PhotoGroup({ photos, thumbs, title, onOpen, onClose, topInset, bottomInset }: Props) {
   const sorted = [...photos].sort((a, b) => a.takenAt - b.takenAt);
   const first = sorted[0];
   const last = sorted[sorted.length - 1];
-  const places = [...new Set(sorted.map((p) => (p.province ? nameOf('province', p.province) : nameOf('country', p.country))))];
-  const when = !first ? '' : date(first.takenAt) === date(last.takenAt) ? date(first.takenAt) : `${date(first.takenAt)} – ${date(last.takenAt)}`;
+  const places = [...new Set(sorted.map(where))];
+  const span = !first ? '' : date(first.takenAt) === date(last.takenAt) ? date(first.takenAt) : `${date(first.takenAt)} – ${date(last.takenAt)}`;
   return (
-    <View style={[styles.root, { paddingTop: topInset + S.lg }]}>
-      <View style={styles.top}>
-        <View style={styles.titles}>
-          <Text style={styles.kicker}>{tc('count.photos', sorted.length)}</Text>
-          <Text style={styles.title} numberOfLines={1}>{title ?? `${places.slice(0, 2).join(', ')}${places.length > 2 ? '…' : ''}`}</Text>
-          {when ? <Text style={styles.when}>{when}</Text> : null}
-        </View>
-        <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel={t('photos.close')}>
-          <Text style={styles.close}>✕</Text>
+    <View style={[styles.root, { paddingTop: topInset + 6 }]}>
+      <View style={styles.bar}>
+        <Pressable onPress={onClose} hitSlop={8} style={styles.close} accessibilityRole="button" accessibilityLabel={t('photos.close')}>
+          <Text style={styles.closeText}>✕</Text>
         </Pressable>
+        <View style={styles.titles}>
+          <Text style={styles.title} numberOfLines={1}>{title ?? `${places.slice(0, 2).join(', ')}${places.length > 2 ? '…' : ''}`}</Text>
+          <Text style={styles.sub} numberOfLines={1}>{[tc('count.photos', sorted.length), span].filter(Boolean).join(' · ')}</Text>
+        </View>
       </View>
-      <ScrollView contentContainerStyle={[styles.grid, { paddingBottom: bottomInset + S.xl }]}>
-        {notice}
+      <ScrollView contentContainerStyle={[styles.grid, { paddingBottom: bottomInset + 16 }]}>
         {sorted.map((p) => (
           <Pressable
             key={p.id}
@@ -46,8 +44,9 @@ export function PhotoGroup({ photos, title, notice, onOpen, onClose, topInset, b
             style={({ pressed }) => [styles.cell, pressed && styles.pressed]}
             accessibilityRole="button"
             accessibilityLabel={t('photos.open', { date: date(p.takenAt) })}
+            testID="group-photo"
           >
-            <Image source={{ uri: p.uri }} style={styles.image} />
+            <Image source={{ uri: thumbs[p.id] ?? p.uri }} style={styles.image} />
           </Pressable>
         ))}
       </ScrollView>
@@ -56,15 +55,18 @@ export function PhotoGroup({ photos, title, notice, onOpen, onClose, topInset, b
 }
 
 const styles = StyleSheet.create({
-  root: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: C.bg },
-  top: { flexDirection: 'row', alignItems: 'flex-start', paddingHorizontal: S.xl, paddingBottom: S.lg, gap: S.md },
-  titles: { flex: 1, gap: 2 },
-  kicker: { color: C.accent, fontFamily: F.monoSemi, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase' },
-  title: { color: C.text, fontFamily: F.bold, fontSize: 24, letterSpacing: -0.6 },
-  when: { color: C.muted, fontFamily: F.mono, fontSize: 12.5 },
-  close: { color: C.muted, fontSize: 18, padding: S.xs },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: S.lg - 2 },
-  cell: { width: '33.333%', aspectRatio: 1, padding: 2 },
-  image: { flex: 1, borderRadius: R.sm, backgroundColor: C.surface },
+  root: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: '#000' },
+  bar: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 8, paddingBottom: 10 },
+  close: {
+    width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)', margin: 4,
+  },
+  closeText: { color: C.text, fontSize: 15 },
+  titles: { flex: 1, gap: 1 },
+  title: { color: C.text, fontFamily: F.bold, fontSize: 17, letterSpacing: -0.3 },
+  sub: { color: C.muted, fontFamily: F.medium, fontSize: 12.5, fontVariant: ['tabular-nums'] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap' },
+  cell: { width: '33.333%', aspectRatio: 1, padding: 1 },
+  image: { flex: 1, backgroundColor: '#1c1c1e' },
   pressed: { opacity: 0.7 },
 });

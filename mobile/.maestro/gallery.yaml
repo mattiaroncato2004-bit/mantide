@@ -1,6 +1,6 @@
 # Reading the gallery on Android: the 45 demo photos are pushed to the emulator first (android.yml),
 # with the emulator's location at H-FARM. Gemma isn't running, so the app must fall back to the
-# answers prepared for the demo photos and say so.
+# answers prepared for the demo photos and say so in the place sheet.
 # Run: maestro test .maestro/gallery.yaml
 appId: com.mantide.app
 ---
@@ -13,11 +13,18 @@ appId: com.mantide.app
     text: "Allow all"
     optional: true
 - extendedWaitUntil:
-    visible: "6 countries · 11 regions · 13 provinces.*"
+    visible: "6 countries · .*"
     timeout: 120000
-- tapOn: "Local"
+- takeScreenshot: world-after-gallery
+- tapOn: "Back to me"
+- swipe:
+    start: 50%, 92%
+    end: 50%, 8%
+    duration: 800
+- assertVisible:
+    id: "sheet-high"
 # The analysis starts after the thumbnails are made, then falls back on the first failed call.
 - extendedWaitUntil:
     visible: ".*Gemma isn't reachable from here.*"
     timeout: 90000
-- takeScreenshot: local-panel-after-gallery
+- takeScreenshot: place-sheet-after-gallery

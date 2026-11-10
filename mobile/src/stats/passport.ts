@@ -1,6 +1,7 @@
 // Travel stats for the "passport": countries, share of the world's land, continents, regions and
 // provinces of the country you're in, and a traveller level. Pure functions, testable in Node.
-import { COUNTRY_INFO, countryOfRegion, nameOf, regionCount, TOTALS } from '../geo/locate';
+import { childrenOf, COUNTRY_INFO, countryOfRegion, nameOf, regionCount, TOTALS, type Place } from '../geo/locate';
+import type { Level } from '../types';
 import { t } from '../i18n';
 
 export type Count = { visited: number; total: number };
@@ -80,4 +81,27 @@ export function passport(
       .map((c) => ({ id: c.id, name: nameOf('country', c.id), regions: regionsOf(c.id) }))
       .sort((a, b) => b.regions.visited - a.regions.visited || a.name.localeCompare(b.name)),
   };
+}
+
+// More than 4 days without photos ends a trip (the timeline marks trips the same way).
+const TRIP_GAP_MS = 4 * 24 * 3600 * 1000;
+
+export function countTrips(times: number[]): number {
+  const sorted = [...times].sort((a, b) => a - b);
+  return sorted.filter((at, i) => i === 0 || at - sorted[i - 1] > TRIP_GAP_MS).length;
+}
+
+// The place sheet's three small numbers: photos taken there, the areas inside it you've seen, trips.
+export function placeStats(
+  photos: (Place & { takenAt: number })[],
+  visited: Record<Level, string[]>,
+  level: Level,
+  id: string,
+): { photos: number; children?: Count; trips: number } {
+  const here = photos.filter((p) => p[level] === id);
+  const trips = countTrips(here.map((p) => p.takenAt));
+  const inside = childrenOf(level, id);
+  if (!inside.length) return { photos: here.length, trips };
+  const seen = new Set(visited[level === 'country' ? 'region' : 'province']);
+  return { photos: here.length, children: { visited: inside.filter((c) => seen.has(c)).length, total: inside.length }, trips };
 }

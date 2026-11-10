@@ -1,45 +1,119 @@
 // The web demo as a visitor sees it on GitHub Pages: served under /mantide/, Gemma unreachable.
 // Run: npm run export:web && npm run e2e   (BASE_URL=https://… runs it against the live site)
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 test.use({ viewport: { width: 390, height: 844 }, locale: 'en-US' });
 
-test('the demo loads under /mantide/ and works without Gemma', async ({ page }) => {
+type MapHandle = {
+  getCanvas(): HTMLCanvasElement;
+  jumpTo(options: { center: [number, number]; zoom: number }): void;
+  querySourceFeatures(id: string): { properties: { visited?: boolean } }[];
+};
+
+// Fails the test on any uncaught error in the page.
+function watchErrors(page: Page): string[] {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  // Nobody runs Gemma for a visitor: the app must fall back to the answers prepared for the demo photos.
+  return errors;
+}
+
+// Nobody runs Gemma for a visitor: the app must fall back to the answers prepared for the demo photos.
+async function startWithGallery(page: Page) {
   await page.route('**/v1/chat/completions', (route) => route.abort());
-
   await page.goto('./?reset');
-  await expect(page.getByText('Use my gallery').first()).toBeVisible({ timeout: 15_000 });
-  await page.getByText('Use my gallery').first().click();
+  await page.getByText('Use my gallery').first().click({ timeout: 15_000 });
+  await expect(page.locator('[data-testid="photo-pin"]').first()).toBeVisible({ timeout: 30_000 });
+}
 
-  // The header's numbers and words are separate elements; its accessible name has the whole line.
-  await expect(page.getByRole('button', { name: /^6 countries · 11 regions · 13 provinces/ })).toBeVisible({ timeout: 30_000 });
+// Drags the sheet by its handle to one of its heights (the window is 844 px high).
+async function sheetTo(page: Page, detent: 'mid' | 'high') {
+  const box = (await page.getByTestId('sheet-handle').boundingBox())!;
+  const x = box.x + box.width / 2;
+  const top = 844 - (detent === 'mid' ? 388 : 760);
+  await page.mouse.move(x, box.y + 30);
+  await page.mouse.down();
+  // A mouse move goes to whatever is under the pointer: the sheet takes the drag while the pointer is
+  // still on it, as a hand does, then follows it over the map.
+  await page.mouse.move(x, box.y + 20, { steps: 2 });
+  await page.mouse.move(x, top + 20, { steps: 15 });
+  // Then rest a moment, so the release isn't read as a flick that carries the sheet further.
+  await page.waitForTimeout(150);
+  await page.mouse.move(x, top + 21);
+  await page.mouse.up();
+  await expect(page.getByTestId(`sheet-${detent}`)).toBeVisible();
+}
 
-  await page.getByRole('tab', { name: 'Local' }).click();
-  await expect(page.getByText('For you here')).toBeVisible();
-  await expect(page.getByRole('button', { name: /^Remove .+ from your interests$/ }).first()).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText(/Gemma isn't reachable from here/)).toBeVisible();
+test('far out, the sheet shows your world', async ({ page }) => {
+  const errors = watchErrors(page);
+  await startWithGallery(page);
+  await expect(page.getByText('Your world')).toBeVisible();
+  await expect(page.getByText(/^6 countries · /)).toBeVisible({ timeout: 30_000 });
+  expect(errors).toEqual([]);
+});
 
+test('tapping a numbered pin shows its photos oldest first', async ({ page }) => {
+  const errors = watchErrors(page);
+  await startWithGallery(page);
+  const pin = page.locator('[data-testid="photo-pin"]:has(.mt-badge)').first();
+  const count = Number(await pin.locator('.mt-badge').textContent());
+  await pin.click();
+  await expect(page.getByTestId('group-photo')).toHaveCount(count);
+
+  // A photo opens full screen.
+  await page.getByTestId('group-photo').first().click();
+  await expect(page.getByTestId('photo-viewer')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('the place sheet leads with suggestions', async ({ page }) => {
+  const errors = watchErrors(page);
+  await startWithGallery(page);
+  await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [12.3, 45.6], zoom: 7 }));
+  await expect(page.getByRole('heading', { name: 'Veneto' })).toBeVisible();
+  await sheetTo(page, 'high');
+
+  const sheet = page.getByTestId('sheet-high');
+  await expect(sheet.getByTestId('suggestion').first()).toBeVisible({ timeout: 30_000 });
+  expect(await sheet.getByRole('heading').allTextContents()).toEqual(['Veneto', 'For you here', 'Photos']);
+  const first = sheet.getByTestId('suggestion').first();
+  // react-native-web adds the <img> once the photo has loaded.
+  await expect(first.locator('img')).toHaveCount(1, { timeout: 15_000 });
+  await expect(first.getByText(/^You have \d+ photos? of/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('without the gallery the app still works', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('./?reset');
+  await page.getByText('Continue without gallery').click({ timeout: 15_000 });
+  await expect(page.getByText('Your world')).toBeVisible();
+  await sheetTo(page, 'mid');
+  await expect(page.getByText('Connect your gallery')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('without Gemma, suggestions come from its earlier answers and say so', async ({ page }) => {
+  const errors = watchErrors(page);
+  await startWithGallery(page);
+  await page.getByRole('button', { name: 'Back to me' }).click();
+  await sheetTo(page, 'high');
+  const sheet = page.getByTestId('sheet-high');
+  await expect(sheet.getByRole('heading', { name: 'For you here' })).toBeVisible();
+  await expect(sheet.getByTestId('suggestion').first()).toBeVisible({ timeout: 30_000 });
+  await expect(sheet.getByText(/Gemma isn't reachable from here/)).toBeVisible();
   expect(errors).toEqual([]);
 });
 
 test('the map draws visited areas and photo pins without basemap tiles', async ({ page }) => {
-  const errors: string[] = [];
-  page.on('pageerror', (e) => errors.push(e.message));
+  const errors = watchErrors(page);
   // Offline basemap: the satellite and standard tile servers never answer.
   await page.route(/tiles\.maps\.eox\.at|tiles\.openfreemap\.org/, (route) => route.abort());
-  await page.route('**/v1/chat/completions', (route) => route.abort());
-
-  await page.goto('./?reset');
-  await page.getByText('Use my gallery').first().click({ timeout: 15_000 });
-  await expect(page.locator('[data-testid="photo-pin"]').first()).toBeVisible({ timeout: 30_000 });
+  await startWithGallery(page);
   // The map fills the screen: a zero-height container would still show the pins.
-  expect(await page.evaluate(() => (window as unknown as { __mantideMap: { getCanvas(): HTMLCanvasElement } }).__mantideMap.getCanvas().clientHeight)).toBeGreaterThan(600);
+  expect(await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.getCanvas().clientHeight)).toBeGreaterThan(600);
   await expect
     .poll(() => page.evaluate(() => {
-      const map = (window as unknown as { __mantideMap?: { querySourceFeatures(id: string): { properties: { visited?: boolean } }[] } }).__mantideMap;
+      const map = (window as unknown as { __mantideMap?: MapHandle }).__mantideMap;
       return !!map?.querySourceFeatures('areas').some((f) => f.properties.visited);
     }), { timeout: 30_000 })
     .toBe(true);

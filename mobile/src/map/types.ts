@@ -5,7 +5,8 @@ import type { Level } from '../types';
 import type { Areas, BBox, distanceRings, PhotoCluster } from './model';
 import type { Basemap } from './style';
 
-export type MapView = { zoom: number; bounds: BBox; center: [number, number] };
+// `user`: the person moved the map, not the app's camera.
+export type MapView = { zoom: number; bounds: BBox; center: [number, number]; user: boolean };
 
 // A new `key` moves the camera; the same key leaves the map where the user put it.
 export type CameraTarget = { key: number } & ({ center: [number, number]; zoom: number } | { bounds: BBox });

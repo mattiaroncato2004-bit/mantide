@@ -1,11 +1,12 @@
 // The bottom sheet's physics: three resting heights, and where a drag comes to rest. Pure, so the
-// test scripts run it in Node; src/ui/Sheet.tsx animates it.
+// test scripts run it in Node; src/ui/Sheet.tsx animates it (detents.ts, not sheet.ts: the two would differ only in case).
 export type Detent = 'low' | 'mid' | 'high';
 export type Heights = Record<Detent, number>;
 
-// Low shows a title and a line, middle a grid of photos, high the whole place.
-export function detentHeights(screenHeight: number): Heights {
-  return { low: 132, mid: Math.round(0.46 * screenHeight), high: Math.round(0.9 * screenHeight) };
+// Low shows a title and a line, middle a grid of photos, high the whole place. The low sheet grows by
+// the bottom inset (the home indicator, Android's navigation bar) so its lines stay above it.
+export function detentHeights(screenHeight: number, bottomInset = 0): Heights {
+  return { low: 132 + bottomInset, mid: Math.round(0.46 * screenHeight), high: Math.round(0.9 * screenHeight) };
 }
 
 // Like iOS sheets: project where the finger was heading over 0.2 s, then take the nearest height.

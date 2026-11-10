@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { COUNTRY_INFO, locate, nameOf } from '../src/geo/locate';
 import { setLocaleForTests } from '../src/i18n';
-import { passport } from '../src/stats/passport';
+import { countTrips, passport, placeStats } from '../src/stats/passport';
 
 setLocaleForTests('en');
 
@@ -37,4 +37,19 @@ assert.equal(passport({ country: [], region: [], province: [] }, '').countries.l
 console.log(`${p.countries.visited}/${p.countries.total} countries, ${p.countries.landPct.toFixed(1)}% of the world's land, level ${p.level.name}, ${p.level.next?.missing} more for ${p.level.next?.name}`);
 console.log(`Italy: ${p.here?.regions.visited}/${p.here?.regions.total} regions, ${p.here?.provinces?.visited}/${p.here?.provinces?.total} provinces`);
 console.log(p.byCountry.map((c) => `${c.name} ${c.regions.visited}/${c.regions.total}`).join(' · '));
+
+// The place sheet's three small numbers: photos, areas inside visited / total, trips.
+const DAY = 86_400_000;
+assert.equal(countTrips([]), 0);
+assert.equal(countTrips([40 * DAY, 0, DAY, 2 * DAY, 10 * DAY, 11 * DAY]), 3, 'a gap of more than 4 days starts a trip');
+const shots = [
+  { takenAt: 0, country: 'ITA', region: '05', province: 'TV' },
+  { takenAt: DAY, country: 'ITA', region: '05', province: 'VE' },
+  { takenAt: 30 * DAY, country: 'ITA', region: '05', province: 'TV' },
+  { takenAt: 31 * DAY, country: 'ITA', region: '12', province: 'RM' },
+];
+const seen = { country: ['ITA'], region: ['05', '12'], province: ['TV', 'VE', 'RM'] };
+assert.deepEqual(placeStats(shots, seen, 'region', '05'), { photos: 3, children: { visited: 2, total: 7 }, trips: 2 });
+assert.deepEqual(placeStats(shots, seen, 'country', 'ITA'), { photos: 4, children: { visited: 2, total: 20 }, trips: 2 });
+assert.deepEqual(placeStats(shots, seen, 'province', 'TV'), { photos: 2, trips: 2 });
 console.log('passport: ok');

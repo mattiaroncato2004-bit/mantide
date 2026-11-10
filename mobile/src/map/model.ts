@@ -3,7 +3,7 @@
 // the distance rings. Pure: no React Native, so the test scripts run it in Node.
 import type { Feature, FeatureCollection, LineString, MultiPolygon, Polygon } from 'geojson';
 import Supercluster, { type ClusterProperties } from 'supercluster';
-import { AREAS, locate, type AreaFeature } from '../geo/locate';
+import { AREAS, locate, mainBoxOf, type AreaFeature } from '../geo/locate';
 import type { Level } from '../types';
 
 export type ZoomLevel = Level;
@@ -13,8 +13,38 @@ export type BBox = [west: number, south: number, east: number, north: number];
 export const REGION_ZOOM = 3.5;
 export const PROVINCE_ZOOM = 6.5;
 
+// Close enough to see a town: the sheet talks about the province, with events around the centre.
+export const LOCAL_ZOOM = 9;
+
 export function levelForZoom(zoom: number): ZoomLevel {
   return zoom < REGION_ZOOM ? 'country' : zoom < PROVINCE_ZOOM ? 'region' : 'province';
+}
+
+// The place the sheet talks about holds the lit areas: the world (null) while countries are lit,
+// the country while its regions are, the region while its provinces are, the province up close.
+export function placeLevelForZoom(zoom: number): Level | null {
+  return zoom < REGION_ZOOM ? null : zoom < PROVINCE_ZOOM ? 'country' : zoom < LOCAL_ZOOM ? 'region' : 'province';
+}
+
+// The zooms at which the sheet talks about each level (see placeLevelForZoom).
+const FRAME_ZOOMS: Record<Level, [number, number]> = {
+  country: [REGION_ZOOM + 0.1, PROVINCE_ZOOM - 0.2],
+  region: [PROVINCE_ZOOM + 0.1, LOCAL_ZOOM - 0.2],
+  province: [LOCAL_ZOOM, 11],
+};
+
+// Where the camera goes when you tap an area: its largest piece fills a phone's width, within the
+// zooms at which the sheet then talks about that area.
+export function frameOf(level: Level, id: string): { center: [number, number]; zoom: number } | null {
+  const box = mainBoxOf(id);
+  if (!box) return null;
+  const [w, s, e, n] = box;
+  const center: [number, number] = [(w + e) / 2, (s + n) / 2];
+  // A 390-pt-wide map shows 360 × 390 / (512 × 2^zoom) degrees of longitude; leave a margin of 40%.
+  const height = (n - s) / Math.cos((center[1] * Math.PI) / 180);
+  const fit = Math.log2((360 * 390) / (512 * 1.4 * Math.max(e - w, height, 0.01)));
+  const [lo, hi] = FRAME_ZOOMS[level];
+  return { center, zoom: Math.min(hi, Math.max(lo, fit)) };
 }
 
 export type AreaProps = { id: string; level: Level; visited: boolean };

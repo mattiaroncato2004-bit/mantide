@@ -1,6 +1,6 @@
 // Checks locate() on known places. Run: npx tsx scripts/test-locate.ts
 import assert from 'node:assert/strict';
-import { locate } from '../src/geo/locate';
+import { childrenOf, locate, regionCount } from '../src/geo/locate';
 
 const cases: [string, number, number, ReturnType<typeof locate>][] = [
   ['Roncade (H-FARM)', 45.6297, 12.3766, { country: 'ITA', region: '05', province: 'TV' }],
@@ -30,3 +30,12 @@ const lisbon = locate(38.7223, -9.1393);
 assert.equal(lisbon.country, 'PRT');
 assert.ok(lisbon.region, 'Lisbon has a region');
 console.log('ok regions abroad', JSON.stringify(beijing), JSON.stringify(lisbon));
+
+// The areas one level down: what the place sheet counts as "4/7 provinces".
+assert.equal(childrenOf('country', 'ITA').length, 20);
+assert.equal(childrenOf('region', '05').length, 7, "Veneto's provinces");
+assert.ok(childrenOf('region', '05').includes('TV'));
+assert.equal(childrenOf('country', 'ESP').length, regionCount('ESP'));
+assert.ok(childrenOf('region', locate(40.4168, -3.7038).region!).length > 0, 'a Spanish region has provinces');
+assert.deepEqual(childrenOf('province', 'TV'), []);
+console.log('ok children');

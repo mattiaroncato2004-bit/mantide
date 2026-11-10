@@ -191,28 +191,50 @@ export function placeOfProvince(id: string): { country: string; region: string }
 
 // Where the map goes when you tap a place: the middle of its largest piece, so France means
 // mainland France and not a point in the Atlantic between Paris and French Guiana.
-function mainCenter(g: Geometry): [number, number] {
-  let best: [number, number] = [0, 0];
+function mainBox(g: Geometry): [number, number, number, number] {
+  let best: [number, number, number, number] = [0, 0, 0, 0];
   let bestSize = -1;
   for (const [outer] of polygons(g)) {
     const b = bboxOf({ type: 'Polygon', coordinates: [outer] });
     const size = (b[2] - b[0]) * (b[3] - b[1]);
     if (size > bestSize) {
       bestSize = size;
-      best = [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
+      best = b;
     }
   }
   return best;
 }
 
-const CENTERS = new Map<string, [number, number]>(
+const MAIN_BOXES = new Map<string, [number, number, number, number]>(
   [...COUNTRIES, ...REGIONS, ...PROVINCES, ...[...WORLD_REGIONS.values()].flat(), ...[...WORLD_GROUPS.values()].flat()].map((f) => [
     f.properties.id,
-    mainCenter(f.geometry),
+    mainBox(f.geometry),
   ]),
 );
 
-export const centerOf = (id: string): [number, number] | undefined => CENTERS.get(id);
+// The bounding box of a place's largest piece, and its middle.
+export const mainBoxOf = (id: string): [number, number, number, number] | undefined => MAIN_BOXES.get(id);
+export function centerOf(id: string): [number, number] | undefined {
+  const b = MAIN_BOXES.get(id);
+  return b && [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
+}
+
+// The areas one level down: a country's regions, a region's provinces (Italy, and the units inside
+// the real regions of Spain, France, the UK and Portugal). Provinces have none.
+export function childrenOf(level: 'country' | 'region' | 'province', id: string): string[] {
+  if (level === 'country') {
+    const list = id === 'ITA' ? REGIONS : (WORLD_GROUPS.get(id) ?? WORLD_REGIONS.get(id) ?? []);
+    return list.map((f) => f.properties.id);
+  }
+  if (level === 'region') {
+    const italian = PROVINCES.filter((f) => f.properties.region === id);
+    if (italian.length) return italian.map((f) => f.properties.id);
+    const country = REGION_COUNTRY.get(id);
+    const units = country && WORLD_GROUPS.has(country) ? (WORLD_REGIONS.get(country) ?? []) : [];
+    return units.filter((f) => f.properties.group === id).map((f) => f.properties.id);
+  }
+  return [];
+}
 
 const NAMES: Record<'country' | 'region' | 'province', Map<string, string>> = {
   country: new Map(COUNTRIES.map((f) => [f.properties.id, f.properties.name])),

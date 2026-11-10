@@ -1,0 +1,47 @@
+# Android's back button walks back one step at a time: the photo, then the group, then the sheet
+# one height lower, and only then leaves the app. Needs the demo gallery (android.yml).
+# Run: maestro test .maestro/back.yaml
+appId: com.mantide.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+- tapOn: "Use my gallery"
+- tapOn:
+    text: "Allow all"
+    optional: true
+- extendedWaitUntil:
+    visible: "6 countries · .*"
+    timeout: 120000
+# A pin with a number: its group of photos.
+- tapOn:
+    id: "pin-count"
+    index: 0
+- assertVisible:
+    id: "group-photo"
+- tapOn:
+    id: "group-photo"
+    index: 0
+- assertVisible:
+    id: "photo-viewer"
+- back
+- assertNotVisible:
+    id: "photo-viewer"
+- assertVisible:
+    id: "group-photo"
+- back
+- assertNotVisible:
+    id: "group-photo"
+- assertVisible: "Your world"
+- swipe:
+    start: 50%, 92%
+    end: 50%, 50%
+    duration: 800
+- assertVisible:
+    id: "sheet-mid"
+- back
+- assertVisible:
+    id: "sheet-low"
+- back
+- assertNotVisible: "Your world"

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- The main screen is the map and one sheet, as in the iPhone Photos map. Zooming lights up countries, then regions, then provinces. The sheet shows your world far out, the photos in view at middle height, and the place you're looking at at full height, with "For you here" first. Two map buttons (style, back to me), a full-screen photo with what Gemma saw, and Android's back button going back one step at a time. The header, the scale switcher and the Local panel are gone; your interests and "Stop using the gallery" moved to the passport.
 - Inter replaces the hackathon fonts; translucent materials; a three-height bottom sheet with iOS-like settling. Needs a rebuild (font packages).
 - Android draws the map with native MapLibre instead of a web page inside the app; the WebView is gone. Needs a rebuild.
 - The web map draws with MapLibre GL JS directly (no iframe), from the shared model and style; it keeps working when the basemap tiles don't load.

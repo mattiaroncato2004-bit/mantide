@@ -1,9 +1,10 @@
 // Where the bottom sheet comes to rest after a drag. Run: npx tsx scripts/test-sheet.ts
 import assert from 'node:assert/strict';
-import { detentHeights, settle } from '../src/ui/sheet';
+import { detentHeights, settle } from '../src/ui/detents';
 
 const h = detentHeights(844);
 assert.deepEqual(h, { low: 132, mid: 388, high: 760 });
+assert.deepEqual(detentHeights(844, 34), { low: 166, mid: 388, high: 760 }, 'the low sheet clears the home indicator');
 
 assert.equal(settle(140, 0, h), 'low', 'released near the bottom');
 assert.equal(settle(300, 0, h), 'mid', 'released nearer the middle');

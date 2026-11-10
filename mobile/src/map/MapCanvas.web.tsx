@@ -55,22 +55,33 @@ export function MapCanvas(props: MapCanvasProps) {
       style: baseStyle(latest.current.basemap) as maplibregl.StyleSpecification | string,
       center: [12.37, 45.63],
       zoom: 1.4,
-      attributionControl: { compact: true },
+      attributionControl: false,
     });
+    // Credits top-left: the bottom belongs to the sheet, the top-right to the map buttons.
+    map.addControl(new maplibregl.AttributionControl({ compact: true }), 'top-left');
     mapRef.current = map;
     (window as unknown as { __mantideMap: MapLibreMap }).__mantideMap = map;
 
-    const report = () => {
+    // A move the person made carries the browser event that started it.
+    const report = (e?: { originalEvent?: unknown }) => {
       const b = map.getBounds();
       const c = map.getCenter();
-      latest.current.onViewChange({ zoom: map.getZoom(), bounds: [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()], center: [c.lng, c.lat] });
+      latest.current.onViewChange({
+        zoom: map.getZoom(), bounds: [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()], center: [c.lng, c.lat], user: !!e?.originalEvent,
+      });
     };
     map.on('style.load', () => {
       addOverlays(map);
       ready.current = true;
       sync(map, latest.current);
     });
-    map.on('load', report);
+    map.on('load', () => {
+      report();
+      // MapLibre opens the compact credits at first: start them folded behind their ⓘ.
+      const credits = host.current && (host.current as unknown as HTMLElement).querySelector('.maplibregl-ctrl-attrib');
+      credits?.classList.remove('maplibregl-compact-show');
+      credits?.removeAttribute('open');
+    });
     map.on('moveend', report);
     map.on('click', 'areas-fill', (e) => {
       const p = e.features?.[0]?.properties as { level: Level; id: string } | undefined;
@@ -119,7 +130,7 @@ export function MapCanvas(props: MapCanvasProps) {
   // MapLibre's stylesheet makes its container `position: relative`: the absolute positioning lives on
   // an outer view, and the map fills it.
   return (
-    <View style={StyleSheet.absoluteFill} testID="map-canvas">
+    <View style={[StyleSheet.absoluteFill, styles.layer]} testID="map-canvas">
       <View ref={host} style={styles.fill} />
     </View>
   );
@@ -167,6 +178,7 @@ function syncMarkers(map: MapLibreMap, p: MapCanvasProps, pins: Map<string, Mark
       if (!badge) {
         badge = document.createElement('span');
         badge.className = 'mt-badge';
+        badge.dataset.testid = 'pin-count';
         el.appendChild(badge);
       }
       badge.textContent = c.count > 999 ? '999+' : String(c.count);
@@ -193,4 +205,5 @@ function syncMarkers(map: MapLibreMap, p: MapCanvasProps, pins: Map<string, Mark
   }
 }
 
-const styles = StyleSheet.create({ fill: { flex: 1 } });
+// zIndex 0 keeps the map's own layers (controls, markers) under the sheet and buttons drawn after it.
+const styles = StyleSheet.create({ fill: { flex: 1 }, layer: { zIndex: 0 } });
