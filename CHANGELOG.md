@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Plan for the Photos-map redesign: [docs/superpowers/plans/2026-11-10-stage-2a-photos-map-redesign.md](docs/superpowers/plans/2026-11-10-stage-2a-photos-map-redesign.md).
+
 ## 0.2.0 · Stage 1: public, English, verifiable
 
 - English interface by default, Italian when the device is in Italian; country and region names in both.
