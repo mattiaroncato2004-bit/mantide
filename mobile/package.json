@@ -26,13 +26,16 @@
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx scripts/test-i18n.ts && tsx scripts/test-locate.ts && tsx scripts/test-parse.ts && tsx scripts/test-recommend.ts && tsx scripts/test-passport.ts && tsx scripts/check-visited.ts"
   },
   "private": true
 }
