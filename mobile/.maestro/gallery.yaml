@@ -17,6 +17,9 @@ appId: com.mantide.app
     timeout: 120000
 - takeScreenshot: world-after-gallery
 - tapOn: "Back to me"
+# "You are here" must stay above the photo pins.
+- waitForAnimationToEnd
+- takeScreenshot: back-to-me
 - swipe:
     start: 50%, 92%
     end: 50%, 8%

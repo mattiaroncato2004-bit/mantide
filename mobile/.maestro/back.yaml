@@ -14,30 +14,36 @@ appId: com.mantide.app
 - extendedWaitUntil:
     visible: "6 countries · .*"
     timeout: 120000
-# A pin with a number: its group of photos.
-- tapOn:
-    id: "pin-count"
-    index: 0
-- assertVisible:
-    id: "group-photo"
-- tapOn:
-    id: "group-photo"
-    index: 0
-- assertVisible:
-    id: "photo-viewer"
-- back
-- assertNotVisible:
-    id: "photo-viewer"
-- assertVisible:
-    id: "group-photo"
-- back
-- assertNotVisible:
-    id: "group-photo"
-- assertVisible: "Your world"
+# The full sheet: its photos open as a grid. (Map pins can't be tapped by id on Android: native
+# MapLibre markers report no size to accessibility.)
 - swipe:
     start: 50%, 92%
-    end: 50%, 50%
+    end: 50%, 8%
     duration: 800
+- assertVisible:
+    id: "sheet-high"
+- scrollUntilVisible:
+    element: "See all"
+    direction: DOWN
+- tapOn: "See all"
+- assertVisible:
+    id: "group-photo"
+- tapOn:
+    id: "group-photo"
+    index: 0
+- assertVisible:
+    id: "photo-viewer"
+- back
+- assertNotVisible:
+    id: "photo-viewer"
+- assertVisible:
+    id: "group-photo"
+- back
+- assertNotVisible:
+    id: "group-photo"
+- assertVisible:
+    id: "sheet-high"
+- back
 - assertVisible:
     id: "sheet-mid"
 - back

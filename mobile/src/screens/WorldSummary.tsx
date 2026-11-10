@@ -20,16 +20,16 @@ export function WorldSummary({ travel, status, onOpenPassport, onTimeline }: Pro
   return (
     // Not an accessibility element itself: the title and the line stay readable one by one.
     <Pressable onPress={onOpenPassport} accessible={false} style={styles.root}>
-      <View style={styles.top}>
-        <View style={styles.titles}>
+      <View>
+        <View style={styles.top}>
           <Text style={styles.title} accessibilityRole="header">{t('world.title')}</Text>
-          <Text style={styles.line} numberOfLines={1}>{line}</Text>
+          {onTimeline && (
+            <Pressable onPress={onTimeline} hitSlop={6} style={({ pressed }) => [styles.chip, pressed && styles.pressed]} accessibilityRole="button">
+              <Text style={styles.chipText}>{t('tools.timeline')}</Text>
+            </Pressable>
+          )}
         </View>
-        {onTimeline && (
-          <Pressable onPress={onTimeline} hitSlop={6} style={({ pressed }) => [styles.chip, pressed && styles.pressed]} accessibilityRole="button">
-            <Text style={styles.chipText}>{t('tools.timeline')}</Text>
-          </Pressable>
-        )}
+        <Text style={styles.line} numberOfLines={1}>{line}</Text>
       </View>
       {status ? (
         <Text style={styles.status} numberOfLines={1}>{status}</Text>
@@ -53,11 +53,11 @@ export function WorldSummary({ travel, status, onOpenPassport, onTimeline }: Pro
 
 const styles = StyleSheet.create({
   root: { paddingHorizontal: 16, gap: 10 },
-  top: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  titles: { flex: 1, gap: 1 },
-  title: { color: C.text, fontFamily: F.bold, fontSize: 22, lineHeight: 27, letterSpacing: -0.5 },
+  // The chip sits on the title's line, so the line under it has the whole width.
+  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 30 },
+  title: { flexShrink: 1, color: C.text, fontFamily: F.bold, fontSize: 22, lineHeight: 27, letterSpacing: -0.5 },
   line: { color: C.muted, fontFamily: F.medium, fontSize: 13.5, fontVariant: ['tabular-nums'] },
-  chip: { marginTop: 2, paddingVertical: 7, paddingHorizontal: 11, borderRadius: 16, backgroundColor: 'rgba(255, 255, 255, 0.10)' },
+  chip: { paddingVertical: 6, paddingHorizontal: 11, borderRadius: 16, backgroundColor: 'rgba(255, 255, 255, 0.10)' },
   chipText: { color: C.text, fontFamily: F.semi, fontSize: 13 },
   pressed: { opacity: 0.6 },
   level: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 20 },
