@@ -147,6 +147,7 @@ export const en = {
   'map.youAreHere': 'You are here',
   'map.distancesFromHere': 'Distances from here',
 
+  'sheet.handle': 'Sheet: swipe up or down to resize',
   'error.prefix': 'Error',
 } as const;
 

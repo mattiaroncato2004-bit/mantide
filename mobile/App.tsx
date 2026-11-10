@@ -6,11 +6,7 @@ import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-cont
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
 import { useFonts } from 'expo-font';
-import {
-  BricolageGrotesque_400Regular, BricolageGrotesque_500Medium, BricolageGrotesque_600SemiBold,
-  BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold,
-} from '@expo-google-fonts/bricolage-grotesque';
-import { IBMPlexMono_400Regular, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold } from '@expo-google-fonts/ibm-plex-mono';
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold } from '@expo-google-fonts/inter';
 import { MapCanvas } from './src/map/MapCanvas';
 import { areasInView, distanceRings, journeyLine, levelForZoom, makePhotoIndex } from './src/map/model';
 import type { CameraTarget, MapView as MapViewState } from './src/map/types';
@@ -57,12 +53,8 @@ type GalleryChoice = 'all' | 'none';
 const CHOICE_KEY = 'gallery:choice';
 
 export default function App() {
-  // The two type families of src/theme.ts. On failure the app still starts, with system fonts.
-  const [fontsLoaded, fontError] = useFonts({
-    BricolageGrotesque_400Regular, BricolageGrotesque_500Medium, BricolageGrotesque_600SemiBold,
-    BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold,
-    IBMPlexMono_400Regular, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold,
-  });
+  // Inter, the one typeface of src/theme.ts. On failure the app still starts, with system fonts.
+  const [fontsLoaded, fontError] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold });
   // Safari on iPhone can wait up to expo-font's 12 s timeout, on a black screen: start anyway after
   // 1.5 s, and the fonts swap in when they arrive.
   const [waited, setWaited] = useState(false);

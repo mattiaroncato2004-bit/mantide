@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Inter replaces the hackathon fonts; translucent materials; a three-height bottom sheet with iOS-like settling. Needs a rebuild (font packages).
 - Android draws the map with native MapLibre instead of a web page inside the app; the WebView is gone. Needs a rebuild.
 - The web map draws with MapLibre GL JS directly (no iframe), from the shared model and style; it keeps working when the basemap tiles don't load.
 - One map style for Android and the web: Sentinel-2 satellite or OpenFreeMap standard, with the visited areas, journey, distance rings and events on top.

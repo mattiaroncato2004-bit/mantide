@@ -1,6 +1,6 @@
-// Visual tokens. The look is a field-survey instrument laid over the satellite map: ink panels,
-// a characterful grotesque for places and headings, a mono for counts, dates and distances.
-// One accent only, the same orange the map uses for "visited" (src/map/style.ts).
+// Visual tokens. The look follows Apple's Photos and Maps: translucent dark materials over the map,
+// one typeface (Inter, close to Apple's SF), one accent: the orange the map uses for "visited"
+// (src/map/style.ts).
 
 export const C = {
   bg: '#0a1217', // sheets and panels
@@ -14,18 +14,21 @@ export const C = {
   accent: '#ff7a45',
   accentSoft: 'rgba(255, 122, 69, 0.14)',
   onAccent: '#1a0d06',
+  material: 'rgba(28, 28, 30, 0.92)', // sheets and floating buttons over the map
+  materialLine: 'rgba(255, 255, 255, 0.10)',
 };
 
-// Custom fonts carry their weight in the family name: never pair them with fontWeight.
+// Fonts carry their weight in the family name: never pair them with fontWeight. The `mono` roles are
+// Inter too; numbers that must line up add `fontVariant: ['tabular-nums']`.
 export const F = {
-  display: 'BricolageGrotesque_800ExtraBold',
-  bold: 'BricolageGrotesque_700Bold',
-  semi: 'BricolageGrotesque_600SemiBold',
-  medium: 'BricolageGrotesque_500Medium',
-  body: 'BricolageGrotesque_400Regular',
-  mono: 'IBMPlexMono_400Regular',
-  monoMedium: 'IBMPlexMono_500Medium',
-  monoSemi: 'IBMPlexMono_600SemiBold',
+  display: 'Inter_800ExtraBold',
+  bold: 'Inter_700Bold',
+  semi: 'Inter_600SemiBold',
+  medium: 'Inter_500Medium',
+  body: 'Inter_400Regular',
+  mono: 'Inter_400Regular',
+  monoMedium: 'Inter_500Medium',
+  monoSemi: 'Inter_600SemiBold',
 };
 
 // Corner radii, one rule everywhere: controls 6, cards and buttons 10, floating panels and sheets 18.

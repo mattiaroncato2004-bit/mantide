@@ -147,5 +147,6 @@ export const it = {
   'map.youAreHere': 'Sei qui',
   'map.distancesFromHere': 'Distanze da qui',
 
+  'sheet.handle': 'Pannello: scorri su o giù per ridimensionarlo',
   'error.prefix': 'Errore',
 } satisfies Record<StringKey, string>;
