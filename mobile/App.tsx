@@ -118,10 +118,16 @@ function Home() {
     (async () => {
       const { status: permission } = await Location.requestForegroundPermissionsAsync();
       if (permission !== 'granted') return;
-      const { coords } = await Location.getCurrentPositionAsync({});
-      setHome({ lat: coords.latitude, lon: coords.longitude });
-      setLocated(true);
-      mark('gps', [locate(coords.latitude, coords.longitude)]);
+      const place = ({ latitude, longitude }: { latitude: number; longitude: number }) => {
+        setHome({ lat: latitude, lon: longitude });
+        setLocated(true);
+        mark('gps', [locate(latitude, longitude)]);
+      };
+      // The last known position answers at once; a fresh fix can take long indoors, or never come on
+      // an emulator.
+      const last = await Location.getLastKnownPositionAsync();
+      if (last) place(last.coords);
+      place((await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })).coords);
     })().catch((e) => console.warn('[gps]', e));
   }, [mark]);
 
