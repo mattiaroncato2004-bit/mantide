@@ -20,7 +20,7 @@ import {
   analyzePhoto, demoAnalysis, GEMMA_URL, loadAnalyses, sample, saveAnalyses, whereGemmaRuns, type Analysis,
 } from './src/ai/gemma';
 import { labelOf, type InterestId } from './src/ai/interests';
-import { EVENTS, profileFromCounts, recommend, recommendIn, type Event } from './src/events/recommend';
+import { SAMPLE_EVENTS as EVENTS, profileFromCounts, recommend, recommendIn, type Event } from './src/events/recommend';
 import { Welcome } from './src/screens/Welcome';
 import { LocalPanel } from './src/screens/LocalPanel';
 import { PlaceSheet, type SelectedPlace } from './src/screens/PlaceSheet';

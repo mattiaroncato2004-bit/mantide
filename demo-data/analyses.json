@@ -1,308 +1,300 @@
 {
  "2024-03-16_roncade_storia-01.jpg": {
-  "scene": "Porta d'ingresso a un edificio storico",
+  "scene": "Arched gateway to a historic building",
   "interests": [
-   "architettura",
-   "storia"
+   "architecture",
+   "history"
   ]
  },
  "2024-03-17_roncade_natura-01.jpg": {
-  "scene": "Canale verde con alberi e cielo nuvoloso",
+  "scene": "Green park with a river and trees",
   "interests": [
-   "natura",
-   "architettura"
+   "nature"
   ]
  },
  "2024-04-20_venezia_cibo-01.jpg": {
-  "scene": "Un piatto di cibo con cipolle e carne",
+  "scene": "A close-up of a savory dish",
   "interests": [
-   "cibo"
+   "food"
   ]
  },
  "2024-04-21_venezia_architettura-01.jpg": {
-  "scene": "Canale con edifici colorati e barche",
+  "scene": "A canal with colorful buildings and boats",
   "interests": [
-   "architettura",
-   "arte"
+   "architecture",
+   "art"
   ]
  },
  "2024-04-21_venezia_cibo-01.jpg": {
-  "scene": "Pasta con cozze e prezzemolo",
+  "scene": "Pasta with mussels and herbs",
   "interests": [
-   "cibo"
+   "food"
   ]
  },
  "2024-05-24_lisbona_street-art-01.jpg": {
-  "scene": "Mural di un uccello grande su un edificio",
+  "scene": "A large mural of a bird on a building",
   "interests": [
-   "street-art",
-   "architettura",
-   "natura"
+   "art",
+   "architecture",
+   "street-art"
   ]
  },
  "2024-05-25_lisbona_cibo-01.jpg": {
-  "scene": "Pesce e verdure fresche all'aperto",
+  "scene": "Grilled fish and cheese on a plate",
   "interests": [
-   "cibo",
-   "mare",
-   "natura"
+   "food"
   ]
  },
  "2024-05-25_lisbona_street-art-01.jpg": {
-  "scene": "Murale su muro di strada",
+  "scene": "Street art mural of a man",
   "interests": [
    "street-art",
-   "arte"
+   "art"
   ]
  },
  "2024-05-26_lisbona_architettura-01.jpg": {
-  "scene": "Architettura moderna con vista sul mare",
+  "scene": "Modern architectural structure by the sea",
   "interests": [
-   "architettura",
-   "mare"
+   "architecture",
+   "sea"
   ]
  },
  "2024-05-26_lisbona_mare-01.jpg": {
-  "scene": "Tramonto sul mare con colline",
+  "scene": "Sunset over the sea with a rocky shore",
   "interests": [
-   "mare",
-   "natura"
+   "sea",
+   "nature"
   ]
  },
  "2024-07-13_dolomiti_montagna-01.jpg": {
-  "scene": "Alpi rocciose con sentiero e neve",
+  "scene": "People hiking in a mountainous landscape",
   "interests": [
-   "montagna",
-   "sport",
-   "natura"
+   "mountains",
+   "nature"
   ]
  },
  "2024-07-13_dolomiti_montagna-02.jpg": {
-  "scene": "Pannello escursionistico in montagna",
+  "scene": "A rocky mountain landscape with a signpost",
   "interests": [
-   "montagna"
+   "mountains"
   ]
  },
  "2024-07-14_dolomiti_montagna-01.jpg": {
-  "scene": "Escursione in montagna con sentieri rocciosi",
+  "scene": "Hiking in a mountainous, rocky landscape",
   "interests": [
-   "montagna",
-   "sport",
-   "natura"
+   "mountains",
+   "nature"
   ]
  },
  "2024-08-10_venezia_mare-01.jpg": {
-  "scene": "Spiaggia e mare con persone",
+  "scene": "Sandy beach with people and a lifeguard tower",
   "interests": [
-   "mare",
+   "sea",
    "sport"
   ]
  },
  "2024-09-13_berlino_street-art-01.jpg": {
-  "scene": "Mural street art outdoors",
-  "interests": [
-   "street-art",
-   "natura"
-  ]
- },
- "2024-09-13_berlino_street-art-02.jpg": {
-  "scene": "Muro con graffiti e opere d'arte",
-  "interests": [
-   "street-art",
-   "arte"
-  ]
- },
- "2024-09-14_berlino_architettura-01.jpg": {
-  "scene": "Struttura vetrata moderna con persone",
-  "interests": [
-   "architettura"
-  ]
- },
- "2024-09-14_berlino_musica-01.jpg": {
-  "scene": "Concerto live music performance",
-  "interests": [
-   "musica",
-   "notte"
-  ]
- },
- "2024-09-14_berlino_street-art-01.jpg": {
-  "scene": "Edificio con murales e vegetazione",
-  "interests": [
-   "architettura",
-   "natura"
-  ]
- },
- "2024-11-08_milano_architettura-01.jpg": {
-  "scene": "Paesaggio urbano con molti edifici",
-  "interests": [
-   "architettura"
-  ]
- },
- "2024-11-08_milano_musica-01.jpg": {
-  "scene": "Concerto con luci e folla",
-  "interests": [
-   "musica",
-   "notte"
-  ]
- },
- "2025-02-21_roma_cibo-01.jpg": {
-  "scene": "Primo piatto di pasta con bacon",
-  "interests": [
-   "cibo"
-  ]
- },
- "2025-02-21_roma_street-art-01.jpg": {
-  "scene": "Mural street art su edificio storico",
-  "interests": [
-   "street-art",
-   "architettura",
-   "storia"
-  ]
- },
- "2025-02-22_roma_arte-01.jpg": {
-  "scene": "Interno di un edificio con una cupola a vetri",
-  "interests": [
-   "architettura"
-  ]
- },
- "2025-04-18_napoli_cibo-01.jpg": {
-  "scene": "Pizza al taglio con formaggio e pomodoro",
-  "interests": [
-   "cibo"
-  ]
- },
- "2025-04-18_napoli_street-art-01.jpg": {
-  "scene": "Mural su muro di un edificio urbano",
-  "interests": [
-   "street-art",
-   "architettura"
-  ]
- },
- "2025-04-19_napoli_cibo-01.jpg": {
-  "scene": "Un piatto di cibo mediterraneo",
-  "interests": [
-   "cibo"
-  ]
- },
- "2025-06-05_barcellona_street-art-01.jpg": {
-  "scene": "Mural art with stylized faces",
-  "interests": [
-   "street-art",
-   "arte"
-  ]
- },
- "2025-06-06_barcellona_architettura-01.jpg": {
-  "scene": "Edificio storico con tetto in tegole",
-  "interests": [
-   "architettura"
-  ]
- },
- "2025-06-06_barcellona_cibo-01.jpg": {
-  "scene": "Un piatto di frutti di mare colorato",
-  "interests": [
-   "cibo",
-   "mare"
-  ]
- },
- "2025-06-06_barcellona_musica-01.jpg": {
-  "scene": "Concerto con folla in un'atmosfera intensa",
-  "interests": [
-   "musica",
-   "notte"
-  ]
- },
- "2025-06-06_barcellona_street-art-01.jpg": {
-  "scene": "Mural street art on a building",
+  "scene": "A colorful outdoor mural on a wall",
   "interests": [
    "street-art"
   ]
  },
- "2025-07-05_treviso_cibo-01.jpg": {
-  "scene": "Dolce al cioccolato su piatto",
+ "2024-09-13_berlino_street-art-02.jpg": {
+  "scene": "Graffiti on a wall",
   "interests": [
-   "cibo"
+   "street-art"
+  ]
+ },
+ "2024-09-14_berlino_architettura-01.jpg": {
+  "scene": "People gathered under a large glass dome",
+  "interests": [
+   "architecture"
+  ]
+ },
+ "2024-09-14_berlino_musica-01.jpg": {
+  "scene": "A live music performance on stage",
+  "interests": [
+   "live-music"
+  ]
+ },
+ "2024-09-14_berlino_street-art-01.jpg": {
+  "scene": "A modern building with a mural",
+  "interests": [
+   "architecture",
+   "art"
+  ]
+ },
+ "2024-11-08_milano_architettura-01.jpg": {
+  "scene": "City skyline with modern buildings",
+  "interests": [
+   "architecture"
+  ]
+ },
+ "2024-11-08_milano_musica-01.jpg": {
+  "scene": "A large crowd at a concert",
+  "interests": [
+   "live-music",
+   "nightlife"
+  ]
+ },
+ "2025-02-21_roma_cibo-01.jpg": {
+  "scene": "A plate of pasta with bacon on it",
+  "interests": [
+   "food"
+  ]
+ },
+ "2025-02-21_roma_street-art-01.jpg": {
+  "scene": "A large mural on a building wall",
+  "interests": [
+   "street-art",
+   "art",
+   "architecture"
+  ]
+ },
+ "2025-02-22_roma_arte-01.jpg": {
+  "scene": "Interior of a circular architectural space",
+  "interests": [
+   "architecture"
+  ]
+ },
+ "2025-04-18_napoli_cibo-01.jpg": {
+  "scene": "A close-up of a pizza",
+  "interests": [
+   "food"
+  ]
+ },
+ "2025-04-18_napoli_street-art-01.jpg": {
+  "scene": "Street art on a building facade",
+  "interests": [
+   "street-art",
+   "architecture"
+  ]
+ },
+ "2025-04-19_napoli_cibo-01.jpg": {
+  "scene": "A plate of food",
+  "interests": [
+   "food"
+  ]
+ },
+ "2025-06-05_barcellona_street-art-01.jpg": {
+  "scene": "A vibrant street art mural featuring portraits",
+  "interests": [
+   "street-art",
+   "art"
+  ]
+ },
+ "2025-06-06_barcellona_architettura-01.jpg": {
+  "scene": "Colorful, ornate building facade",
+  "interests": [
+   "architecture",
+   "art"
+  ]
+ },
+ "2025-06-06_barcellona_cibo-01.jpg": {
+  "scene": "A platter of cooked seafood and spices",
+  "interests": [
+   "food"
+  ]
+ },
+ "2025-06-06_barcellona_musica-01.jpg": {
+  "scene": "Crowd at a live music concert",
+  "interests": [
+   "live-music",
+   "nightlife"
+  ]
+ },
+ "2025-06-06_barcellona_street-art-01.jpg": {
+  "scene": "Colorful street art mural on a building",
+  "interests": [
+   "street-art",
+   "art"
+  ]
+ },
+ "2025-07-05_treviso_cibo-01.jpg": {
+  "scene": "A plate of chocolate pancakes with cream",
+  "interests": [
+   "food"
   ]
  },
  "2025-07-05_treviso_musica-01.jpg": {
-  "scene": "Concerto live music in un locale",
+  "scene": "A live music concert performance",
   "interests": [
-   "musica",
-   "notte"
+   "live-music"
   ]
  },
  "2025-08-09_dolomiti_montagna-01.jpg": {
-  "scene": "Montagne imponenti con foreste verdi",
+  "scene": "Majestic, rugged mountain range with a forest",
   "interests": [
-   "montagna",
-   "natura"
+   "mountains",
+   "nature"
   ]
  },
  "2025-08-09_dolomiti_montagna-02.jpg": {
-  "scene": "Paesaggio montano con lago turchese",
+  "scene": "Mountain landscape with a turquoise lake",
   "interests": [
-   "montagna",
-   "natura"
+   "mountains",
+   "nature"
   ]
  },
  "2025-08-10_dolomiti_montagna-01.jpg": {
-  "scene": "Montagne rocciose con neve",
+  "scene": "Rugged, rocky mountain peaks under a cloudy sky",
   "interests": [
-   "montagna",
-   "natura"
+   "mountains",
+   "nature"
   ]
  },
  "2025-11-14_bologna_cibo-01.jpg": {
-  "scene": "Primo piatto di pasta con carne",
+  "scene": "A plate of pasta with meat sauce",
   "interests": [
-   "cibo"
+   "food"
   ]
  },
  "2025-11-14_bologna_notte-01.jpg": {
-  "scene": "Strada con archi al buio",
+  "scene": "Arched street at night",
   "interests": [
-   "architettura",
-   "notte"
+   "architecture",
+   "nightlife"
   ]
  },
  "2026-03-20_parigi_street-art-01.jpg": {
-  "scene": "Mural street art con elementi urbani",
+  "scene": "Street art on a building facade",
   "interests": [
    "street-art",
-   "architettura",
-   "musica"
+   "art",
+   "architecture"
   ]
  },
  "2026-03-21_parigi_arte-01.jpg": {
-  "scene": "Pubblico in un evento culturale o espositivo",
+  "scene": "Crowd at an indoor event or exhibition",
   "interests": [
-   "arte"
+   "art"
   ]
  },
  "2026-06-27_londra_musica-01.jpg": {
-  "scene": "Concerti notturni con luci e folla",
+  "scene": "Large outdoor concert with stage and crowd",
   "interests": [
-   "musica",
-   "notte"
+   "live-music",
+   "nightlife"
   ]
  },
  "2026-06-27_londra_street-art-01.jpg": {
-  "scene": "Murale su edificio con graffiti in primo piano",
+  "scene": "A large mural on a building with graffiti in the foreground",
   "interests": [
-   "street-art",
-   "architettura"
+   "art",
+   "street-art"
   ]
  },
  "2026-09-19_roncade_vino-01.jpg": {
-  "scene": "Vino in un bar all'aperto",
+  "scene": "Person holding a glass of champagne outdoors",
   "interests": [
-   "vino"
+   "wine"
   ]
  },
  "2026-10-03_treviso_architettura-01.jpg": {
-  "scene": "Canale con edifici storici e vegetazione",
+  "scene": "Canal with buildings and greenery",
   "interests": [
-   "architettura",
-   "natura"
+   "architecture",
+   "nature"
   ]
  }
 }

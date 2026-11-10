@@ -11,7 +11,7 @@ export function parseAnswer(text: string): Analysis | null {
   try {
     const raw = JSON.parse(match[0]);
     const interests = [...new Set<string>(Array.isArray(raw.interests) ? raw.interests : [])]
-      .filter((id): id is InterestId => (INTEREST_IDS as string[]).includes(id))
+      .filter((id): id is InterestId => (INTEREST_IDS as readonly string[]).includes(id))
       .slice(0, 3);
     if (!interests.length) return null;
     return { scene: String(raw.scene ?? '').slice(0, 80), interests };

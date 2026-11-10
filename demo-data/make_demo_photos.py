@@ -57,6 +57,11 @@ CAMERA = ("Google", "Pixel 8")  # invented phone of the persona
 # (with attribution where required). Anything else is rejected.
 ALLOWED_LICENSE = re.compile(r"^(CC0|Public domain|PD|CC BY(-SA)? \d\.\d)", re.I)
 
+# The PLAN uses the Italian theme names of the hackathon (they are also in the file names);
+# photos.json carries the app's English interest ids.
+THEME_IDS = {"street-art": "street-art", "cibo": "food", "mare": "sea", "montagna": "mountains", "arte": "art",
+             "architettura": "architecture", "musica": "live-music", "natura": "nature", "sport": "sport",
+             "vino": "wine", "storia": "history", "notte": "nightlife"}
 THEMES = {"street-art", "cibo", "mare", "montagna", "arte", "architettura",
           "musica", "natura", "sport", "vino", "storia", "notte"}
 
@@ -389,7 +394,7 @@ def build() -> None:
 
         records.append({
             "file": name, "lat": lat, "lon": lon, "takenAt": taken.isoformat(),
-            "place": place, "country": country, "theme": theme,
+            "place": place, "country": country, "theme": THEME_IDS[theme],
             "source_url": m["source_url"], "thumb_url": m["thumb_url"],
             "license": m["license"], "author": m["author"],
             "_title": m["title"], "_description": m["description"],

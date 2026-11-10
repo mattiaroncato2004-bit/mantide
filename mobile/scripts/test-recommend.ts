@@ -1,7 +1,8 @@
 // Checks the events catalog and recommend() on a sample profile. Run: npx tsx scripts/test-recommend.ts
 import assert from 'node:assert/strict';
 import { INTEREST_IDS } from '../src/ai/interests';
-import { EVENTS, haversineKm, recommend, why, type InterestWeight } from '../src/events/recommend';
+import { EVENTS, haversineKm, recommend, shiftToNow, why, type InterestWeight } from '../src/events/recommend';
+import { setLocaleForTests } from '../src/i18n';
 import type { Focus, Scale } from '../src/types';
 
 const NOW = new Date('2026-10-24T12:00:00Z');
@@ -37,9 +38,9 @@ console.log('   interests', JSON.stringify(perInterest));
 // --- Recommendations ---
 const profile: InterestWeight[] = [
   { id: 'street-art', weight: 0.4, photoCount: 41 },
-  { id: 'cibo', weight: 0.25, photoCount: 26 },
-  { id: 'montagna', weight: 0.2, photoCount: 20 },
-  { id: 'musica', weight: 0.15, photoCount: 12 },
+  { id: 'food', weight: 0.25, photoCount: 26 },
+  { id: 'mountains', weight: 0.2, photoCount: 20 },
+  { id: 'live-music', weight: 0.15, photoCount: 12 },
 ];
 const wanted = new Set(profile.map((p) => p.id));
 
@@ -66,13 +67,24 @@ const late = recommend(EVENTS, profile, 'local', RONCADE, new Date('2027-03-10')
 assert.ok(late.every((r) => (r.event.end ?? r.event.start) >= '2027-03-10'), 'past events skipped');
 assert.equal(recommend(EVENTS, [], 'global', RONCADE, NOW).length, 0, 'empty profile');
 
-// why() phrasing.
-assert.equal(
-  why({ event: EVENTS[0], score: 1, distanceKm: 0, matched: [profile[0], profile[3]] }),
-  'Hai 41 foto di street art e 12 di musica dal vivo',
-);
-assert.equal(
-  why({ event: EVENTS[0], score: 1, distanceKm: 0, matched: [profile[0], profile[1], profile[3]] }),
-  'Hai 41 foto di street art, 26 di cibo e ristoranti e 12 di musica dal vivo',
-);
-console.log('ok past events, empty profile, why()');
+// why() phrasing, in both languages.
+const two = { event: EVENTS[0], score: 1, distanceKm: 0, matched: [profile[0], profile[3]] };
+const three = { event: EVENTS[0], score: 1, distanceKm: 0, matched: [profile[0], profile[1], profile[3]] };
+const none = { event: EVENTS[0], score: 1, distanceKm: 0, matched: [{ ...profile[1], photoCount: 0 }] };
+setLocaleForTests('en');
+assert.equal(why(two), 'You have 41 photos of street art and 12 of live music');
+assert.equal(why(three), 'You have 41 photos of street art, 26 of food and restaurants and 12 of live music');
+assert.equal(why(none), "You're into food and restaurants");
+setLocaleForTests('it');
+assert.equal(why(two), 'Hai 41 foto di street art e 12 di musica dal vivo');
+assert.equal(why(three), 'Hai 41 foto di street art, 26 di cibo e ristoranti e 12 di musica dal vivo');
+setLocaleForTests('en');
+
+// Sample events move forward by whole weeks, so the demo never runs out of upcoming events.
+const later = shiftToNow(EVENTS, new Date('2027-06-15T12:00:00Z'));
+const firstStart = (list: typeof EVENTS) => list.map((e) => e.start).sort()[0];
+assert.ok(firstStart(later) >= '2027-06-15', `shifted catalog starts ${firstStart(later)}`);
+assert.equal(new Date(later[0].start).getUTCDay(), new Date(EVENTS[0].start).getUTCDay(), 'same weekday');
+assert.ok(later.every((e, k) => !e.end || e.end >= e.start) && later.length === EVENTS.length);
+assert.deepEqual(shiftToNow(EVENTS, NOW), EVENTS, 'no shift before the catalog starts');
+console.log('ok past events, empty profile, why(), shiftToNow()');

@@ -34,21 +34,21 @@ export function whereGemmaRuns(): string {
 
 // Tested on Gemma 4 E2B: a plain instruction gives clean JSON; the server's constrained
 // JSON mode produced broken output and worse labels, so we parse the text ourselves.
-// One short hint per id: without them Gemma filed most murals under "arte" instead of "street-art".
+// One short hint per id: without them Gemma filed most murals under "art" instead of "street-art".
 // Keep in sync with local-ai/test_photo.py.
 const HINTS =
-  'street-art (murals, graffiti), cibo (dishes, restaurants), mare (sea, beaches), ' +
-  'montagna (mountains, hiking), arte (museums, paintings, sculptures), architettura (buildings, bridges), ' +
-  'musica (concerts, live music), natura (parks, animals, plants), sport, vino (wine, bars), ' +
-  'storia (castles, ancient monuments), notte (nightlife, clubs)';
+  'street-art (murals, graffiti), food (dishes, restaurants), sea (sea, beaches), ' +
+  'mountains (mountains, hiking), art (museums, paintings, sculptures), architecture (buildings, bridges), ' +
+  'live-music (concerts, live music), nature (parks, animals, plants), sport, wine (wine, bars), ' +
+  'history (castles, ancient monuments), nightlife (nightlife, clubs)';
 
 const PROMPT =
   'Look at this photo. Which interests of the person who took it does it reveal? ' +
   `Choose 1 to 3 ids, most evident first, ONLY from this list: ${HINTS}. ` +
   'Reply with one line of JSON and nothing else, exactly like: ' +
-  '{"scene": "<what you see, in Italian, max 8 words>", "interests": ["id", "id"]}';
+  '{"scene": "<what you see, in English, max 8 words>", "interests": ["id", "id"]}';
 
-const KEY = 'analysis:v1';
+const KEY = 'analysis:v2'; // v2: English interest ids
 
 // Gemma's answers on the invented demo gallery, computed beforehand by local-ai/precompute_demo.py.
 // Used only when Gemma can't be reached during a live demo; the app says so on screen.

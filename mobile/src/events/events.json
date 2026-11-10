@@ -1,51 +1,852 @@
 [
-  { "id": "g-lisbona-muros", "title": "Muros de Lisboa: festival di street art", "description": "Quattro giorni di murales dal vivo tra Alfama e Marvila, con tour guidati e artisti da tutto il mondo.", "start": "2026-11-12", "end": "2026-11-15", "city": "Lisbona", "country": "PRT", "lat": 38.7223, "lon": -9.1393, "scale": "global", "interests": ["street-art", "arte"], "price": "Gratis" },
-  { "id": "g-montreux-jazz", "title": "Montreux Jazz Winter Nights", "description": "Jazz in riva al lago di Ginevra: concerti serali nei club storici e jam session fino a tarda notte.", "start": "2026-12-10", "end": "2026-12-13", "city": "Montreux", "country": "CHE", "lat": 46.4312, "lon": 6.9107, "scale": "global", "interests": ["musica", "notte"], "price": "€45" },
-  { "id": "g-donostia-pintxo", "title": "Donostia Pintxo Fest", "description": "Il giro dei bar della Parte Vieja con pintxos d'autore, txakoli e sidro basco.", "start": "2027-01-22", "end": "2027-01-24", "city": "San Sebastián", "country": "ESP", "lat": 43.3183, "lon": -1.9812, "scale": "global", "interests": ["cibo", "vino"], "price": "€25" },
-  { "id": "g-berlino-murals", "title": "Berlin Wall Murals & Beats", "description": "Murales nuovi lungo la East Side Gallery di giorno, DJ set techno nei club di Friedrichshain di notte.", "start": "2026-11-27", "end": "2026-11-29", "city": "Berlino", "country": "DEU", "lat": 52.505, "lon": 13.4397, "scale": "global", "interests": ["street-art", "musica", "notte"], "price": "€20" },
-  { "id": "g-chamonix-film", "title": "Chamonix Ice & Alpine Film Fest", "description": "Film di alpinismo, prove di arrampicata su ghiaccio e uscite guidate ai piedi del Monte Bianco.", "start": "2027-01-14", "end": "2027-01-17", "city": "Chamonix", "country": "FRA", "lat": 45.9237, "lon": 6.8694, "scale": "global", "interests": ["montagna", "sport"], "price": "€18" },
-  { "id": "g-barcellona-gaudi", "title": "Settimana Gaudí: architettura modernista", "description": "Visite speciali alla Sagrada Família, Casa Batlló e Park Güell con architetti come guide.", "start": "2027-02-18", "end": "2027-02-21", "city": "Barcellona", "country": "ESP", "lat": 41.4036, "lon": 2.1744, "scale": "global", "interests": ["architettura", "arte", "storia"], "price": "€30" },
-  { "id": "g-copenaghen-arch", "title": "Copenhagen Architecture Winter Walks", "description": "Passeggiate tra i quartieri nuovi del porto e i progetti di BIG, con soste per un caffè danese.", "start": "2027-03-05", "end": "2027-03-07", "city": "Copenaghen", "country": "DNK", "lat": 55.6761, "lon": 12.5683, "scale": "global", "interests": ["architettura"], "price": "€12" },
-  { "id": "g-innsbruck-freeride", "title": "Innsbruck Freeride Days", "description": "Tre giorni di freeride sulla Nordkette con corsi sicurezza valanghe e gare per tutti i livelli.", "start": "2027-02-05", "end": "2027-02-07", "city": "Innsbruck", "country": "AUT", "lat": 47.2692, "lon": 11.4041, "scale": "global", "interests": ["montagna", "sport"], "price": "€35" },
-  { "id": "g-newyork-bushwick", "title": "Bushwick Open Walls", "description": "Weekend di murales e studi d'artista aperti a Brooklyn, con feste nei cortili la sera.", "start": "2027-03-19", "end": "2027-03-21", "city": "New York", "country": "USA", "lat": 40.6944, "lon": -73.9213, "scale": "global", "interests": ["street-art", "notte"], "price": "Gratis" },
-
-  { "id": "n-torino-sapori", "title": "Terra e Sapori: fiera del gusto", "description": "Produttori piemontesi e presìdi da tutta Italia al Lingotto, tra assaggi, laboratori e cantine.", "start": "2026-11-06", "end": "2026-11-09", "city": "Torino", "country": "ITA", "region": "01", "lat": 45.0703, "lon": 7.6869, "scale": "national", "interests": ["cibo", "vino"], "price": "€20" },
-  { "id": "n-alba-tartufo", "title": "Weekend del tartufo bianco", "description": "Mercato del tartufo, cene nelle Langhe e degustazioni di Barolo nelle cantine del centro.", "start": "2026-11-14", "end": "2026-11-15", "city": "Alba", "country": "ITA", "region": "01", "lat": 44.7, "lon": 8.035, "scale": "national", "interests": ["cibo", "vino"], "price": "€10" },
-  { "id": "n-milano-design", "title": "Milano Design Winter", "description": "Studi di architettura e design aperti tra Brera e Isola, con mostre e talk serali.", "start": "2027-01-28", "end": "2027-01-31", "city": "Milano", "country": "ITA", "region": "03", "lat": 45.4642, "lon": 9.19, "scale": "national", "interests": ["architettura", "arte"], "price": "€15" },
-  { "id": "n-milano-lambrate", "title": "Muri di Lambrate: tour di street art", "description": "Passeggiata guidata tra i murales di Lambrate e Ortica, raccontati dagli artisti che li hanno dipinti.", "start": "2026-11-28", "city": "Milano", "country": "ITA", "region": "03", "lat": 45.484, "lon": 9.237, "scale": "national", "interests": ["street-art"], "price": "Gratis" },
-  { "id": "n-bologna-jazz", "title": "Bologna Jazz Club Festival", "description": "Dieci giorni di concerti jazz nei club e nei teatri del centro, con after-show sotto i portici.", "start": "2026-11-05", "end": "2026-11-15", "city": "Bologna", "country": "ITA", "region": "08", "lat": 44.4949, "lon": 11.3426, "scale": "national", "interests": ["musica", "notte"], "price": "€22" },
-  { "id": "n-roma-quadraro", "title": "Quadraro Murales Walk", "description": "Il museo a cielo aperto del Quadraro e la storia del quartiere, tra murales e memorie della guerra.", "start": "2026-12-06", "city": "Roma", "country": "ITA", "region": "12", "lat": 41.851, "lon": 12.559, "scale": "national", "interests": ["street-art", "storia"], "price": "Gratis" },
-  { "id": "n-napoli-pizza", "title": "Pizza Village d'inverno", "description": "I pizzaioli napoletani sul lungomare di via Caracciolo, con forni a legna e vista sul golfo.", "start": "2026-12-11", "end": "2026-12-14", "city": "Napoli", "country": "ITA", "region": "15", "lat": 40.8518, "lon": 14.2681, "scale": "national", "interests": ["cibo", "mare"], "price": "Gratis" },
-  { "id": "n-firenze-rinascimento", "title": "Rinascimento di notte agli Uffizi", "description": "Aperture serali straordinarie con visite guidate a Botticelli, Leonardo e Michelangelo.", "start": "2027-02-12", "end": "2027-02-14", "city": "Firenze", "country": "ITA", "region": "09", "lat": 43.7687, "lon": 11.2556, "scale": "national", "interests": ["arte", "storia"], "price": "€25" },
-  { "id": "n-gardena-ski", "title": "Dolomiti Ski Opening Val Gardena", "description": "Apertura della stagione sul Sellaronda con skipass scontato, gare amatoriali e musica in quota.", "start": "2026-12-04", "end": "2026-12-06", "city": "Ortisei", "country": "ITA", "region": "04", "lat": 46.575, "lon": 11.672, "scale": "national", "interests": ["montagna", "sport"], "price": "€40" },
-  { "id": "n-courmayeur-film", "title": "Courmayeur Mountain Film Night", "description": "Serate di cinema di montagna sotto il Monte Bianco e ciaspolate guidate al mattino.", "start": "2027-01-08", "end": "2027-01-10", "city": "Courmayeur", "country": "ITA", "region": "02", "lat": 45.7967, "lon": 6.969, "scale": "national", "interests": ["montagna", "natura"], "price": "€12" },
-  { "id": "n-palermo-streetfood", "title": "Palermo Street Food Fest", "description": "Arancine, sfincione e pani ca' meusa tra i mercati di Ballarò e la Cala, a due passi dal mare.", "start": "2027-03-12", "end": "2027-03-14", "city": "Palermo", "country": "ITA", "region": "19", "lat": 38.1157, "lon": 13.3615, "scale": "national", "interests": ["cibo", "mare"], "price": "Gratis" },
-  { "id": "n-trieste-bora", "title": "Trieste Bora Run", "description": "Corsa di 10 km sulle Rive con la bora alle spalle, arrivo in piazza Unità d'Italia.", "start": "2027-02-21", "city": "Trieste", "country": "ITA", "region": "06", "lat": 45.6495, "lon": 13.7768, "scale": "national", "interests": ["sport", "mare"], "price": "€15" },
-
-  { "id": "r-venezia-biennale", "title": "Biennale Arte: ultime visite serali", "description": "Visite al tramonto tra i padiglioni dei Giardini e dell'Arsenale nelle ultime settimane della Biennale.", "start": "2026-10-31", "end": "2026-11-22", "city": "Venezia", "country": "ITA", "region": "05", "lat": 45.429, "lon": 12.357, "scale": "regional", "interests": ["arte", "architettura"], "price": "€25" },
-  { "id": "r-venezia-carnevale", "title": "Carnevale di Venezia 2027", "description": "Maschere, cortei sull'acqua e feste nei palazzi storici, dal Volo dell'Angelo al martedì grasso.", "start": "2027-01-30", "end": "2027-02-09", "city": "Venezia", "country": "ITA", "region": "05", "lat": 45.4341, "lon": 12.3388, "scale": "regional", "interests": ["storia", "notte"], "price": "Gratis" },
-  { "id": "r-verona-wine", "title": "Verona Wine Winter", "description": "Amarone, Valpolicella e Soave in degustazione nei palazzi del centro, con piatti della tradizione.", "start": "2027-02-26", "end": "2027-02-28", "city": "Verona", "country": "ITA", "region": "05", "lat": 45.4384, "lon": 10.9916, "scale": "regional", "interests": ["vino", "cibo"], "price": "€30" },
-  { "id": "r-verona-capodanno", "title": "Concerto di Capodanno al Filarmonico", "description": "L'orchestra della Fondazione Arena saluta il 2027 con valzer, Verdi e un brindisi finale.", "start": "2026-12-31", "city": "Verona", "country": "ITA", "region": "05", "lat": 45.437, "lon": 10.995, "scale": "regional", "interests": ["musica"], "price": "€40" },
-  { "id": "r-padova-walls", "title": "Padova Urban Walls Festival", "description": "Writer italiani ed europei dipingono le facciate dell'Arcella, con musica dal vivo e mercatino.", "start": "2026-11-19", "end": "2026-11-22", "city": "Padova", "country": "ITA", "region": "05", "lat": 45.4064, "lon": 11.8768, "scale": "regional", "interests": ["street-art", "musica"], "price": "Gratis" },
-  { "id": "r-padova-scrovegni", "title": "Cappella degli Scrovegni di notte", "description": "Ingressi serali a piccoli gruppi per vedere Giotto in silenzio, con racconto di uno storico dell'arte.", "start": "2027-01-15", "end": "2027-01-17", "city": "Padova", "country": "ITA", "region": "05", "lat": 45.4115, "lon": 11.8794, "scale": "regional", "interests": ["arte", "storia"], "price": "€15" },
-  { "id": "r-cortina-ski", "title": "Cortina Ski Opening", "description": "Primo weekend sulle piste delle Tofane con prove gratuite di sci alpinismo e aperitivo in rifugio.", "start": "2026-11-28", "end": "2026-11-29", "city": "Cortina d'Ampezzo", "country": "ITA", "region": "05", "lat": 46.5405, "lon": 12.1357, "scale": "regional", "interests": ["montagna", "sport"], "price": "€35" },
-  { "id": "r-belluno-ciaspole", "title": "Ciaspolata nelle Dolomiti Bellunesi", "description": "Escursione con le ciaspole nel Parco Nazionale con guide del parco e pranzo in malga.", "start": "2027-01-24", "city": "Belluno", "country": "ITA", "region": "05", "lat": 46.142, "lon": 12.2167, "scale": "regional", "interests": ["montagna", "natura"], "price": "€10" },
-  { "id": "r-vicenza-palladio", "title": "Palladio di notte", "description": "Basilica Palladiana e Teatro Olimpico aperti la sera, con visite guidate e luci d'autore.", "start": "2026-12-12", "end": "2026-12-13", "city": "Vicenza", "country": "ITA", "region": "05", "lat": 45.5455, "lon": 11.5354, "scale": "regional", "interests": ["architettura", "storia"], "price": "€12" },
-  { "id": "r-asiago-formaggi", "title": "Asiago: formaggi e neve", "description": "Malghe aperte sull'Altopiano, assaggi di Asiago stravecchio e passeggiate sulla neve.", "start": "2027-02-13", "end": "2027-02-14", "city": "Asiago", "country": "ITA", "region": "05", "lat": 45.8757, "lon": 11.5096, "scale": "regional", "interests": ["cibo", "montagna"], "price": "€8" },
-  { "id": "r-valdobbiadene-prosecco", "title": "Colline del Prosecco: camminata d'inverno", "description": "Dieci chilometri tra i vigneti patrimonio UNESCO con soste nelle cantine di Valdobbiadene.", "start": "2026-11-08", "city": "Valdobbiadene", "country": "ITA", "region": "05", "lat": 45.9, "lon": 11.999, "scale": "regional", "interests": ["vino", "natura"], "price": "€15" },
-  { "id": "r-garda-bici", "title": "Garda in bici d'inverno", "description": "Pedalata lungo la sponda veronese del lago da Bardolino a Garda, con pranzo a base di pesce di lago.", "start": "2027-03-20", "city": "Bardolino", "country": "ITA", "region": "05", "lat": 45.547, "lon": 10.722, "scale": "regional", "interests": ["sport", "natura"], "price": "€20" },
-
-  { "id": "l-hfarm-campus", "title": "H-FARM Open Campus: architettura sostenibile", "description": "Visita al campus H-FARM di Ca' Tron: edifici in legno, energia pulita e il parco lungo il Sile.", "start": "2026-11-07", "city": "Roncade", "country": "ITA", "region": "05", "lat": 45.578, "lon": 12.408, "scale": "local", "interests": ["architettura", "natura"], "price": "Gratis" },
-  { "id": "l-hfarm-streetart", "title": "Street Art Jam al campus H-FARM", "description": "Artisti e studenti dipingono i pannelli del campus H-FARM mentre suonano band della zona.", "start": "2026-11-21", "city": "Roncade", "country": "ITA", "region": "05", "lat": 45.578, "lon": 12.408, "scale": "local", "interests": ["street-art", "musica"], "price": "Gratis" },
-  { "id": "l-hfarm-cena", "title": "Cena a km zero a H-FARM", "description": "Cena con prodotti dell'orto e delle aziende agricole di Roncade, abbinata ai vini del Piave.", "start": "2026-12-05", "city": "Roncade", "country": "ITA", "region": "05", "lat": 45.578, "lon": 12.408, "scale": "local", "interests": ["cibo", "vino"], "price": "€35" },
-  { "id": "l-roncade-castello", "title": "Castello di Roncade: degustazione di Raboso", "description": "Visita alle cantine del castello rinascimentale e degustazione di Raboso e Manzoni bianco.", "start": "2026-11-14", "city": "Roncade", "country": "ITA", "region": "05", "lat": 45.6285, "lon": 12.377, "scale": "local", "interests": ["vino", "storia"], "price": "€15" },
-  { "id": "l-treviso-murales", "title": "Treviso Murales Tour", "description": "Passeggiata tra i murales nascosti fuori dalle mura di Treviso, con l'associazione degli artisti locali.", "start": "2026-10-31", "city": "Treviso", "country": "ITA", "region": "05", "lat": 45.6669, "lon": 12.243, "scale": "local", "interests": ["street-art", "arte"], "price": "Gratis" },
-  { "id": "l-treviso-radicchio", "title": "Radicchio Rosso in Piazza dei Signori", "description": "Il radicchio tardivo di Treviso in ogni forma: risotti, fritture e dolci negli stand dei ristoranti.", "start": "2026-12-12", "end": "2026-12-14", "city": "Treviso", "country": "ITA", "region": "05", "lat": 45.666, "lon": 12.244, "scale": "local", "interests": ["cibo"], "price": "Gratis" },
-  { "id": "l-treviso-jazz", "title": "Sile Jazz Nights", "description": "Due serate di jazz nei locali affacciati sul Sile e sui canali del centro di Treviso.", "start": "2027-01-16", "end": "2027-01-17", "city": "Treviso", "country": "ITA", "region": "05", "lat": 45.664, "lon": 12.248, "scale": "local", "interests": ["musica", "notte"], "price": "€18" },
-  { "id": "l-mestre-m9", "title": "M9: il Novecento in una notte", "description": "Apertura notturna del museo M9 con percorsi immersivi sulla storia italiana del Novecento.", "start": "2026-11-27", "city": "Mestre", "country": "ITA", "region": "05", "lat": 45.4925, "lon": 12.2425, "scale": "local", "interests": ["storia", "arte"], "price": "€10" },
-  { "id": "l-mestre-marghera", "title": "Forte Marghera Street Food Winter", "description": "Food truck, birre artigianali e DJ set dentro il forte ottocentesco di Marghera.", "start": "2027-03-06", "end": "2027-03-07", "city": "Mestre", "country": "ITA", "region": "05", "lat": 45.4805, "lon": 12.264, "scale": "local", "interests": ["cibo", "notte", "musica"], "price": "Gratis" },
-  { "id": "l-jesolo-presepe", "title": "Presepe di sabbia di Jesolo", "description": "Sculture di sabbia giganti in riva al mare, create da artisti internazionali per le feste.", "start": "2026-12-05", "end": "2027-02-07", "city": "Jesolo", "country": "ITA", "region": "05", "lat": 45.5089, "lon": 12.644, "scale": "local", "interests": ["arte", "mare"], "price": "€8" },
-  { "id": "l-jesolo-run", "title": "Jesolo Winter Beach Run", "description": "Corsa di 12 km sulla spiaggia d'inverno, dal faro a piazza Mazzini, con brodo caldo all'arrivo.", "start": "2027-01-31", "city": "Jesolo", "country": "ITA", "region": "05", "lat": 45.499, "lon": 12.63, "scale": "local", "interests": ["sport", "mare"], "price": "€12" },
-  { "id": "l-montello-trekking", "title": "Trekking sul Montello e la Grande Guerra", "description": "Escursione sulle prese del Montello tra boschi, trincee e il sacrario di Nervesa della Battaglia.", "start": "2026-11-22", "city": "Nervesa della Battaglia", "country": "ITA", "region": "05", "lat": 45.825, "lon": 12.205, "scale": "local", "interests": ["montagna", "storia", "natura"], "price": "Gratis" },
-  { "id": "l-mogliano-ville", "title": "Ville del Terraglio in bicicletta", "description": "Pedalata lungo il Terraglio alla scoperta delle ville venete tra Mogliano e Treviso.", "start": "2027-03-14", "city": "Mogliano Veneto", "country": "ITA", "region": "05", "lat": 45.56, "lon": 12.238, "scale": "local", "interests": ["architettura", "sport", "storia"], "price": "€10" }
+  {
+    "id": "g-lisbona-muros",
+    "title": "Muros de Lisboa: street art festival",
+    "description": "Four days of live murals between Alfama and Marvila, with guided tours and artists from around the world.",
+    "start": "2026-11-12",
+    "end": "2026-11-15",
+    "city": "Lisbon",
+    "country": "PRT",
+    "lat": 38.7223,
+    "lon": -9.1393,
+    "scale": "global",
+    "interests": [
+      "street-art",
+      "art"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "g-montreux-jazz",
+    "title": "Montreux Jazz Winter Nights",
+    "description": "Jazz on Lake Geneva: evening concerts in historic clubs and jam sessions late into the night.",
+    "start": "2026-12-10",
+    "end": "2026-12-13",
+    "city": "Montreux",
+    "country": "CHE",
+    "lat": 46.4312,
+    "lon": 6.9107,
+    "scale": "global",
+    "interests": [
+      "live-music",
+      "nightlife"
+    ],
+    "price": "€45",
+    "sample": true
+  },
+  {
+    "id": "g-donostia-pintxo",
+    "title": "Donostia Pintxo Fest",
+    "description": "A bar crawl through the Parte Vieja with signature pintxos, txakoli and Basque cider.",
+    "start": "2027-01-22",
+    "end": "2027-01-24",
+    "city": "San Sebastián",
+    "country": "ESP",
+    "lat": 43.3183,
+    "lon": -1.9812,
+    "scale": "global",
+    "interests": [
+      "food",
+      "wine"
+    ],
+    "price": "€25",
+    "sample": true
+  },
+  {
+    "id": "g-berlino-murals",
+    "title": "Berlin Wall Murals & Beats",
+    "description": "New murals along the East Side Gallery by day, techno DJ sets in Friedrichshain clubs by night.",
+    "start": "2026-11-27",
+    "end": "2026-11-29",
+    "city": "Berlin",
+    "country": "DEU",
+    "lat": 52.505,
+    "lon": 13.4397,
+    "scale": "global",
+    "interests": [
+      "street-art",
+      "live-music",
+      "nightlife"
+    ],
+    "price": "€20",
+    "sample": true
+  },
+  {
+    "id": "g-chamonix-film",
+    "title": "Chamonix Ice & Alpine Film Fest",
+    "description": "Mountaineering films, ice climbing tasters and guided outings at the foot of Mont Blanc.",
+    "start": "2027-01-14",
+    "end": "2027-01-17",
+    "city": "Chamonix",
+    "country": "FRA",
+    "lat": 45.9237,
+    "lon": 6.8694,
+    "scale": "global",
+    "interests": [
+      "mountains",
+      "sport"
+    ],
+    "price": "€18",
+    "sample": true
+  },
+  {
+    "id": "g-barcellona-gaudi",
+    "title": "Gaudí Week: modernist architecture",
+    "description": "Special visits to the Sagrada Família, Casa Batlló and Park Güell, guided by architects.",
+    "start": "2027-02-18",
+    "end": "2027-02-21",
+    "city": "Barcelona",
+    "country": "ESP",
+    "lat": 41.4036,
+    "lon": 2.1744,
+    "scale": "global",
+    "interests": [
+      "architecture",
+      "art",
+      "history"
+    ],
+    "price": "€30",
+    "sample": true
+  },
+  {
+    "id": "g-copenaghen-arch",
+    "title": "Copenhagen Architecture Winter Walks",
+    "description": "Walks through the new harbour districts and BIG projects, with stops for a Danish coffee.",
+    "start": "2027-03-05",
+    "end": "2027-03-07",
+    "city": "Copenhagen",
+    "country": "DNK",
+    "lat": 55.6761,
+    "lon": 12.5683,
+    "scale": "global",
+    "interests": [
+      "architecture"
+    ],
+    "price": "€12",
+    "sample": true
+  },
+  {
+    "id": "g-innsbruck-freeride",
+    "title": "Innsbruck Freeride Days",
+    "description": "Three days of freeride on the Nordkette, with avalanche safety courses and races for every level.",
+    "start": "2027-02-05",
+    "end": "2027-02-07",
+    "city": "Innsbruck",
+    "country": "AUT",
+    "lat": 47.2692,
+    "lon": 11.4041,
+    "scale": "global",
+    "interests": [
+      "mountains",
+      "sport"
+    ],
+    "price": "€35",
+    "sample": true
+  },
+  {
+    "id": "g-newyork-bushwick",
+    "title": "Bushwick Open Walls",
+    "description": "A weekend of murals and open artist studios in Brooklyn, with backyard parties at night.",
+    "start": "2027-03-19",
+    "end": "2027-03-21",
+    "city": "New York",
+    "country": "USA",
+    "lat": 40.6944,
+    "lon": -73.9213,
+    "scale": "global",
+    "interests": [
+      "street-art",
+      "nightlife"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "n-torino-sapori",
+    "title": "Terra e Sapori food fair",
+    "description": "Piedmont producers and Slow Food presidia from all over Italy at the Lingotto: tastings, workshops, wineries.",
+    "start": "2026-11-06",
+    "end": "2026-11-09",
+    "city": "Turin",
+    "country": "ITA",
+    "region": "01",
+    "lat": 45.0703,
+    "lon": 7.6869,
+    "scale": "national",
+    "interests": [
+      "food",
+      "wine"
+    ],
+    "price": "€20",
+    "sample": true
+  },
+  {
+    "id": "n-alba-tartufo",
+    "title": "White truffle weekend",
+    "description": "Truffle market, dinners in the Langhe and Barolo tastings in the cellars of the old town.",
+    "start": "2026-11-14",
+    "end": "2026-11-15",
+    "city": "Alba",
+    "country": "ITA",
+    "region": "01",
+    "lat": 44.7,
+    "lon": 8.035,
+    "scale": "national",
+    "interests": [
+      "food",
+      "wine"
+    ],
+    "price": "€10",
+    "sample": true
+  },
+  {
+    "id": "n-milano-design",
+    "title": "Milano Design Winter",
+    "description": "Architecture and design studios open between Brera and Isola, with exhibitions and evening talks.",
+    "start": "2027-01-28",
+    "end": "2027-01-31",
+    "city": "Milan",
+    "country": "ITA",
+    "region": "03",
+    "lat": 45.4642,
+    "lon": 9.19,
+    "scale": "national",
+    "interests": [
+      "architecture",
+      "art"
+    ],
+    "price": "€15",
+    "sample": true
+  },
+  {
+    "id": "n-milano-lambrate",
+    "title": "Lambrate walls: street art tour",
+    "description": "A guided walk through the murals of Lambrate and Ortica, told by the artists who painted them.",
+    "start": "2026-11-28",
+    "city": "Milan",
+    "country": "ITA",
+    "region": "03",
+    "lat": 45.484,
+    "lon": 9.237,
+    "scale": "national",
+    "interests": [
+      "street-art"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "n-bologna-jazz",
+    "title": "Bologna Jazz Club Festival",
+    "description": "Ten days of jazz in the clubs and theatres of the centre, with after-shows under the porticoes.",
+    "start": "2026-11-05",
+    "end": "2026-11-15",
+    "city": "Bologna",
+    "country": "ITA",
+    "region": "08",
+    "lat": 44.4949,
+    "lon": 11.3426,
+    "scale": "national",
+    "interests": [
+      "live-music",
+      "nightlife"
+    ],
+    "price": "€22",
+    "sample": true
+  },
+  {
+    "id": "n-roma-quadraro",
+    "title": "Quadraro Murals Walk",
+    "description": "Quadraro's open-air museum and the story of the district, between murals and memories of the war.",
+    "start": "2026-12-06",
+    "city": "Rome",
+    "country": "ITA",
+    "region": "12",
+    "lat": 41.851,
+    "lon": 12.559,
+    "scale": "national",
+    "interests": [
+      "street-art",
+      "history"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "n-napoli-pizza",
+    "title": "Winter Pizza Village",
+    "description": "Naples' pizzaioli on the Via Caracciolo seafront, with wood-fired ovens and a view of the bay.",
+    "start": "2026-12-11",
+    "end": "2026-12-14",
+    "city": "Naples",
+    "country": "ITA",
+    "region": "15",
+    "lat": 40.8518,
+    "lon": 14.2681,
+    "scale": "national",
+    "interests": [
+      "food",
+      "sea"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "n-firenze-rinascimento",
+    "title": "Renaissance by night at the Uffizi",
+    "description": "Special evening openings with guided visits to Botticelli, Leonardo and Michelangelo.",
+    "start": "2027-02-12",
+    "end": "2027-02-14",
+    "city": "Florence",
+    "country": "ITA",
+    "region": "09",
+    "lat": 43.7687,
+    "lon": 11.2556,
+    "scale": "national",
+    "interests": [
+      "art",
+      "history"
+    ],
+    "price": "€25",
+    "sample": true
+  },
+  {
+    "id": "n-gardena-ski",
+    "title": "Dolomites Ski Opening, Val Gardena",
+    "description": "The season opens on the Sellaronda with discounted ski passes, amateur races and music on the slopes.",
+    "start": "2026-12-04",
+    "end": "2026-12-06",
+    "city": "Ortisei",
+    "country": "ITA",
+    "region": "04",
+    "lat": 46.575,
+    "lon": 11.672,
+    "scale": "national",
+    "interests": [
+      "mountains",
+      "sport"
+    ],
+    "price": "€40",
+    "sample": true
+  },
+  {
+    "id": "n-courmayeur-film",
+    "title": "Courmayeur Mountain Film Night",
+    "description": "Mountain film evenings under Mont Blanc and guided snowshoe walks in the morning.",
+    "start": "2027-01-08",
+    "end": "2027-01-10",
+    "city": "Courmayeur",
+    "country": "ITA",
+    "region": "02",
+    "lat": 45.7967,
+    "lon": 6.969,
+    "scale": "national",
+    "interests": [
+      "mountains",
+      "nature"
+    ],
+    "price": "€12",
+    "sample": true
+  },
+  {
+    "id": "n-palermo-streetfood",
+    "title": "Palermo Street Food Fest",
+    "description": "Arancine, sfincione and pani ca' meusa between the Ballarò market and the Cala, steps from the sea.",
+    "start": "2027-03-12",
+    "end": "2027-03-14",
+    "city": "Palermo",
+    "country": "ITA",
+    "region": "19",
+    "lat": 38.1157,
+    "lon": 13.3615,
+    "scale": "national",
+    "interests": [
+      "food",
+      "sea"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "n-trieste-bora",
+    "title": "Trieste Bora Run",
+    "description": "A 10 km run along the Rive with the bora wind at your back, finishing in Piazza Unità d'Italia.",
+    "start": "2027-02-21",
+    "city": "Trieste",
+    "country": "ITA",
+    "region": "06",
+    "lat": 45.6495,
+    "lon": 13.7768,
+    "scale": "national",
+    "interests": [
+      "sport",
+      "sea"
+    ],
+    "price": "€15",
+    "sample": true
+  },
+  {
+    "id": "r-venezia-biennale",
+    "title": "Biennale Arte: last evening visits",
+    "description": "Sunset visits to the pavilions of the Giardini and the Arsenale in the last weeks of the Biennale.",
+    "start": "2026-10-31",
+    "end": "2026-11-22",
+    "city": "Venice",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.429,
+    "lon": 12.357,
+    "scale": "regional",
+    "interests": [
+      "art",
+      "architecture"
+    ],
+    "price": "€25",
+    "sample": true
+  },
+  {
+    "id": "r-venezia-carnevale",
+    "title": "Venice Carnival 2027",
+    "description": "Masks, parades on the water and parties in historic palaces, from the Flight of the Angel to Shrove Tuesday.",
+    "start": "2027-01-30",
+    "end": "2027-02-09",
+    "city": "Venice",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.4341,
+    "lon": 12.3388,
+    "scale": "regional",
+    "interests": [
+      "history",
+      "nightlife"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "r-verona-wine",
+    "title": "Verona Wine Winter",
+    "description": "Amarone, Valpolicella and Soave tastings in palaces of the old town, with traditional dishes.",
+    "start": "2027-02-26",
+    "end": "2027-02-28",
+    "city": "Verona",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.4384,
+    "lon": 10.9916,
+    "scale": "regional",
+    "interests": [
+      "wine",
+      "food"
+    ],
+    "price": "€30",
+    "sample": true
+  },
+  {
+    "id": "r-verona-capodanno",
+    "title": "New Year's concert at the Filarmonico",
+    "description": "The Arena Foundation orchestra welcomes 2027 with waltzes, Verdi and a final toast.",
+    "start": "2026-12-31",
+    "city": "Verona",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.437,
+    "lon": 10.995,
+    "scale": "regional",
+    "interests": [
+      "live-music"
+    ],
+    "price": "€40",
+    "sample": true
+  },
+  {
+    "id": "r-padova-walls",
+    "title": "Padova Urban Walls Festival",
+    "description": "Italian and European writers paint the facades of Arcella, with live music and a market.",
+    "start": "2026-11-19",
+    "end": "2026-11-22",
+    "city": "Padua",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.4064,
+    "lon": 11.8768,
+    "scale": "regional",
+    "interests": [
+      "street-art",
+      "live-music"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "r-padova-scrovegni",
+    "title": "Scrovegni Chapel by night",
+    "description": "Evening entry in small groups to see Giotto in silence, introduced by an art historian.",
+    "start": "2027-01-15",
+    "end": "2027-01-17",
+    "city": "Padua",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.4115,
+    "lon": 11.8794,
+    "scale": "regional",
+    "interests": [
+      "art",
+      "history"
+    ],
+    "price": "€15",
+    "sample": true
+  },
+  {
+    "id": "r-cortina-ski",
+    "title": "Cortina Ski Opening",
+    "description": "First weekend on the Tofane slopes with free ski-touring tasters and an aperitivo in a mountain hut.",
+    "start": "2026-11-28",
+    "end": "2026-11-29",
+    "city": "Cortina d'Ampezzo",
+    "country": "ITA",
+    "region": "05",
+    "lat": 46.5405,
+    "lon": 12.1357,
+    "scale": "regional",
+    "interests": [
+      "mountains",
+      "sport"
+    ],
+    "price": "€35",
+    "sample": true
+  },
+  {
+    "id": "r-belluno-ciaspole",
+    "title": "Snowshoeing in the Belluno Dolomites",
+    "description": "A snowshoe hike in the National Park with the park's guides and lunch in a mountain dairy.",
+    "start": "2027-01-24",
+    "city": "Belluno",
+    "country": "ITA",
+    "region": "05",
+    "lat": 46.142,
+    "lon": 12.2167,
+    "scale": "regional",
+    "interests": [
+      "mountains",
+      "nature"
+    ],
+    "price": "€10",
+    "sample": true
+  },
+  {
+    "id": "r-vicenza-palladio",
+    "title": "Palladio by night",
+    "description": "The Basilica Palladiana and the Teatro Olimpico open in the evening, with guided visits and lighting design.",
+    "start": "2026-12-12",
+    "end": "2026-12-13",
+    "city": "Vicenza",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.5455,
+    "lon": 11.5354,
+    "scale": "regional",
+    "interests": [
+      "architecture",
+      "history"
+    ],
+    "price": "€12",
+    "sample": true
+  },
+  {
+    "id": "r-asiago-formaggi",
+    "title": "Asiago: cheese and snow",
+    "description": "Mountain dairies open on the plateau, tastings of aged Asiago and walks in the snow.",
+    "start": "2027-02-13",
+    "end": "2027-02-14",
+    "city": "Asiago",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.8757,
+    "lon": 11.5096,
+    "scale": "regional",
+    "interests": [
+      "food",
+      "mountains"
+    ],
+    "price": "€8",
+    "sample": true
+  },
+  {
+    "id": "r-valdobbiadene-prosecco",
+    "title": "Prosecco Hills winter walk",
+    "description": "Ten kilometres through UNESCO World Heritage vineyards with stops at the wineries of Valdobbiadene.",
+    "start": "2026-11-08",
+    "city": "Valdobbiadene",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.9,
+    "lon": 11.999,
+    "scale": "regional",
+    "interests": [
+      "wine",
+      "nature"
+    ],
+    "price": "€15",
+    "sample": true
+  },
+  {
+    "id": "r-garda-bici",
+    "title": "Lake Garda by bike in winter",
+    "description": "A ride along the Verona shore of the lake from Bardolino to Garda, with a lunch of lake fish.",
+    "start": "2027-03-20",
+    "city": "Bardolino",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.547,
+    "lon": 10.722,
+    "scale": "regional",
+    "interests": [
+      "sport",
+      "nature"
+    ],
+    "price": "€20",
+    "sample": true
+  },
+  {
+    "id": "l-hfarm-campus",
+    "title": "H-FARM Open Campus: sustainable architecture",
+    "description": "A visit to the H-FARM campus at Ca' Tron: timber buildings, clean energy and the park along the Sile.",
+    "start": "2026-11-07",
+    "city": "Roncade",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.578,
+    "lon": 12.408,
+    "scale": "local",
+    "interests": [
+      "architecture",
+      "nature"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "l-hfarm-streetart",
+    "title": "Street Art Jam at the H-FARM campus",
+    "description": "Artists and students paint the panels of the H-FARM campus while local bands play.",
+    "start": "2026-11-21",
+    "city": "Roncade",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.578,
+    "lon": 12.408,
+    "scale": "local",
+    "interests": [
+      "street-art",
+      "live-music"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "l-hfarm-cena",
+    "title": "Zero-mile dinner at H-FARM",
+    "description": "A dinner of produce from the garden and the farms of Roncade, paired with Piave wines.",
+    "start": "2026-12-05",
+    "city": "Roncade",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.578,
+    "lon": 12.408,
+    "scale": "local",
+    "interests": [
+      "food",
+      "wine"
+    ],
+    "price": "€35",
+    "sample": true
+  },
+  {
+    "id": "l-roncade-castello",
+    "title": "Roncade Castle: Raboso tasting",
+    "description": "A visit to the cellars of the Renaissance castle and a tasting of Raboso and Manzoni Bianco.",
+    "start": "2026-11-14",
+    "city": "Roncade",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.6285,
+    "lon": 12.377,
+    "scale": "local",
+    "interests": [
+      "wine",
+      "history"
+    ],
+    "price": "€15",
+    "sample": true
+  },
+  {
+    "id": "l-treviso-murales",
+    "title": "Treviso Murals Tour",
+    "description": "A walk among the hidden murals outside Treviso's walls, with the local artists' association.",
+    "start": "2026-10-31",
+    "city": "Treviso",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.6669,
+    "lon": 12.243,
+    "scale": "local",
+    "interests": [
+      "street-art",
+      "art"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "l-treviso-radicchio",
+    "title": "Red radicchio in Piazza dei Signori",
+    "description": "Treviso's late radicchio in every form: risottos, fritters and desserts at the restaurants' stalls.",
+    "start": "2026-12-12",
+    "end": "2026-12-14",
+    "city": "Treviso",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.666,
+    "lon": 12.244,
+    "scale": "local",
+    "interests": [
+      "food"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "l-treviso-jazz",
+    "title": "Sile Jazz Nights",
+    "description": "Two evenings of jazz in the bars overlooking the Sile and the canals of central Treviso.",
+    "start": "2027-01-16",
+    "end": "2027-01-17",
+    "city": "Treviso",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.664,
+    "lon": 12.248,
+    "scale": "local",
+    "interests": [
+      "live-music",
+      "nightlife"
+    ],
+    "price": "€18",
+    "sample": true
+  },
+  {
+    "id": "l-mestre-m9",
+    "title": "M9: the 20th century in one night",
+    "description": "A night opening of the M9 museum with immersive tours of Italian history in the 20th century.",
+    "start": "2026-11-27",
+    "city": "Mestre",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.4925,
+    "lon": 12.2425,
+    "scale": "local",
+    "interests": [
+      "history",
+      "art"
+    ],
+    "price": "€10",
+    "sample": true
+  },
+  {
+    "id": "l-mestre-marghera",
+    "title": "Forte Marghera Street Food Winter",
+    "description": "Food trucks, craft beer and DJ sets inside the 19th-century fort of Marghera.",
+    "start": "2027-03-06",
+    "end": "2027-03-07",
+    "city": "Mestre",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.4805,
+    "lon": 12.264,
+    "scale": "local",
+    "interests": [
+      "food",
+      "nightlife",
+      "live-music"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "l-jesolo-presepe",
+    "title": "Jesolo sand nativity",
+    "description": "Giant sand sculptures by the sea, created by international artists for the holidays.",
+    "start": "2026-12-05",
+    "end": "2027-02-07",
+    "city": "Jesolo",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.5089,
+    "lon": 12.644,
+    "scale": "local",
+    "interests": [
+      "art",
+      "sea"
+    ],
+    "price": "€8",
+    "sample": true
+  },
+  {
+    "id": "l-jesolo-run",
+    "title": "Jesolo Winter Beach Run",
+    "description": "A 12 km run on the winter beach, from the lighthouse to Piazza Mazzini, with hot broth at the finish.",
+    "start": "2027-01-31",
+    "city": "Jesolo",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.499,
+    "lon": 12.63,
+    "scale": "local",
+    "interests": [
+      "sport",
+      "sea"
+    ],
+    "price": "€12",
+    "sample": true
+  },
+  {
+    "id": "l-montello-trekking",
+    "title": "Montello hike and the Great War",
+    "description": "A hike across the Montello through woods and trenches to the war memorial of Nervesa della Battaglia.",
+    "start": "2026-11-22",
+    "city": "Nervesa della Battaglia",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.825,
+    "lon": 12.205,
+    "scale": "local",
+    "interests": [
+      "mountains",
+      "history",
+      "nature"
+    ],
+    "price": "Free",
+    "sample": true
+  },
+  {
+    "id": "l-mogliano-ville",
+    "title": "Terraglio villas by bike",
+    "description": "A ride along the Terraglio to discover the Venetian villas between Mogliano and Treviso.",
+    "start": "2027-03-14",
+    "city": "Mogliano Veneto",
+    "country": "ITA",
+    "region": "05",
+    "lat": 45.56,
+    "lon": 12.238,
+    "scale": "local",
+    "interests": [
+      "architecture",
+      "sport",
+      "history"
+    ],
+    "price": "€10",
+    "sample": true
+  }
 ]
