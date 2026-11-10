@@ -9,6 +9,8 @@ appId: com.mantide.app
       all: allow
 - assertVisible: "Use my gallery"
 - tapOn: "Continue without gallery"
+- assertVisible:
+    id: "map-canvas"
 - assertVisible: "Global"
 - tapOn: "Local"
 - assertVisible: "For you here"
