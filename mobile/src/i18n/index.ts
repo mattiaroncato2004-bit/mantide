@@ -41,12 +41,19 @@ export function tc(base: string, count: number, params?: Record<string, string |
   return t(`${base}_${count === 1 ? 'one' : 'other'}` as StringKey, { count, ...params });
 }
 
-const DATE_STYLES: Record<'day-month' | 'long' | 'month-year', Intl.DateTimeFormatOptions> = {
-  'day-month': { day: 'numeric', month: 'short' },
-  long: { day: 'numeric', month: 'long', year: 'numeric' },
-  'month-year': { month: 'short', year: '2-digit' },
+const DATE_STYLES: Record<'month' | 'day-month' | 'medium' | 'long', Intl.DateTimeFormatOptions> = {
+  month: { month: 'short' }, // "Nov"
+  'day-month': { day: 'numeric', month: 'short' }, // "7 Nov"
+  medium: { day: 'numeric', month: 'short', year: 'numeric' }, // "7 Nov 2026"
+  long: { day: 'numeric', month: 'long', year: 'numeric' }, // "7 November 2026"
 };
 
 export function formatDate(ms: number, style: keyof typeof DATE_STYLES): string {
   return new Date(ms).toLocaleDateString(DATE_LOCALE[locale], DATE_STYLES[style]).replace('.', '');
+}
+
+// "1.3" in English, "1,3" in Italian.
+export function formatDecimal(n: number, digits: number): string {
+  const text = n.toFixed(digits);
+  return locale === 'it' ? text.replace('.', ',') : text;
 }

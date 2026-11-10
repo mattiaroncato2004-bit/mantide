@@ -77,7 +77,8 @@ export const mapHtml = `<!doctype html>
     photos: [],
     events: [],
     selectedEvent: null,
-    timeline: null
+    timeline: null,
+    labels: { youAreHere: 'You are here', distancesFromHere: 'Distances from here' }
   };
 
   var map = new maplibregl.Map({
@@ -323,7 +324,7 @@ export const mapHtml = `<!doctype html>
     }
     if (!local) { if (you) { you.remove(); you = null; } return; }
     var gps = state.points[0];
-    var label = !gps || km(c, gps) < 1 ? 'Sei qui' : 'Distanze da qui';
+    var label = !gps || km(c, gps) < 1 ? state.labels.youAreHere : state.labels.distancesFromHere;
     if (!you) {
       var el = document.createElement('div');
       el.className = 'me';

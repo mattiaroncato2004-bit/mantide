@@ -1,6 +1,7 @@
 // Travel stats for the "passport": countries, share of the world's land, continents, regions and
 // provinces of the country you're in, and a traveller level. Pure functions, testable in Node.
 import { COUNTRY_INFO, countryOfRegion, nameOf, regionCount, TOTALS } from '../geo/locate';
+import { t } from '../i18n';
 
 export type Count = { visited: number; total: number };
 
@@ -14,21 +15,22 @@ export type Passport = {
 
 // Levels by number of countries: the next one is always in sight.
 const LEVELS = [
-  { name: 'Turista', min: 0 },
-  { name: 'Viaggiatore', min: 3 },
-  { name: 'Esploratore', min: 10 },
-  { name: 'Giramondo', min: 25 },
-  { name: 'Leggenda', min: 50 },
-];
+  { key: 'level.tourist', min: 0 },
+  { key: 'level.traveller', min: 3 },
+  { key: 'level.explorer', min: 10 },
+  { key: 'level.globetrotter', min: 25 },
+  { key: 'level.legend', min: 50 },
+] as const;
 
-const CONTINENTS: Record<string, string> = {
-  Europe: 'Europa',
-  Asia: 'Asia',
-  Africa: 'Africa',
-  'North America': 'Nord America',
-  'South America': 'Sud America',
-  Oceania: 'Oceania',
-};
+// Natural Earth continent → string key.
+const CONTINENTS = {
+  Europe: 'continent.europe',
+  Asia: 'continent.asia',
+  Africa: 'continent.africa',
+  'North America': 'continent.northAmerica',
+  'South America': 'continent.southAmerica',
+  Oceania: 'continent.oceania',
+} as const;
 
 // The 8 small islands Natural Earth files under "open ocean" belong to no continent: left out.
 const COUNTED = COUNTRY_INFO.filter((c) => c.continent in CONTINENTS || c.continent === 'Antarctica');
@@ -58,11 +60,11 @@ export function passport(
       landPct: (100 * seen.reduce((sum, c) => sum + c.areaKm2, 0)) / LAND_KM2,
     },
     level: {
-      name: LEVELS[levelIndex].name,
-      next: next && { name: next.name, missing: next.min - seen.length },
+      name: t(LEVELS[levelIndex].key),
+      next: next && { name: t(next.key), missing: next.min - seen.length },
     },
-    continents: Object.entries(CONTINENTS).map(([key, name]) => ({
-      name,
+    continents: Object.entries(CONTINENTS).map(([key, label]) => ({
+      name: t(label),
       visited: seen.filter((c) => c.continent === key).length,
       total: COUNTED.filter((c) => c.continent === key).length,
     })),
@@ -75,7 +77,7 @@ export function passport(
         }
       : undefined,
     byCountry: seen
-      .map((c) => ({ id: c.id, name: c.name, regions: regionsOf(c.id) }))
+      .map((c) => ({ id: c.id, name: nameOf('country', c.id), regions: regionsOf(c.id) }))
       .sort((a, b) => b.regions.visited - a.regions.visited || a.name.localeCompare(b.name)),
   };
 }

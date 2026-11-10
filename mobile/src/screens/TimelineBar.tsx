@@ -2,6 +2,7 @@
 // whole journey. Built on PanResponder, so it needs no native slider and also runs in a browser.
 import { useRef } from 'react';
 import { PanResponder, Pressable, StyleSheet, Text, View, type GestureResponderEvent, type LayoutChangeEvent } from 'react-native';
+import { t } from '../i18n';
 import { C, F, R, S } from '../theme';
 
 type Props = {
@@ -26,8 +27,8 @@ export function TimelineBar({ count, index, onChange, playing, onTogglePlay, pla
   // x is measured from the left edge of the track (the handle ignores touches, so the track gets them).
   const pick = (x: number) => {
     const { count: n, onChange: change } = latest.current;
-    const t = Math.max(0, Math.min(1, x / width.current));
-    change(Math.round(t * (n - 1)));
+    const at = Math.max(0, Math.min(1, x / width.current));
+    change(Math.round(at * (n - 1)));
   };
 
   const pan = useRef(
@@ -42,7 +43,7 @@ export function TimelineBar({ count, index, onChange, playing, onTogglePlay, pla
     }),
   ).current;
 
-  const t = count > 1 ? index / (count - 1) : 1;
+  const progress = count > 1 ? index / (count - 1) : 1;
 
   return (
     <View style={styles.bar}>
@@ -51,17 +52,15 @@ export function TimelineBar({ count, index, onChange, playing, onTogglePlay, pla
           onPress={onTogglePlay}
           style={({ pressed }) => [styles.play, pressed && styles.pressed]}
           accessibilityRole="button"
-          accessibilityLabel={playing ? 'Metti in pausa il viaggio' : 'Riproduci il viaggio'}
+          accessibilityLabel={playing ? t('timeline.pause') : t('timeline.play')}
         >
           <Text style={styles.playText}>{playing ? '❚❚' : '▶'}</Text>
         </Pressable>
         <View style={styles.label}>
           <Text style={styles.place} numberOfLines={1}>{place}</Text>
-          <Text style={styles.date}>
-            foto {index + 1} di {count}
-          </Text>
+          <Text style={styles.date}>{t('timeline.position', { n: index + 1, total: count })}</Text>
         </View>
-        <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel="Chiudi la linea del tempo">
+        <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel={t('timeline.close')}>
           <Text style={styles.close}>✕</Text>
         </Pressable>
       </View>
@@ -70,21 +69,21 @@ export function TimelineBar({ count, index, onChange, playing, onTogglePlay, pla
         onLayout={(e: LayoutChangeEvent) => (width.current = e.nativeEvent.layout.width || 1)}
         style={styles.hit}
         accessibilityRole="adjustable"
-        accessibilityLabel="Linea del tempo"
+        accessibilityLabel={t('timeline.a11y')}
         accessibilityValue={{ min: 1, max: count, now: index + 1 }}
         {...pan.panHandlers}
       >
         <View style={styles.track} pointerEvents="none">
-          <View style={[styles.fill, { width: `${t * 100}%` }]} />
+          <View style={[styles.fill, { width: `${progress * 100}%` }]} />
         </View>
         {marks.map((m, i) => (
           <View
             key={i}
             pointerEvents="none"
-            style={[styles.tick, m.label ? styles.tickMajor : null, m.at <= t && styles.tickPassed, { left: `${m.at * 100}%` }]}
+            style={[styles.tick, m.label ? styles.tickMajor : null, m.at <= progress && styles.tickPassed, { left: `${m.at * 100}%` }]}
           />
         ))}
-        <View style={[styles.thumb, { left: `${t * 100}%` }]} pointerEvents="none" />
+        <View style={[styles.thumb, { left: `${progress * 100}%` }]} pointerEvents="none" />
       </View>
       <View style={styles.labels} pointerEvents="none">
         {marks.map((m, i) =>

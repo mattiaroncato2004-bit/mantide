@@ -2,13 +2,14 @@
 // the photos taken there, events for you there, and the button to mark it by hand.
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { why, type Recommendation } from '../events/recommend';
+import { formatDate, t, tc } from '../i18n';
 import type { Photo } from '../gallery/photos';
 import { C, F, R, S } from '../theme';
 import type { Level, Source } from '../types';
 
 export type SelectedPlace = { level: Level; id: string; name: string };
 
-const LEVEL_LABEL: Record<Level, string> = { country: 'Paese', region: 'Regione', province: 'Provincia' };
+const LEVEL_LABEL = { country: 'place.country', region: 'place.region', province: 'place.province' } as const;
 
 type Props = {
   place: SelectedPlace;
@@ -22,16 +23,16 @@ type Props = {
 };
 
 function sourceTag(s: Source, photoCount: number): string {
-  return s === 'manual' ? 'segnato a mano' : s === 'gps' ? 'eri qui col GPS' : `${photoCount} foto`;
+  return s === 'manual' ? t('place.byHand') : s === 'gps' ? t('place.byGps') : tc('count.photos', photoCount);
 }
 
 function sourcesText(sources: Source[], photoCount: number): string {
-  if (!sources.length) return 'Non ancora visitato';
-  return `Visitato: ${sources.map((s) => sourceTag(s, photoCount)).join(', ')}`;
+  if (!sources.length) return t('place.notVisited');
+  return t('place.visitedBy', { list: sources.map((s) => sourceTag(s, photoCount)).join(', ') });
 }
 
 const day = (iso: string) => String(new Date(iso).getDate());
-const month = (iso: string) => new Date(iso).toLocaleDateString('it-IT', { month: 'short' }).replace('.', '');
+const month = (iso: string) => formatDate(Date.parse(iso), 'month');
 
 export function PlaceSheet({ place, sources, photos, recommendations, onToggleManual, onOpenPhoto, onClose, bottomInset }: Props) {
   const manual = sources.includes('manual');
@@ -40,7 +41,7 @@ export function PlaceSheet({ place, sources, photos, recommendations, onToggleMa
     <View style={[styles.sheet, { paddingBottom: bottomInset + 16 }]}>
       <View style={styles.head}>
         <View style={styles.headText}>
-          <Text style={styles.level}>{LEVEL_LABEL[place.level]}</Text>
+          <Text style={styles.level}>{t(LEVEL_LABEL[place.level])}</Text>
           <Text style={styles.title} numberOfLines={2}>{place.name}</Text>
         </View>
         <Pressable
@@ -48,7 +49,7 @@ export function PlaceSheet({ place, sources, photos, recommendations, onToggleMa
           hitSlop={8}
           style={({ pressed }) => [styles.close, pressed && styles.pressed]}
           accessibilityRole="button"
-          accessibilityLabel="Chiudi"
+          accessibilityLabel={t('place.close')}
         >
           <Text style={styles.closeText}>✕</Text>
         </Pressable>
@@ -56,7 +57,7 @@ export function PlaceSheet({ place, sources, photos, recommendations, onToggleMa
 
       <View style={styles.sources} accessible accessibilityLabel={sourcesText(sources, photos.length)}>
         <View style={[styles.mark, visited && styles.markOn]} />
-        <Text style={[styles.state, !visited && styles.stateOff]}>{visited ? 'Visitato' : 'Non ancora visitato'}</Text>
+        <Text style={[styles.state, !visited && styles.stateOff]}>{visited ? t('place.visited') : t('place.notVisited')}</Text>
         {sources.map((s) => (
           <View key={s} style={styles.tag}>
             <Text style={styles.tagText}>{sourceTag(s, photos.length)}</Text>
@@ -76,7 +77,7 @@ export function PlaceSheet({ place, sources, photos, recommendations, onToggleMa
 
       {recommendations.length > 0 && (
         <View style={styles.events}>
-          <Text style={styles.sectionLabel}>Eventi per te</Text>
+          <Text style={styles.sectionLabel}>{t('place.events')}</Text>
           {recommendations.slice(0, 2).map((r) => (
             <View key={r.event.id} style={styles.event}>
               <View style={styles.date}>
@@ -99,7 +100,7 @@ export function PlaceSheet({ place, sources, photos, recommendations, onToggleMa
         accessibilityRole="button"
       >
         <Text style={[styles.buttonText, manual && styles.buttonTextOff]}>
-          {manual ? 'Togli il segno a mano' : 'Segna come visitato'}
+          {manual ? t('place.unmark') : t('place.mark')}
         </Text>
       </Pressable>
     </View>

@@ -9,6 +9,7 @@ import { imageForGemma } from './image';
 import { parseAnswer, type Analysis } from './parse';
 import type { Photo } from '../gallery/photos';
 import demo from '../demo/demo.json';
+import { t } from '../i18n';
 
 export type { Analysis } from './parse';
 
@@ -22,14 +23,11 @@ export const GEMMA_MODEL = 'gemma4-e2b';
 const ON_DEVICE_MIN_GB = 8;
 
 export function whereGemmaRuns(): string {
-  if (Platform.OS === 'web') return 'Versione browser: Gemma 4 gira su questo computer, nessuna foto va nel cloud.';
+  if (Platform.OS === 'web') return t('gemma.web');
   const gb = Device.totalMemory ? Math.round(Device.totalMemory / 1024 ** 3) : null;
-  const what = Device.isDevice ? 'Questo telefono' : 'Questo emulatore';
-  if (gb === null) return 'Gemma 4 gira sul tuo computer, in rete locale.';
-  if (gb >= ON_DEVICE_MIN_GB) {
-    return `${what} ha ${gb} GB di RAM: abbastanza per Gemma sul telefono (prossima versione). Oggi gira sul tuo computer.`;
-  }
-  return `${what} ha ${gb} GB di RAM: per Gemma ne servono ${ON_DEVICE_MIN_GB}, quindi gira sul tuo computer, in rete locale.`;
+  const device = t(Device.isDevice ? 'device.phone' : 'device.emulator');
+  if (gb === null) return t('gemma.unknownRam');
+  return t(gb >= ON_DEVICE_MIN_GB ? 'gemma.enoughRam' : 'gemma.littleRam', { device, gb, min: ON_DEVICE_MIN_GB });
 }
 
 // Tested on Gemma 4 E2B: a plain instruction gives clean JSON; the server's constrained
@@ -77,7 +75,7 @@ export async function analyzePhoto(uri: string): Promise<Analysis> {
   if (!response.ok) throw new Error(`Gemma ha risposto ${response.status}`);
   const body = await response.json();
   const analysis = parseAnswer(body.choices?.[0]?.message?.content ?? '');
-  if (!analysis) throw new Error('Risposta di Gemma non leggibile');
+  if (!analysis) throw new Error("Can't read Gemma's answer");
   return analysis;
 }
 

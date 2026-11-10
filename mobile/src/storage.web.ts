@@ -1,10 +1,11 @@
 // Browser version of storage.ts: localStorage behind the same async API as expo-sqlite/kv-store.
 // A blocked or full localStorage just means nothing is remembered across reloads.
+import { t } from './i18n';
 
-// Opening the app at "/?nuovo" forgets everything and starts again from the welcome screen: handy to
+// Opening the app at "/?reset" forgets everything and starts again from the welcome screen: handy to
 // hand a phone to the next tester.
 try {
-  if (new URLSearchParams(window.location.search).has('nuovo')) {
+  if (new URLSearchParams(window.location.search).has('reset')) {
     localStorage.clear();
     window.history.replaceState(null, '', window.location.pathname);
   }
@@ -15,7 +16,7 @@ window.addEventListener('error', (e) => {
   const box = document.createElement('pre');
   box.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;margin:0;padding:10px;white-space:pre-wrap;' +
     'background:#2a0c0c;color:#ffd7d7;font:12px/1.4 monospace;border-radius:8px';
-  box.textContent = `Errore: ${e.message}\n${e.filename ?? ''}:${e.lineno ?? ''}`;
+  box.textContent = `${t('error.prefix')}: ${e.message}\n${e.filename ?? ''}:${e.lineno ?? ''}`;
   document.body.appendChild(box);
 });
 

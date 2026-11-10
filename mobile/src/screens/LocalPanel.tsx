@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, type ScrollViewInstance } from 'react-native';
 import { labelOf, type InterestId } from '../ai/interests';
 import { why, type InterestWeight, type Recommendation } from '../events/recommend';
+import { formatDate, t } from '../i18n';
 import { C, F, R, S } from '../theme';
 
 type Props = {
@@ -20,7 +21,7 @@ type Props = {
 };
 
 const day = (iso: string) => String(new Date(iso).getDate());
-const month = (iso: string) => new Date(iso).toLocaleDateString('it-IT', { month: 'short' }).replace('.', '');
+const month = (iso: string) => formatDate(Date.parse(iso), 'month');
 
 export function LocalPanel({ place, interests, recommendations, selectedEvent, onSelectEvent, status, deviceNote, onRemoveInterest, bottomInset }: Props) {
   const cards = selectedEvent
@@ -32,7 +33,7 @@ export function LocalPanel({ place, interests, recommendations, selectedEvent, o
   return (
     <View style={[styles.panel, { paddingBottom: bottomInset + 12 }]}>
       <View style={styles.head}>
-        <Text style={styles.label}>Per te qui</Text>
+        <Text style={styles.label}>{t('local.title')}</Text>
         <Text style={styles.title} numberOfLines={1}>{place}</Text>
       </View>
 
@@ -45,7 +46,7 @@ export function LocalPanel({ place, interests, recommendations, selectedEvent, o
               style={({ pressed }) => [styles.chip, pressed && styles.pressed]}
               hitSlop={{ top: 6, bottom: 6 }}
               accessibilityRole="button"
-              accessibilityLabel={`Togli ${labelOf(i.id)} dai tuoi interessi`}
+              accessibilityLabel={t('local.removeInterest', { interest: labelOf(i.id) })}
             >
               <Text style={styles.chipText}>{labelOf(i.id)}</Text>
               <Text style={styles.chipCount}>{i.photoCount}</Text>
@@ -65,7 +66,7 @@ export function LocalPanel({ place, interests, recommendations, selectedEvent, o
                 onPress={() => onSelectEvent(r.event.id)}
                 style={({ pressed }) => [styles.card, on && styles.cardOn, pressed && styles.pressed]}
                 accessibilityRole="button"
-                accessibilityLabel={`${r.event.title}: mostra sulla mappa`}
+                accessibilityLabel={t('local.showOnMap', { title: r.event.title })}
               >
                 <View style={styles.date}>
                   <Text style={[styles.day, on && styles.dayOn]}>{day(r.event.start)}</Text>
@@ -87,7 +88,7 @@ export function LocalPanel({ place, interests, recommendations, selectedEvent, o
       ) : (
         <Text style={styles.status}>{status}</Text>
       )}
-      <Text style={styles.note}>{deviceNote} Eventi di esempio, inventati per la demo.</Text>
+      <Text style={styles.note}>{t('local.sampleNote', { device: deviceNote })}</Text>
     </View>
   );
 }

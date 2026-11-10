@@ -6,6 +6,9 @@ import regions from './it-regions.json';
 import provinces from './it-provinces.json';
 import worldRegions from './world-regions.json';
 import worldGroups from './world-groups.json';
+import countryNames from './country-names.json';
+import regionNamesEn from './region-names-en.json';
+import { locale, t } from '../i18n';
 
 type Ring = number[][];
 type Geometry =
@@ -148,7 +151,6 @@ function areaKm2(g: Geometry): number {
 // Every country with its continent and area, for the travel stats (src/stats/passport.ts).
 export const COUNTRY_INFO = COUNTRIES.map((f) => ({
   id: f.properties.id,
-  name: f.properties.name,
   continent: f.properties.continent ?? '',
   areaKm2: areaKm2(f.geometry),
 }));
@@ -210,7 +212,15 @@ const NAMES: Record<'country' | 'region' | 'province', Map<string, string>> = {
   province: new Map([...PROVINCES, ...[...WORLD_REGIONS.values()].flat()].map((f) => [f.properties.id, f.properties.name])),
 };
 
-// Human-readable name of a country, region or province id ("VE" → "Venezia").
+// Country names in English and Italian (Natural Earth NAME_EN / NAME_IT). Regions abroad are stored
+// with their Italian name where one exists ("Lisbona"); region-names-en.json holds the English name
+// where it differs ("Lisbon"). Italian regions and provinces keep their own names.
+const COUNTRY_NAMES = countryNames as Record<string, { en: string; it: string }>;
+const REGION_NAMES_EN = regionNamesEn as Record<string, string>;
+
+// Human-readable name of a country, region or province id ("VE" → "Venezia", "GBR" → "United Kingdom").
 export function nameOf(level: 'country' | 'region' | 'province', id: string | undefined): string {
-  return (id && NAMES[level].get(id)) || 'Luogo sconosciuto';
+  if (level === 'country' && id && COUNTRY_NAMES[id]) return COUNTRY_NAMES[id][locale];
+  if (level !== 'country' && id && locale === 'en' && REGION_NAMES_EN[id]) return REGION_NAMES_EN[id];
+  return (id && NAMES[level].get(id)) || t('place.unknown');
 }

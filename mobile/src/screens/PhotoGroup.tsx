@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { nameOf } from '../geo/locate';
+import { formatDate, t, tc } from '../i18n';
 import type { Photo } from '../gallery/photos';
 import { C, F, R, S } from '../theme';
 
@@ -16,7 +17,7 @@ type Props = {
   bottomInset: number;
 };
 
-const date = (t: number) => new Date(t).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
+const date = (ms: number) => formatDate(ms, 'medium');
 
 export function PhotoGroup({ photos, title, notice, onOpen, onClose, topInset, bottomInset }: Props) {
   const sorted = [...photos].sort((a, b) => a.takenAt - b.takenAt);
@@ -28,11 +29,11 @@ export function PhotoGroup({ photos, title, notice, onOpen, onClose, topInset, b
     <View style={[styles.root, { paddingTop: topInset + S.lg }]}>
       <View style={styles.top}>
         <View style={styles.titles}>
-          <Text style={styles.kicker}>{sorted.length} foto</Text>
+          <Text style={styles.kicker}>{tc('count.photos', sorted.length)}</Text>
           <Text style={styles.title} numberOfLines={1}>{title ?? `${places.slice(0, 2).join(', ')}${places.length > 2 ? '…' : ''}`}</Text>
           {when ? <Text style={styles.when}>{when}</Text> : null}
         </View>
-        <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel="Chiudi le foto">
+        <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel={t('photos.close')}>
           <Text style={styles.close}>✕</Text>
         </Pressable>
       </View>
@@ -44,7 +45,7 @@ export function PhotoGroup({ photos, title, notice, onOpen, onClose, topInset, b
             onPress={() => onOpen(p.id)}
             style={({ pressed }) => [styles.cell, pressed && styles.pressed]}
             accessibilityRole="button"
-            accessibilityLabel={`Apri la foto del ${date(p.takenAt)}`}
+            accessibilityLabel={t('photos.open', { date: date(p.takenAt) })}
           >
             <Image source={{ uri: p.uri }} style={styles.image} />
           </Pressable>

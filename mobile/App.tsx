@@ -28,16 +28,17 @@ import { PassportSheet } from './src/screens/PassportSheet';
 import { PhotoGroup } from './src/screens/PhotoGroup';
 import { TimelineBar } from './src/screens/TimelineBar';
 import { passport } from './src/stats/passport';
+import { formatDate, t, tc } from './src/i18n';
 import Storage from './src/storage';
 import { C, F, R } from './src/theme';
 import type { Focus, Level, MapState, Scale } from './src/types';
 
-const SCALES: { key: Scale; label: string }[] = [
-  { key: 'global', label: 'Globale' },
-  { key: 'national', label: 'Nazionale' },
-  { key: 'regional', label: 'Regionale' },
-  { key: 'local', label: 'Locale' },
-];
+const SCALES = [
+  { key: 'global', label: 'scale.global' },
+  { key: 'national', label: 'scale.national' },
+  { key: 'regional', label: 'scale.regional' },
+  { key: 'local', label: 'scale.local' },
+] as const satisfies readonly { key: Scale; label: string }[];
 
 // Roncade (TV), home of H-FARM: the focus until the GPS answers.
 const DEFAULT_FOCUS: Focus = { country: 'ITA', region: '05', lat: 45.6297, lon: 12.3766 };
@@ -152,7 +153,7 @@ function Home() {
     const results = { ...prior };
     try {
       for (const [i, photo] of todo.entries()) {
-        setStatus(`Gemma sta guardando le tue foto · ${i + 1} di ${todo.length}`);
+        setStatus(t('status.analyzing', { n: i + 1, total: todo.length }));
         try {
           results[photo.id] = await analyzePhoto(photo.uri);
           setAnalyses({ ...results });
@@ -178,7 +179,7 @@ function Home() {
       await saveAnalyses(results);
       // With earlier answers the app works as usual: say so quietly in the Locale panel, not in the header.
       setReusedAnswers(reused);
-      setStatus(reused ? null : `Non trovo Gemma su ${GEMMA_URL}: avvia "litert-lm serve" sul computer.`);
+      setStatus(reused ? null : t('status.noGemma', { url: GEMMA_URL }));
     }
   }, []);
 
@@ -188,20 +189,20 @@ function Home() {
     try {
       const access = await requestGallery();
       if (access === 'denied') {
-        setStatus('Senza il permesso alle foto la mappa si riempie solo a mano e col GPS.');
+        setStatus(t('status.denied'));
         return;
       }
       if (access === 'limited') {
-        setStatus('Hai condiviso solo alcune foto: scegli "Consenti tutte" per vedere tutti i tuoi luoghi.');
+        setStatus(t('status.limited'));
         await askForAllPhotos();
       }
-      const found = await scanGallery((read, withGps) => setStatus(`Leggo la galleria · ${read} foto, ${withGps} con posizione`));
+      const found = await scanGallery((read, withGps) => setStatus(t('status.reading', { read, withGps })));
       setPhotos(found);
       mark('photo', found);
       await analyze(found, await loadAnalyses());
     } catch (e) {
       console.warn('[photos] scan failed', e);
-      setStatus(`Lettura interrotta: ${String(e)}`);
+      setStatus(t('status.readFailed', { error: String(e) }));
     } finally {
       setBusy(false);
     }
@@ -287,7 +288,7 @@ function Home() {
   }, [playing, journey.length]);
 
   // Marks for the timeline: one per photo; a trip (more than 4 days since the previous photo)
-  // starts with "mese 'aa", left out where it would overlap the previous label.
+  // starts with "Nov '26", left out where it would overlap the previous label.
   const timelineMarks = useMemo(() => {
     const last = Math.max(1, journey.length - 1);
     let lastLabelAt = -1;
@@ -297,7 +298,7 @@ function Home() {
       if (!tripStart || at - lastLabelAt < 0.14) return { at };
       lastLabelAt = at;
       const d = new Date(p.takenAt);
-      return { at, label: `${d.toLocaleDateString('it-IT', { month: 'short' })} '${String(d.getFullYear()).slice(2)}` };
+      return { at, label: `${formatDate(p.takenAt, 'month')} '${String(d.getFullYear()).slice(2)}` };
     });
   }, [journey]);
 
@@ -330,6 +331,7 @@ function Home() {
       selectedEvent,
       timeline: reached ? { until: reached.takenAt } : null,
       chromeTop,
+      labels: { youAreHere: t('map.youAreHere'), distancesFromHere: t('map.distancesFromHere') },
     }),
     [scale, focus, visited, here, photos, thumbs, localRecommendations, selectedEvent, reached, chromeTop],
   );
@@ -345,7 +347,7 @@ function Home() {
     const { level, id, name } = selected;
     const hadManual = visited[level][id]?.includes('manual');
     toggleManual(level, id);
-    showToast(hadManual ? `Segno tolto: ${name}` : `Segnato a mano: ${name}`);
+    showToast(t(hadManual ? 'toast.unmarked' : 'toast.marked', { name }));
   };
 
   const changeScale = (next: Scale) => {
@@ -356,10 +358,8 @@ function Home() {
 
   const countries = mapState.visited.country.length;
   const regions = mapState.visited.region.length;
-  const stats =
-    `${countries} ${countries === 1 ? 'paese' : 'paesi'} · ` +
-    `${regions} ${regions === 1 ? 'regione' : 'regioni'} · ` +
-    `${mapState.visited.province.length} province`;
+  const provinces = mapState.visited.province.length;
+  const stats = [tc('count.countries', countries), tc('count.regions', regions), tc('count.provinces', provinces)].join(' · ');
 
   const travel = useMemo(() => passport(mapState.visited, focus.country), [mapState.visited, focus.country]);
 
@@ -367,10 +367,10 @@ function Home() {
   const localName = herePlace.province ? nameOf('province', herePlace.province) : nameOf('country', herePlace.country);
   const localStatus =
     choice === 'none'
-      ? 'Collega la galleria dal pulsante Galleria qui sopra, a destra: Gemma capirà cosa ti piace e qui compariranno gli eventi giusti.'
+      ? t('local.connectGallery')
       : busy
-        ? 'Gemma sta guardando le tue foto: gli eventi arrivano appena ha capito cosa ti piace.'
-        : 'Nessun evento qui vicino per i tuoi interessi.';
+        ? t('local.waiting')
+        : t('local.none');
 
   return (
     <View style={styles.root}>
@@ -378,7 +378,7 @@ function Home() {
         state={mapState}
         onToggle={(level: Level, id: string, name: string) => {
           setSelectedEvent(null);
-          setSelected({ level, id, name });
+          setSelected({ level, id, name: nameOf(level, id) || name });
           // The scales follow the place you tapped: France at Globale, then Nazionale shows French regions.
           // A country goes to the region where you took most photos there (or its middle).
           let country = focus.country;
@@ -417,21 +417,21 @@ function Home() {
           onPress={() => setPassportOpen(true)}
           style={({ pressed }) => [styles.counts, pressed && styles.pressed]}
           accessibilityRole="button"
-          accessibilityLabel={`${stats}. Livello ${travel.level.name}. Apri il passaporto`}
+          accessibilityLabel={t('header.a11y', { stats, level: travel.level.name })}
         >
           {([
-            [countries, countries === 1 ? 'paese' : 'paesi'],
-            [regions, regions === 1 ? 'regione' : 'regioni'],
-            [mapState.visited.province.length, mapState.visited.province.length === 1 ? 'provincia' : 'province'],
+            [countries, tc('unit.country', countries)],
+            [regions, tc('unit.region', regions)],
+            [provinces, tc('unit.province', provinces)],
           ] as const).map(([n, label], i) => (
             <View key={i} style={[styles.count, i > 0 && styles.countRule]}>
               <Text style={styles.countN}>{n}</Text>
-              <Text style={styles.countLabel}>{label}</Text>
+              <Text style={styles.countLabel} numberOfLines={1}>{label}</Text>
             </View>
           ))}
           <View style={[styles.count, styles.countRule, styles.levelCell]}>
             <Text style={styles.level} numberOfLines={1}>{travel.level.name}</Text>
-            <Text style={styles.countLabel} numberOfLines={1}>passaporto ›</Text>
+            <Text style={styles.countLabel} numberOfLines={1}>{t('header.passport')}</Text>
           </View>
         </Pressable>
         {status && <Text style={styles.status} numberOfLines={2}>{status}</Text>}
@@ -469,7 +469,7 @@ function Home() {
                 style={({ pressed }) => [styles.timelineButton, pressed && styles.pressed]}
                 accessibilityRole="button"
               >
-                <Text style={styles.timelineButtonText}>▶ Linea del tempo</Text>
+                <Text style={styles.timelineButtonText}>{t('tools.timeline')}</Text>
               </Pressable>
             )}
             {(focus.lat !== home.lat || focus.lon !== home.lon) && (
@@ -481,7 +481,7 @@ function Home() {
                 style={({ pressed }) => [styles.timelineButton, pressed && styles.pressed]}
                 accessibilityRole="button"
               >
-                <Text style={styles.timelineButtonText}>◎ Torna qui</Text>
+                <Text style={styles.timelineButtonText}>{t('tools.backHere')}</Text>
               </Pressable>
             )}
             {/* Far right, apart from the map tools on the left. */}
@@ -489,10 +489,10 @@ function Home() {
               onPress={() => setGalleryOpen(true)}
               style={({ pressed }) => [styles.timelineButton, styles.galleryTool, pressed && styles.pressed]}
               accessibilityRole="button"
-              accessibilityLabel="Apri la galleria"
+              accessibilityLabel={t('tools.galleryA11y')}
             >
               <View style={[styles.galleryDot, choice === 'all' && styles.galleryDotOn]} />
-              <Text style={styles.timelineButtonText}>Galleria</Text>
+              <Text style={styles.timelineButtonText}>{t('tools.gallery')}</Text>
             </Pressable>
           </View>
         )}
@@ -505,7 +505,7 @@ function Home() {
               accessibilityState={{ selected: scale === s.key }}
               style={({ pressed }) => [styles.scale, scale === s.key && styles.scaleOn, pressed && scale !== s.key && styles.scalePressed]}
             >
-              <Text style={[styles.scaleText, scale === s.key && styles.scaleTextOn]}>{s.label}</Text>
+              <Text style={[styles.scaleText, scale === s.key && styles.scaleTextOn]}>{t(s.label)}</Text>
             </Pressable>
           ))}
         </View>
@@ -518,7 +518,7 @@ function Home() {
             selectedEvent={selectedEvent}
             onSelectEvent={setSelectedEvent}
             status={localStatus}
-            deviceNote={reusedAnswers ? 'Gemma non risponde da qui: interessi dalle risposte che aveva già dato sulle foto demo.' : whereGemmaRuns()}
+            deviceNote={reusedAnswers ? t('local.fallbackNote') : whereGemmaRuns()}
             onRemoveInterest={(id) => setRemoved((r) => [...r, id])}
             bottomInset={insets.bottom}
           />
@@ -541,21 +541,18 @@ function Home() {
       {galleryOpen && (
         <PhotoGroup
           photos={photos}
-          title="La tua galleria"
+          title={t('gallery.title')}
           notice={
             choice === 'all' ? (
               <Pressable onPress={skipGallery} style={styles.consentLink} accessibilityRole="button">
-                <Text style={styles.consentLinkText}>Smetti di usare la galleria</Text>
+                <Text style={styles.consentLinkText}>{t('gallery.stop')}</Text>
               </Pressable>
             ) : (
               <View style={styles.consent}>
-                <Text style={styles.consentTitle}>La galleria non è collegata</Text>
-                <Text style={styles.consentText}>
-                  Collegala per vedere qui le tue foto, segnare sulla mappa dove le hai scattate e ricevere eventi su misura.
-                  Gemma le guarda sul tuo dispositivo, mai nel cloud.
-                </Text>
+                <Text style={styles.consentTitle}>{t('gallery.offTitle')}</Text>
+                <Text style={styles.consentText}>{t('gallery.offText')} {whereGemmaRuns()}</Text>
                 <Pressable onPress={allowGallery} style={({ pressed }) => [styles.consentButton, pressed && styles.pressed]} accessibilityRole="button">
-                  <Text style={styles.consentButtonText}>Usa la mia galleria</Text>
+                  <Text style={styles.consentButtonText}>{t('gallery.use')}</Text>
                 </Pressable>
               </View>
             )
@@ -595,16 +592,16 @@ function Home() {
 // Full-screen photo opened from the map: where, when, and what Gemma saw in it.
 function PhotoPreview({ photo, analysis, onClose }: { photo: Photo; analysis?: Analysis; onClose: () => void }) {
   const where = photo.province ? nameOf('province', photo.province) : nameOf('country', photo.country);
-  const when = new Date(photo.takenAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+  const when = formatDate(photo.takenAt, 'long');
   return (
-    <Pressable style={styles.preview} onPress={onClose} accessibilityRole="button" accessibilityLabel="Chiudi la foto">
+    <Pressable style={styles.preview} onPress={onClose} accessibilityRole="button" accessibilityLabel={t('preview.close')}>
       <Image source={{ uri: photo.uri }} style={styles.previewImage} resizeMode="contain" />
       <View style={styles.previewInfo}>
         <Text style={styles.previewWhere}>{where}</Text>
         <Text style={styles.previewWhen}>{when}</Text>
         {analysis && (
           <View style={styles.previewAi}>
-            <Text style={styles.previewAiLabel}>Gemma ha visto</Text>
+            <Text style={styles.previewAiLabel}>{t('preview.gemmaSaw')}</Text>
             <Text style={styles.previewScene}>{analysis.scene}</Text>
             <View style={styles.previewTags}>
               {analysis.interests.map((i) => (
@@ -616,7 +613,7 @@ function PhotoPreview({ photo, analysis, onClose }: { photo: Photo; analysis?: A
           </View>
         )}
       </View>
-      <Text style={styles.previewHint}>Tocca per chiudere</Text>
+      <Text style={styles.previewHint}>{t('preview.tapToClose')}</Text>
     </Pressable>
   );
 }
@@ -636,9 +633,10 @@ const styles = StyleSheet.create({
   galleryDot: { width: 7, height: 7, borderRadius: 2, borderWidth: 1.5, borderColor: C.faint },
   galleryDotOn: { backgroundColor: C.accent, borderColor: C.accent },
   counts: { flexDirection: 'row', alignItems: 'stretch' },
-  count: { flex: 1, paddingHorizontal: 10, justifyContent: 'center' },
+  // English labels ("countries", "provinces") are longer than Italian ones: the level cell gives up room.
+  count: { flex: 1, paddingHorizontal: 8, justifyContent: 'center' },
   countRule: { borderLeftWidth: 1, borderLeftColor: C.line },
-  levelCell: { flex: 1.7 },
+  levelCell: { flex: 1.5 },
   level: { color: C.accent, fontFamily: F.bold, fontSize: 15.5, lineHeight: 28, letterSpacing: -0.3 },
   countN: {
     color: C.text, fontFamily: F.display, fontSize: 26, lineHeight: 28, letterSpacing: -0.6,

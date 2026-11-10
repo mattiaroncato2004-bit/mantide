@@ -2,6 +2,7 @@
 // you mark places by hand and the GPS marks where you are. The title is the whole product in three
 // beats (map, interests, events); the panel says the two ideas that matter: Gemma 4 and privacy.
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { t } from '../i18n';
 import { C, F, R, S } from '../theme';
 
 type Props = {
@@ -20,28 +21,28 @@ export function Welcome({ onUseGallery, onSkip, topInset, bottomInset }: Props) 
       </View>
 
       <View style={styles.body}>
-        <Text style={styles.title}>Dove sei stato, cosa ami, cosa fare vicino a te.</Text>
-        <Text style={styles.text}>Mantide lo scopre dalle foto che hai già.</Text>
+        <Text style={styles.title}>{t('welcome.title')}</Text>
+        <Text style={styles.text}>{t('welcome.text')}</Text>
         <View style={styles.points}>
           <View style={styles.point}>
             <Text style={styles.pointLabel}>Gemma 4</Text>
-            <Text style={styles.pointText}>Capisce le tue passioni da cosa fotografi.</Text>
+            <Text style={styles.pointText}>{t('welcome.gemma')}</Text>
           </View>
           <View style={[styles.point, styles.pointRule]}>
-            <Text style={styles.pointLabel}>Privacy</Text>
-            <Text style={styles.pointText}>Le foto restano tue, mai nel cloud.</Text>
+            <Text style={styles.pointLabel}>{t('welcome.privacyLabel')}</Text>
+            <Text style={styles.pointText}>{t('welcome.privacy')}</Text>
           </View>
         </View>
       </View>
 
       <View style={styles.actions}>
         <Pressable onPress={onUseGallery} style={({ pressed }) => [styles.primary, pressed && styles.pressed]} accessibilityRole="button">
-          <Text style={styles.primaryText}>Usa la mia galleria</Text>
+          <Text style={styles.primaryText}>{t('gallery.use')}</Text>
         </Pressable>
         <Pressable onPress={onSkip} style={({ pressed }) => [styles.secondary, pressed && styles.pressed]} accessibilityRole="button">
-          <Text style={styles.secondaryText}>Continua senza galleria</Text>
+          <Text style={styles.secondaryText}>{t('welcome.skip')}</Text>
         </Pressable>
-        <Text style={styles.note}>Puoi cambiare idea da Galleria.</Text>
+        <Text style={styles.note}>{t('welcome.note')}</Text>
       </View>
     </View>
   );

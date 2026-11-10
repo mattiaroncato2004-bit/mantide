@@ -1,6 +1,7 @@
 // "Il tuo passaporto": travel stats opened from the counter at the top of the map. Every number
 // comes with what is missing, so the next country or region is always in sight.
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { formatDecimal, t, tc } from '../i18n';
 import type { Count, Passport } from '../stats/passport';
 import { C, F, R, S } from '../theme';
 
@@ -42,8 +43,8 @@ export function PassportSheet({ data, onClose, topInset, bottomInset }: Props) {
   return (
     <View style={[styles.root, { paddingTop: topInset + S.lg }]}>
       <View style={styles.top}>
-        <Text style={styles.kicker}>Il tuo passaporto</Text>
-        <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel="Chiudi il passaporto">
+        <Text style={styles.kicker}>{t('passport.kicker')}</Text>
+        <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel={t('passport.close')}>
           <Text style={styles.close}>✕</Text>
         </Pressable>
       </View>
@@ -52,41 +53,39 @@ export function PassportSheet({ data, onClose, topInset, bottomInset }: Props) {
         <View style={styles.hero}>
           <Text style={styles.level}>{level.name}</Text>
           <Text style={styles.big}>
-            {countries.visited} <Text style={styles.bigUnit}>{countries.visited === 1 ? 'paese' : 'paesi'}</Text>
+            {countries.visited} <Text style={styles.bigUnit}>{tc('unit.country', countries.visited)}</Text>
           </Text>
           <Text style={styles.sub}>
-            {countries.landPct.toFixed(1).replace('.', ',')}% delle terre emerse · {pct(countries)}% dei {countries.total} paesi
+            {t('passport.share', { land: formatDecimal(countries.landPct, 1), pct: pct(countries), total: countries.total })}
           </Text>
           {level.next && (
             <>
               <Bar value={(100 * countries.visited) / (countries.visited + level.next.missing)} />
-              <Text style={styles.hint}>
-                Ancora {level.next.missing} {level.next.missing === 1 ? 'paese' : 'paesi'} per diventare {level.next.name}
-              </Text>
+              <Text style={styles.hint}>{tc('passport.next', level.next.missing, { level: level.next.name })}</Text>
             </>
           )}
         </View>
 
         {here && here.regions.total > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Dove sei · {here.name}</Text>
+            <Text style={styles.sectionTitle}>{t('passport.here', { name: here.name })}</Text>
             <Row
-              label="Regioni"
+              label={t('passport.regions')}
               count={here.regions}
-              hint={missingRegions ? `Te ne mancano ${missingRegions}` : 'Le hai viste tutte'}
+              hint={missingRegions ? t('passport.missing', { count: missingRegions }) : t('passport.allSeen')}
             />
             {here.provinces && (
               <Row
-                label="Province"
+                label={t('passport.provinces')}
                 count={here.provinces}
-                hint={`Te ne mancano ${here.provinces.total - here.provinces.visited}`}
+                hint={t('passport.missing', { count: here.provinces.total - here.provinces.visited })}
               />
             )}
           </View>
         )}
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Continenti</Text>
+          <Text style={styles.sectionTitle}>{t('passport.continents')}</Text>
           {continents.map((c) => (
             <Row key={c.name} label={c.name} count={c} />
           ))}
@@ -94,7 +93,7 @@ export function PassportSheet({ data, onClose, topInset, bottomInset }: Props) {
 
         {byCountry.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Regioni per paese</Text>
+            <Text style={styles.sectionTitle}>{t('passport.byCountry')}</Text>
             {byCountry.map((c) => (
               <Row key={c.id} label={c.name} count={c.regions} />
             ))}

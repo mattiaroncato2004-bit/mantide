@@ -27,6 +27,7 @@ export type MapState = {
   selectedEvent: string | null; // the event picked on the map or in the panel: bigger dot, map centred on it
   timeline: { until: number } | null; // only photos taken until then, with the journey animated
   chromeTop: number; // px from the top where the app's header ends: map controls go below it
+  labels: { youAreHere: string; distancesFromHere: string }; // the page's only text, in the app's language
 };
 
 // A geotagged photo on the map. thumb is a small "data:image/jpeg;base64,..." URI (see map/thumbs.ts).
