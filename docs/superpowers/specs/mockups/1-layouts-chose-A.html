@@ -1,0 +1,124 @@
+<style>
+  .phones { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; }
+  .phone { width: 270px; height: 560px; border-radius: 38px; border: 8px solid #111; overflow: hidden; position: relative; background: #0b1a26; box-shadow: 0 18px 40px rgba(0,0,0,.35); font-family: -apple-system, "SF Pro Text", Inter, system-ui, sans-serif; }
+  .map { position: absolute; left: -258px; top: -79px; width: 570px; height: 570px; display: grid; grid-template-columns: repeat(3, 190px); }
+  .map img { width: 190px; height: 190px; display: block; }
+  .ph { position: absolute; width: 46px; height: 46px; border-radius: 9px; border: 2.5px solid #fff; background-size: cover; background-position: center; box-shadow: 0 3px 10px rgba(0,0,0,.45); transform: translate(-50%, -100%); }
+  .ph::after { content: ''; position: absolute; left: 50%; bottom: -8px; margin-left: -5px; border: 5px solid transparent; border-top: 6px solid #fff; border-bottom: 0; }
+  .ph b { position: absolute; top: -9px; right: -9px; min-width: 19px; height: 19px; border-radius: 10px; background: #fff; color: #111; font: 700 11px/19px -apple-system, system-ui; text-align: center; padding: 0 4px; box-sizing: border-box; }
+  .status { position: absolute; top: 0; left: 0; right: 0; height: 30px; display: flex; justify-content: space-between; padding: 8px 20px 0; color: #fff; font: 600 12px -apple-system, system-ui; z-index: 3; }
+  .fab { position: absolute; right: 10px; width: 38px; border-radius: 10px; background: rgba(30,30,32,.82); backdrop-filter: blur(12px); color: #fff; display: flex; flex-direction: column; align-items: center; font-size: 15px; z-index: 3; }
+  .fab span { height: 38px; line-height: 38px; width: 38px; text-align: center; }
+  .fab span + span { border-top: 1px solid rgba(255,255,255,.12); }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(28,28,30,.9); backdrop-filter: blur(18px); border-radius: 16px 16px 0 0; color: #fff; padding: 8px 14px 22px; z-index: 4; }
+  .grab { width: 36px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.35); margin: 0 auto 10px; }
+  .row { display: flex; gap: 4px; }
+  .row i { flex: 1; aspect-ratio: 1; border-radius: 6px; background-size: cover; background-position: center; }
+  .h { font: 700 19px -apple-system, system-ui; letter-spacing: -.3px; }
+  .sub { color: rgba(255,255,255,.6); font-size: 12px; margin: 2px 0 10px; }
+  .chip { display: inline-block; padding: 5px 9px; border-radius: 14px; background: rgba(255,255,255,.12); font-size: 11.5px; margin: 0 4px 4px 0; }
+  .seg { position: absolute; top: 40px; left: 14px; right: 14px; z-index: 3; display: flex; background: rgba(30,30,32,.82); backdrop-filter: blur(12px); border-radius: 9px; padding: 2px; }
+  .seg span { flex: 1; text-align: center; color: #fff; font: 600 12px/28px -apple-system, system-ui; border-radius: 7px; }
+  .seg span.on { background: rgba(255,255,255,.22); }
+  .pin { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: #ff6b35; border: 3px solid #fff; box-shadow: 0 3px 8px rgba(0,0,0,.4); transform: translate(-50%,-50%); color: #fff; font-size: 13px; text-align: center; line-height: 24px; }
+  .card { background: rgba(28,28,30,.92); backdrop-filter: blur(16px); border-radius: 14px; padding: 11px 12px; color: #fff; }
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; background: rgba(22,22,24,.94); backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,.08); display: flex; z-index: 4; }
+  .tabs div { flex: 1; text-align: center; color: rgba(255,255,255,.5); font: 600 10px -apple-system, system-ui; padding-top: 9px; }
+  .tabs div.on { color: #0a84ff; }
+  .tabs div em { display: block; font-style: normal; font-size: 19px; margin-bottom: 2px; }
+  .title { position: absolute; top: 34px; left: 16px; color: #fff; font: 800 28px -apple-system, system-ui; letter-spacing: -.6px; text-shadow: 0 1px 8px rgba(0,0,0,.5); z-index: 3; }
+  .lit { position: absolute; background: rgba(255,107,53,.42); border: 2px solid #ff6b35; border-radius: 40% 55% 45% 60%; }
+</style>
+
+<h2>Dove vivono foto, consigli e posti visitati?</h2>
+<p class="subtitle">Tre modi di organizzare la schermata principale. In tutti e tre la mappa è quella di Foto su iPhone: miniature raggruppate con il numero, che si separano zoomando. Clicca quella che senti più giusta.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="sheet" onclick="toggleSelect(this)" style="background:none;box-shadow:none">
+    <div class="card-image" style="background:none">
+      <div class="phone">
+        <div class="map">
+          <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/15.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/16.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/17.jpg">
+          <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/11/15.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/11/16.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/11/17.jpg">
+          <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/12/15.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/12/16.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/12/17.jpg">
+        </div>
+        <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+        <div class="fab" style="top:44px"><span>🗺</span><span>➤</span></div>
+        <div class="ph" style="left:140px;top:195px;background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Burano_Venice_17.jpg/330px-Burano_Venice_17.jpg')"><b>18</b></div>
+        <div class="ph" style="left:118px;top:150px;background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Croda_da_Lago%2C_Cortina_dolomites.jpg/330px-Croda_da_Lago%2C_Cortina_dolomites.jpg')"><b>4</b></div>
+        <div class="ph" style="left:150px;top:282px;background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Street_art_in_Lisbon_IMG_8015_%2843099713260%29.jpg/330px-Street_art_in_Lisbon_IMG_8015_%2843099713260%29.jpg')"><b>2</b></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="h">Italia</div>
+          <div class="sub">26 foto · 6 regioni su 20 · tira su per tutto</div>
+          <div class="row">
+            <i style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Castello_di_Roncade_1.jpg/330px-Castello_di_Roncade_1.jpg')"></i>
+            <i style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Burano_Venice_17.jpg/330px-Burano_Venice_17.jpg')"></i>
+            <i style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/8/81/Wandern_001_2019_09_24.jpg/330px-Wandern_001_2019_09_24.jpg')"></i>
+            <i style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Live_band_performance_at_an_outdoor_concert_with_lights_and_energetic_crowd_during_nighttime.jpg/330px-Live_band_performance_at_an_outdoor_concert_with_lights_and_energetic_crowd_during_nighttime.jpg')"></i>
+          </div>
+          <div style="margin-top:10px"><span class="chip">✦ Per te qui · 3 eventi</span><span class="chip">🏅 Viaggiatore</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · Mappa + un foglio che si tira su</h3>
+      <p>Come Foto e Mappe di iPhone: la mappa occupa tutto, sotto c'è un foglio che segue quello che stai guardando. Basso: le foto della zona. Tirato su: eventi per te e statistiche di quel posto.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="lenses" onclick="toggleSelect(this)" style="background:none;box-shadow:none">
+    <div class="card-image" style="background:none">
+      <div class="phone">
+        <div class="map">
+          <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/15.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/16.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/17.jpg">
+          <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/11/15.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/11/16.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/11/17.jpg">
+          <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/12/15.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/12/16.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/12/17.jpg">
+        </div>
+        <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+        <div class="seg"><span>Foto</span><span class="on">Visitati</span><span>Per te</span></div>
+        <div class="lit" style="left:112px;top:150px;width:52px;height:44px"></div>
+        <div class="lit" style="left:128px;top:255px;width:40px;height:40px"></div>
+        <div class="lit" style="left:156px;top:292px;width:40px;height:30px"></div>
+        <div style="position:absolute;left:14px;right:14px;bottom:26px;z-index:4" class="card">
+          <div class="h" style="font-size:17px">Italia · 6 regioni su 20</div>
+          <div style="height:5px;border-radius:3px;background:rgba(255,255,255,.15);margin:8px 0 6px"><div style="width:30%;height:5px;border-radius:3px;background:#ff6b35"></div></div>
+          <div class="sub" style="margin:0">Ancora 4 paesi per diventare Esploratore</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · Tre lenti sulla stessa mappa</h3>
+      <p>Un selettore in alto cambia cosa vedi sulla mappa: Foto (miniature come su iPhone), Visitati (regioni che si illuminano, livelli) e Per te (eventi consigliati da Gemma). Qui è selezionato Visitati.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="tabs" onclick="toggleSelect(this)" style="background:none;box-shadow:none">
+    <div class="card-image" style="background:none">
+      <div class="phone">
+        <div class="map">
+          <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/15.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/16.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/17.jpg">
+          <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/11/15.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/11/16.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/11/17.jpg">
+          <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/12/15.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/12/16.jpg"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/12/17.jpg">
+        </div>
+        <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+        <div class="title">Luoghi</div>
+        <div class="ph" style="left:140px;top:195px;background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Burano_Venice_17.jpg/330px-Burano_Venice_17.jpg')"><b>18</b></div>
+        <div class="ph" style="left:118px;top:150px;background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Croda_da_Lago%2C_Cortina_dolomites.jpg/330px-Croda_da_Lago%2C_Cortina_dolomites.jpg')"><b>4</b></div>
+        <div class="ph" style="left:150px;top:282px;background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Street_art_in_Lisbon_IMG_8015_%2843099713260%29.jpg/330px-Street_art_in_Lisbon_IMG_8015_%2843099713260%29.jpg')"><b>2</b></div>
+        <div class="ph" style="left:176px;top:306px;background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/2025-05-11_Sunset_over_the_Adriatic_Sea_seen_from_%C5%A0u%C5%A1anj_Beach%2C_Bar_1.jpg/330px-2025-05-11_Sunset_over_the_Adriatic_Sea_seen_from_%C5%A0u%C5%A1anj_Beach%2C_Bar_1.jpg')"><b>2</b></div>
+        <div class="tabs">
+          <div class="on"><em>🗺</em>Luoghi</div>
+          <div><em>✦</em>Per te</div>
+          <div><em>🏅</em>Passaporto</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · Schede in basso, come la vecchia app Foto</h3>
+      <p>Tre schede separate: Luoghi (la mappa con le foto), Per te (eventi e interessi trovati da Gemma), Passaporto (posti visitati, livelli, statistiche). Ogni cosa ha la sua pagina intera.</p>
+    </div>
+  </div>
+
+</div>

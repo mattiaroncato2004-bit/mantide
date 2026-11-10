@@ -1,0 +1,67 @@
+<style>
+  .phones { display: flex; gap: 26px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+  .col { width: 270px; }
+  .col h3 { margin: 12px 0 4px; font-size: 15px; }
+  .col p { margin: 0; font-size: 13px; line-height: 1.45; opacity: .8; }
+  .phone { width: 270px; height: 560px; border-radius: 38px; border: 8px solid #111; overflow: hidden; position: relative; background: #0b1a26; box-shadow: 0 18px 40px rgba(0,0,0,.35); font-family: -apple-system, "SF Pro Text", Inter, system-ui, sans-serif; color: #fff; }
+  .map { position: absolute; display: grid; }
+  .map img { display: block; }
+  .status { position: absolute; top: 0; left: 0; right: 0; height: 30px; display: flex; justify-content: space-between; padding: 8px 20px 0; font: 600 12px -apple-system, system-ui; z-index: 3; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: 70px; background: rgba(28,28,30,.95); backdrop-filter: blur(18px); border-radius: 16px 16px 0 0; padding: 8px 14px 22px; z-index: 4; }
+  .grab { width: 36px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.35); margin: 0 auto 10px; }
+  .h { font: 700 21px -apple-system, system-ui; letter-spacing: -.4px; }
+  .mini { display: flex; gap: 6px; margin: 6px 0 14px; }
+  .mini span { font-size: 11px; color: rgba(255,255,255,.7); background: rgba(255,255,255,.08); border-radius: 7px; padding: 3px 7px; }
+  .mini b { color: #fff; font-weight: 700; }
+  .sec { font: 700 17px -apple-system, system-ui; letter-spacing: -.3px; margin: 0 0 8px; display: flex; justify-content: space-between; align-items: baseline; }
+  .sec span { color: #0a84ff; font-size: 12px; font-weight: 500; }
+  .sec2 { font: 700 13px -apple-system, system-ui; margin: 12px 0 6px; display: flex; justify-content: space-between; }
+  .sec2 span { color: #0a84ff; font-weight: 500; }
+  .ev { border-radius: 13px; overflow: hidden; background: rgba(255,255,255,.07); margin-bottom: 8px; }
+  .ev .img { height: 74px; background-size: cover; background-position: center; position: relative; }
+  .ev .img em { position: absolute; left: 8px; top: 8px; font-style: normal; background: rgba(0,0,0,.6); border-radius: 7px; padding: 3px 7px; font: 700 11px -apple-system, system-ui; }
+  .ev .body { padding: 8px 10px 10px; }
+  .ev .t { font-size: 13.5px; font-weight: 700; line-height: 1.25; }
+  .ev .w { font-size: 11.5px; color: #ff9b70; margin-top: 3px; }
+  .ev.small { display: flex; gap: 9px; padding: 8px; align-items: center; }
+  .ev.small .img { width: 46px; height: 46px; border-radius: 8px; flex: none; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+  .grid i { aspect-ratio: 1; border-radius: 5px; background-size: cover; background-position: center; }
+</style>
+
+<h2>Scheda del posto, versione 2</h2>
+<p class="subtitle">Tolta la riga ripetuta. I numeri diventano piccoli e stanno sotto il nome. "Per te qui" è la parte principale.</p>
+
+<div class="phones">
+  <div class="col">
+    <div class="phone">
+      <div class="map" style="left:-258px;top:-79px;grid-template-columns:repeat(3,190px)">
+        <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/15.jpg" width="190" height="190"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/16.jpg" width="190" height="190"><img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/5/10/17.jpg" width="190" height="190">
+      </div>
+      <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="sheet">
+        <div class="grab"></div>
+        <div class="h">Veneto</div>
+        <div class="mini"><span><b>18</b> foto</span><span><b>4/7</b> province</span><span><b>3</b> viaggi</span></div>
+        <div class="sec">Per te qui <span>Tutti</span></div>
+        <div class="ev">
+          <div class="img" style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Castello_di_Roncade_1.jpg/330px-Castello_di_Roncade_1.jpg')"><em>7 nov · 6 km</em></div>
+          <div class="body"><div class="t">H-FARM Open Campus: architettura sostenibile</div><div class="w">Hai 14 foto di architettura</div></div>
+        </div>
+        <div class="ev small">
+          <div class="img" style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Street_art_in_Lisbon_IMG_8015_%2843099713260%29.jpg/330px-Street_art_in_Lisbon_IMG_8015_%2843099713260%29.jpg')"></div>
+          <div><div class="t">Treviso Murales Tour</div><div class="w">31 ott · hai 9 foto di street art</div></div>
+        </div>
+        <div class="sec2">Foto <span>Vedi tutte</span></div>
+        <div class="grid">
+          <i style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Castello_di_Roncade_1.jpg/330px-Castello_di_Roncade_1.jpg')"></i>
+          <i style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Burano_Venice_17.jpg/330px-Burano_Venice_17.jpg')"></i>
+          <i style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Croda_da_Lago%2C_Cortina_dolomites.jpg/330px-Croda_da_Lago%2C_Cortina_dolomites.jpg')"></i>
+          <i style="background-image:url('https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Live_band_performance_at_an_outdoor_concert_with_lights_and_energetic_crowd_during_nighttime.jpg/330px-Live_band_performance_at_an_outdoor_concert_with_lights_and_energetic_crowd_during_nighttime.jpg')"></i>
+        </div>
+      </div>
+    </div>
+    <h3>Scheda del posto</h3>
+    <p>Il primo evento è grande, con l'immagine; gli altri sono una riga. Le foto stanno in fondo.</p>
+  </div>
+</div>

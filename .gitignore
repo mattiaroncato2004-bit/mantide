@@ -10,3 +10,6 @@ __pycache__/
 .venv/
 
 .DS_Store
+
+# Local agent scratch (plans in progress)
+.superpowers/
