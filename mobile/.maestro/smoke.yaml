@@ -1,0 +1,15 @@
+# Smoke test of the release APK on an emulator: the app starts without a development server,
+# shows the welcome, and the map with the Local panel works without the gallery.
+# Run: maestro test .maestro/smoke.yaml
+appId: com.mantide.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+- assertVisible: "Use my gallery"
+- tapOn: "Continue without gallery"
+- assertVisible: "Global"
+- tapOn: "Local"
+- assertVisible: "For you here"
+- assertNotVisible: "Error"
