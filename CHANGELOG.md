@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- One map style for Android and the web: Sentinel-2 satellite or OpenFreeMap standard, with the visited areas, journey, distance rings and events on top.
 - A map model shared by the Android and web maps: what lights up at each zoom, the areas in view, photo clusters (10,000 photos in under a frame), the journey, distance rings.
 - Plan for the Photos-map redesign: [docs/superpowers/plans/2026-11-10-stage-2a-photos-map-redesign.md](docs/superpowers/plans/2026-11-10-stage-2a-photos-map-redesign.md).
 
