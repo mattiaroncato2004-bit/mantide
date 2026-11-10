@@ -1,7 +1,7 @@
 // Mantide: one screen, the map of where you've been at four scales. Your gallery fills it in;
 // at the local scale it shows events around you chosen from what you photograph.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
@@ -104,8 +104,10 @@ function Home() {
   const resumed = useRef(false);
   const { visited, toggleManual, mark } = useVisited();
 
-  // The current position marks the area you are in and centers the scales on it.
+  // The current position marks the area you are in and centers the scales on it. The web demo is a
+  // fixed traveller around H-FARM: the browser never asks for the visitor's location.
   useEffect(() => {
+    if (Platform.OS === 'web') return;
     (async () => {
       const { status: permission } = await Location.requestForegroundPermissionsAsync();
       if (permission !== 'granted') return;
