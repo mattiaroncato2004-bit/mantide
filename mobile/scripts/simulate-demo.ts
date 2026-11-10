@@ -17,33 +17,33 @@ const countries = new Set(places.map((p) => p.country).filter(Boolean));
 const regions = new Set(places.map((p) => p.region).filter(Boolean));
 const provinces = new Set(places.map((p) => p.province).filter(Boolean));
 const italianRegions = places.filter((p) => p.country === 'ITA').map((p) => p.region);
-console.log(`Mappa: ${countries.size} paesi · ${regions.size} regioni (${new Set(italianRegions).size}/${TOTALS.region} in Italia) · ${provinces.size}/${TOTALS.province} province`);
-console.log('  paesi:', [...countries].map((c) => nameOf('country', c)).join(', '));
-console.log('  province:', [...provinces].map((p) => nameOf('province', p)).join(', '));
+console.log(`Map: ${countries.size} countries · ${regions.size} regions (${new Set(italianRegions).size}/${TOTALS.region} in Italy) · ${provinces.size}/${TOTALS.province} provinces`);
+console.log('  countries:', [...countries].map((c) => nameOf('country', c)).join(', '));
+console.log('  provinces:', [...provinces].map((p) => nameOf('province', p)).join(', '));
 
-// Interests, as the Interessi tab will list them (Gemma sees at most 3 photos per place and day,
+// Interests, as the Local panel lists them (Gemma sees at most 3 photos per place and day,
 // but the demo gallery has at most 3 per day already).
 const counts: Partial<Record<InterestId, number>> = {};
 for (const a of Object.values(analyses)) for (const i of a.interests) counts[i] = (counts[i] ?? 0) + 1;
 const profile = profileFromCounts(counts);
-console.log('\nInteressi:', profile.map((w) => `${labelOf(w.id)} ${w.photoCount}`).join(' · '));
+console.log('\nInterests:', profile.map((w) => `${labelOf(w.id)} ${w.photoCount}`).join(' · '));
 
-// Per te, from the emulator's position at H-FARM (Roncade).
+// Suggestions at each scale, from the emulator's position at H-FARM (Roncade).
 const focus: Focus = { country: 'ITA', region: '05', lat: 45.6297, lon: 12.3766 };
 for (const scale of ['global', 'national', 'regional', 'local'] as Scale[]) {
   const recs = recommend(EVENTS, profile, scale, focus, new Date('2026-10-24'));
-  console.log(`\nPer te · ${scale} (${recs.length})`);
+  console.log(`\nFor you · ${scale} (${recs.length})`);
   for (const r of recs.slice(0, 3)) console.log(`  ${r.event.title} (${r.event.city}) — ${why(r)}`);
 }
 
 // The place sheet, when you tap an area on the map.
 const sheets = [
-  { label: 'Regione Veneto', inPlace: (e: (typeof EVENTS)[number]) => e.region === '05', photos: places.filter((p) => p.region === '05').length },
-  { label: 'Provincia di Venezia', inPlace: (e: (typeof EVENTS)[number]) => locate(e.lat, e.lon).province === 'VE', photos: places.filter((p) => p.province === 'VE').length },
+  { label: 'Veneto (region)', inPlace: (e: (typeof EVENTS)[number]) => e.region === '05', photos: places.filter((p) => p.region === '05').length },
+  { label: 'Venezia (province)', inPlace: (e: (typeof EVENTS)[number]) => locate(e.lat, e.lon).province === 'VE', photos: places.filter((p) => p.province === 'VE').length },
 ];
 for (const sheet of sheets) {
   const recs = recommendIn(EVENTS, profile, sheet.inPlace, focus, new Date('2026-10-24'));
-  console.log(`\nScheda · ${sheet.label}: ${sheet.photos} foto, ${recs.length} eventi`);
+  console.log(`\nPlace sheet · ${sheet.label}: ${sheet.photos} photos, ${recs.length} events`);
   for (const r of recs.slice(0, 2)) console.log(`  ${r.event.title} (${r.event.city}) — ${why(r)}`);
 }
 

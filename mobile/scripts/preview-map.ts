@@ -25,7 +25,7 @@ const places: [string, number, number, number][] = [
   ['Roncade', 45.6297, 12.3766, 4],
   ['Dolomiti', 46.54, 12.13, 3],
   ['Roma', 41.9028, 12.4964, 2],
-  ['Lisbona', 38.72, -9.14, 2],
+  ['Lisbon', 38.72, -9.14, 2],
 ];
 const photos: MapPhoto[] = places.flatMap(([name, lat, lon, n], i) =>
   Array.from({ length: n }, (_, j) => ({

@@ -39,7 +39,7 @@ for (const p of photos) {
 for (const [country, list] of byCountry) {
   const national = new Set(nationalIds(country));
   const visitedRegions = [...new Set(list.map((p) => p.region).filter(Boolean))] as string[];
-  console.log(`\n${nameOf('country', country)} (${country}): ${national.size} aree a Nazionale, ${list.length} foto`);
+  console.log(`\n${nameOf('country', country)} (${country}): ${national.size} areas at National, ${list.length} photos`);
   for (const r of visitedRegions) {
     const okN = national.has(r);
     const regional = regionalIds(country, r);
@@ -47,15 +47,15 @@ for (const [country, list] of byCountry) {
     const missing = provs.filter((id) => !regional.ids.includes(id));
     if (!okN || missing.length || !regional.ids.length) problems++;
     console.log(
-      `  ${okN ? 'ok ' : 'NO '} Nazionale  ${nameOf('region', r)} [${r}]` +
-        `\n  ${missing.length || !regional.ids.length ? 'NO ' : 'ok '} Regionale  ${regional.ids.length} ${regional.level === 'province' ? 'province' : 'aree'}; visitate: ${provs.map((id) => (regional.level === 'province' ? nameOf('province', id) : nameOf('region', id))).join(', ')}${missing.length ? '  MANCANO: ' + missing.join(', ') : ''}`,
+      `  ${okN ? 'ok ' : 'NO '} National  ${nameOf('region', r)} [${r}]` +
+        `\n  ${missing.length || !regional.ids.length ? 'NO ' : 'ok '} Regional  ${regional.ids.length} ${regional.level === 'province' ? 'provinces' : 'areas'}; visited: ${provs.map((id) => (regional.level === 'province' ? nameOf('province', id) : nameOf('region', id))).join(', ')}${missing.length ? '  MISSING: ' + missing.join(', ') : ''}`,
     );
   }
   const noRegion = list.filter((p) => !p.region);
   if (noRegion.length) {
     problems++;
-    console.log(`  NO  foto senza regione: ${noRegion.map((p) => p.file).join(', ')}`);
+    console.log(`  NO  photos without a region: ${noRegion.map((p) => p.file).join(', ')}`);
   }
 }
-console.log(problems ? `\n${problems} PROBLEMI` : '\nTutto ok');
+console.log(problems ? `\n${problems} PROBLEMS` : '\nAll ok');
 process.exitCode = problems ? 1 : 0;

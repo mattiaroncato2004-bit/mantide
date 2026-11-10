@@ -10,7 +10,7 @@ const files = ['App.tsx', ...readdirSync(join(root, 'src/screens')).map((f) => `
 const ALLOWED = new Set(['Mantide', 'Gemma 4']);
 
 const RULES: [string, RegExp][] = [
-  // Text between a JSX tag and its closing tag: <Text>Galleria</Text>, possibly over several lines.
+  // Text between a JSX tag and its closing tag: <Text>Gallery</Text>, possibly over several lines.
   ['JSX text', />\s*([^<>{}=;()]*[A-Za-zÀ-ÿ]{3,}[^<>{}=;()]*?)\s*<\//g],
   ['literal accessibilityLabel', /accessibilityLabel="[^"]*[A-Za-zÀ-ÿ]{3,}[^"]*"/g],
   ['status or toast literal', /(?:setStatus|showToast)\(\s*['`][^'`]*[A-Za-zÀ-ÿ]{3,}/g],

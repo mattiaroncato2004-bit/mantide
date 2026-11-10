@@ -115,7 +115,7 @@ function rank(
     .slice(0, MAX_RESULTS);
 }
 
-// Events for the scale you are looking at on the map ("Per te" tab).
+// Events for the scale you are looking at on the map (the Local panel).
 export function recommend(
   events: Event[],
   profile: InterestWeight[],

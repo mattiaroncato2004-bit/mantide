@@ -31,7 +31,7 @@ Keep `serve` running. Check it from another terminal, at the repo root (`python`
 
 ```sh
 python3 local-ai/test_photo.py demo-data/photos/2024-04-21_venezia_cibo-01.jpg
-# {"scene": "Pasta con cozze e prezzemolo", "interests": ["cibo"]}
+# {"scene": "Pasta with mussels and herbs", "interests": ["food"]}
 ```
 
 The **first request takes 1–2 minutes** (LiteRT-LM builds its cache); then about 6–9 s per 384 px photo on a MacBook Air M3 CPU. Full-size photos are slower: the app always shrinks them first.

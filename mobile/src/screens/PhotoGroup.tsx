@@ -1,5 +1,5 @@
 // The photos behind a thumbnail with a number on the map: tapping "4" shows all 4, oldest first.
-// Tapping one opens it full screen. The Galleria button reuses it for all your photos.
+// Tapping one opens it full screen. The Gallery button reuses it for all your photos.
 import type { ReactNode } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { nameOf } from '../geo/locate';
