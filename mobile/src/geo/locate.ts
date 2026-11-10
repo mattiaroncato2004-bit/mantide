@@ -57,6 +57,16 @@ function byCountry(features: Indexed[]): Map<string, Indexed[]> {
 const WORLD_REGIONS = byCountry(index(worldRegions));
 const WORLD_GROUPS = byCountry(index(worldGroups));
 
+// The indexed boundaries (each feature with its bbox), for the map model in src/map/model.ts.
+export type AreaFeature = Indexed;
+export const AREAS = {
+  countries: COUNTRIES,
+  italianRegions: REGIONS,
+  italianProvinces: PROVINCES,
+  worldRegionsByCountry: WORLD_REGIONS,
+  worldGroupsByCountry: WORLD_GROUPS,
+};
+
 function inRing(lon: number, lat: number, ring: Ring): boolean {
   let inside = false;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
