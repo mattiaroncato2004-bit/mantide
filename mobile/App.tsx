@@ -36,7 +36,7 @@ import { TimelineBar } from './src/screens/TimelineBar';
 import { passport, placeStats } from './src/stats/passport';
 import { Sheet } from './src/ui/Sheet';
 import { detentHeights, type Detent } from './src/ui/detents';
-import { formatDate, t } from './src/i18n';
+import { distanceUnit, formatDate, t } from './src/i18n';
 import Storage from './src/storage';
 import { C, F, R } from './src/theme';
 import type { Level } from './src/types';
@@ -503,7 +503,7 @@ function Home() {
         journey={timelineOn && reached ? journeyLine(photos, reached.takenAt) : null}
         events={eventDots}
         you={located && view.zoom >= PROVINCE_ZOOM ? { lon: home.lon, lat: home.lat, label: t('map.youAreHere') } : null}
-        rings={ringsShown ? distanceRings([home.lon, home.lat], farthestKm) : []}
+        rings={ringsShown ? distanceRings([home.lon, home.lat], farthestKm, distanceUnit) : []}
         camera={camera}
         sheetHeight={Math.min(heights[detent], heights.mid)}
         onViewChange={(v) => {

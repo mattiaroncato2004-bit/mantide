@@ -50,7 +50,8 @@ const lone = makePhotoIndex([{ id: 'x', lon: 12, lat: 45, takenAt: 1 }]).cluster
 assert.deepEqual(lone.map((c) => [c.key, c.count, c.coverId]), [['px', 1, 'x']]);
 
 // Rings up to the farthest event; the place under a point at each level.
-assert.equal(distanceRings([12.37, 45.63], 25).map((r) => r.km).join(','), '5,10,20');
+assert.deepEqual(distanceRings([-122.42, 37.76], 25, 'mi').map((r) => r.label), ['2 mi', '5 mi', '10 mi']);
+assert.deepEqual(distanceRings([12.37, 45.63], 25, 'km').map((r) => r.label), ['5 km', '10 km', '20 km']);
 assert.deepEqual(placeAt(12.37, 45.63, 'province'), { level: 'province', id: 'TV' });
 assert.deepEqual(placeAt(12.37, 45.63, 'region'), { level: 'region', id: '05' });
 assert.deepEqual(placeAt(-30, 40, 'country'), null);

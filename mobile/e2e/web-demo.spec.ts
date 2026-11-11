@@ -200,7 +200,7 @@ test('the passport opens from your world', async ({ page }) => {
   await startWithGallery(page);
   await page.getByText('Your world').click();
   const passport = page.getByTestId('passport');
-  await expect(passport.getByText('Traveller')).toBeVisible();
+  await expect(passport.getByText('Traveler')).toBeVisible();
   await expect(passport.getByText('4 more countries to become Explorer')).toBeVisible();
   await expect(passport.getByRole('button', { name: 'Stop using the gallery' })).toBeAttached();
   expect(errors).toEqual([]);

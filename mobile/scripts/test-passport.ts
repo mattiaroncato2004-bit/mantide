@@ -17,7 +17,7 @@ const ids = (key: 'country' | 'region' | 'province') => [...new Set(places.map((
 const p = passport({ country: ids('country'), region: ids('region'), province: ids('province') }, 'ITA');
 
 assert.equal(p.countries.visited, 6);
-assert.equal(p.level.name, 'Traveller');
+assert.equal(p.level.name, 'Traveler');
 assert.deepEqual(p.level.next, { name: 'Explorer', missing: 4 });
 assert.equal(p.continents.find((c) => c.name === 'Europe')?.visited, 6);
 assert.ok(p.byCountry.some((c) => c.name === 'France'), 'country names follow the language');

@@ -76,6 +76,6 @@ If the photos don't show up, restart the emulator. To use your own photos, copy 
 3. The sheet reads **Your world · 6 countries · …** and the countries light up; zooming in lights their regions, then provinces, and the photos group into numbered pins.
 4. Tap the arrow top right (**Back to me**), then pull the sheet up: **For you here** lists events around H-FARM, each with why it was picked.
 5. **▶ Timeline**, in the sheet when you're zoomed out, plays the journey to "photo 45 of 45".
-6. Tap **Your world**: the **passport** says Traveller and "4 more to Explorer", and lists what you photograph.
+6. Tap **Your world**: the **passport** says Traveler and "4 more to Explorer", and lists what you photograph.
 
 `cd mobile && npx tsx scripts/simulate-demo.ts` prints the same numbers without Android.

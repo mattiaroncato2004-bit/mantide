@@ -1,6 +1,6 @@
 // The string layer: language choice and interpolation. Run: npx tsx scripts/test-i18n.ts
 import assert from 'node:assert/strict';
-import { pickLocale, setLocaleForTests, t, tc } from '../src/i18n';
+import { formatDate, formatDistance, pickLocale, pickRegion, setLocaleForTests, t, tc } from '../src/i18n';
 
 assert.equal(pickLocale(['it-IT']), 'it');
 assert.equal(pickLocale(['de-DE', 'it-CH']), 'it');
@@ -19,5 +19,24 @@ setLocaleForTests('it');
 assert.ok(!t('gemma.web').includes('questo computer'), t('gemma.web'));
 assert.equal(tc('count.countries', 1), '1 paese');
 assert.equal(tc('count.countries', 6), '6 paesi');
+
+// Region decides miles and the date style.
+assert.equal(pickRegion(['en-US']), 'US');
+assert.equal(pickRegion(['es-US']), 'US');
+assert.equal(pickRegion(['en']), undefined);
+const d = Date.UTC(2026, 10, 7, 12);
+setLocaleForTests('en', 'US');
+assert.equal(formatDate(d, 'day-month'), 'Nov 7');
+assert.equal(formatDate(d, 'medium'), 'Nov 7, 2026');
+assert.equal(formatDistance(16.09), '10 mi');
+assert.equal(t('level.traveller'), 'Traveler');
+setLocaleForTests('en', 'GB');
+assert.equal(formatDate(d, 'day-month'), '7 Nov');
+assert.equal(formatDistance(16.09), '10 mi');
+setLocaleForTests('en', 'DE');
+assert.equal(formatDistance(16.09), '16 km');
+setLocaleForTests('it', 'IT');
+assert.equal(formatDate(d, 'day-month'), '7 nov');
+assert.equal(formatDistance(16.09), '16 km');
 
 console.log('i18n: ok');

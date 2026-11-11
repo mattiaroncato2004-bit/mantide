@@ -4,6 +4,7 @@
 import type { Feature, FeatureCollection, LineString, MultiPolygon, Polygon } from 'geojson';
 import Supercluster, { type ClusterProperties } from 'supercluster';
 import { AREAS, locate, mainBoxOf, type AreaFeature } from '../geo/locate';
+import { KM_PER_MILE } from '../i18n';
 import type { Level } from '../types';
 
 export type ZoomLevel = Level;
@@ -156,17 +157,20 @@ const KM_PER_DEG_LAT = 110.57;
 const kmPerDegLon = (lat: number) => 111.32 * Math.cos((lat * Math.PI) / 180);
 
 // Up to three rings at round distances, the outer one reaching the farthest event; labels north-east.
-export function distanceRings(center: [number, number], farthestKm: number) {
+// Steps are round in the unit shown; `km` is the ring's real radius.
+export function distanceRings(center: [number, number], farthestKm: number, unit: 'km' | 'mi') {
   const [lon, lat] = center;
-  const steps = [1, 2, 5, 10, 20, 50, 100].filter((r) => r <= Math.max(farthestKm, 5) * 1.15).slice(-3);
-  return steps.map((km) => {
+  const perUnit = unit === 'mi' ? KM_PER_MILE : 1;
+  const steps = [1, 2, 5, 10, 20, 50, 100].filter((r) => r <= Math.max(farthestKm / perUnit, 5) * 1.15).slice(-3);
+  return steps.map((step) => {
+    const km = step * perUnit;
     const coordinates = Array.from({ length: 73 }, (_, i) => {
       const t = (i / 72) * 2 * Math.PI;
       return [lon + (km / kmPerDegLon(lat)) * Math.cos(t), lat + (km / KM_PER_DEG_LAT) * Math.sin(t)];
     });
     const d = km * Math.SQRT1_2;
     const ring: Feature<LineString> = { type: 'Feature', geometry: { type: 'LineString', coordinates }, properties: {} };
-    return { km, ring, labelAt: [lon + d / kmPerDegLon(lat), lat + d / KM_PER_DEG_LAT] as [number, number] };
+    return { km, label: `${step} ${unit}`, ring, labelAt: [lon + d / kmPerDegLon(lat), lat + d / KM_PER_DEG_LAT] as [number, number] };
   });
 }
 

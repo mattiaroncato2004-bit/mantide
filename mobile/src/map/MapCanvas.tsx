@@ -98,7 +98,7 @@ export function MapCanvas(p: MapCanvasProps) {
       )}
       {p.rings.map((r) => (
         <Marker key={r.km} lngLat={r.labelAt}>
-          <Text style={styles.label}>{r.km} km</Text>
+          <Text style={styles.label}>{r.label}</Text>
         </Marker>
       ))}
     </Map>

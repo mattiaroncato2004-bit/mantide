@@ -100,7 +100,7 @@ export const en = {
   'passport.byCountry': 'Regions by country',
 
   'level.tourist': 'Tourist',
-  'level.traveller': 'Traveller',
+  'level.traveller': 'Traveler',
   'level.explorer': 'Explorer',
   'level.globetrotter': 'Globetrotter',
   'level.legend': 'Legend',

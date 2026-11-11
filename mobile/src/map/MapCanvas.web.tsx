@@ -200,7 +200,7 @@ function syncMarkers(map: MapLibreMap, p: MapCanvasProps, pins: Map<string, Mark
   for (const r of p.rings) {
     const el = document.createElement('div');
     el.className = 'mt-label';
-    el.textContent = `${r.km} km`;
+    el.textContent = r.label;
     extras.current.markers.push(new maplibregl.Marker({ element: el }).setLngLat(r.labelAt).addTo(map));
   }
 }

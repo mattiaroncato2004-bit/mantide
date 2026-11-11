@@ -4,7 +4,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { why, type Recommendation } from '../events/recommend';
 import { countryOfRegion, levelWords } from '../geo/locate';
-import { formatDate, t, tc } from '../i18n';
+import { formatDate, formatDistance, t, tc } from '../i18n';
 import type { Count } from '../stats/passport';
 import { C, F, R } from '../theme';
 import type { Level } from '../types';
@@ -82,11 +82,11 @@ export function PlaceSheet({ suggestions, selectedEvent, onSelectEvent, empty, n
             {first.image ? (
               <View>
                 <Image source={photoSource(first.image)} style={styles.cover} />
-                <Text style={styles.badge}>{when(first.rec)} · {Math.round(first.km)} km</Text>
+                <Text style={styles.badge}>{when(first.rec)} · {formatDistance(first.km)}</Text>
               </View>
             ) : null}
             <View style={styles.cardBody}>
-              {first.image ? null : <Text style={styles.meta}>{when(first.rec)} · {Math.round(first.km)} km</Text>}
+              {first.image ? null : <Text style={styles.meta}>{when(first.rec)} · {formatDistance(first.km)}</Text>}
               <Text style={styles.cardTitle} numberOfLines={2}>{first.rec.event.title}</Text>
               <Text style={styles.why} numberOfLines={2}>{why(first.rec)}</Text>
             </View>
