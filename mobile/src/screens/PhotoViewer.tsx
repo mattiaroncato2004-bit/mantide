@@ -7,6 +7,7 @@ import { nameOf } from '../geo/locate';
 import { formatDate, t } from '../i18n';
 import type { Photo } from '../gallery/photos';
 import { C, F } from '../theme';
+import { photoSource } from '../ui/photoSource';
 
 type Props = {
   photo: Photo;
@@ -29,7 +30,7 @@ export function PhotoViewer({ photo, analysis, onClose, topInset, bottomInset }:
           <Text style={styles.when}>{formatDate(photo.takenAt, 'long')}</Text>
         </View>
       </View>
-      <Image source={{ uri: photo.uri }} style={styles.image} resizeMode="contain" />
+      <Image source={photoSource(photo.uri)} style={styles.image} resizeMode="contain" />
       {analysis && (
         <View style={[styles.info, { paddingBottom: bottomInset + 18 }]}>
           <Text style={styles.label}>{t('preview.gemmaSaw')}</Text>

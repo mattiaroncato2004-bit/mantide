@@ -5,6 +5,7 @@ import { nameOf } from '../geo/locate';
 import { formatDate, t, tc } from '../i18n';
 import type { Photo } from '../gallery/photos';
 import { C, F } from '../theme';
+import { photoSource } from '../ui/photoSource';
 
 type Props = {
   photos: Photo[];
@@ -46,7 +47,7 @@ export function PhotoGroup({ photos, thumbs, title, onOpen, onClose, topInset, b
             accessibilityLabel={t('photos.open', { date: date(p.takenAt) })}
             testID="group-photo"
           >
-            <Image source={{ uri: thumbs[p.id] ?? p.uri }} style={styles.image} />
+            <Image source={photoSource(thumbs[p.id] ?? p.uri)} style={styles.image} />
           </Pressable>
         ))}
       </ScrollView>

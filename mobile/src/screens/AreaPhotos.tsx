@@ -3,6 +3,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { t } from '../i18n';
 import { C, F, R } from '../theme';
+import { photoSource } from '../ui/photoSource';
 
 const SHOWN = 40;
 
@@ -31,7 +32,7 @@ export function AreaPhotos({ photos, onOpen, onSeeAll, consent }: Props) {
       <View style={styles.grid}>
         {photos.slice(0, SHOWN).map((p) => (
           <Pressable key={p.id} onPress={() => onOpen(p.id)} style={styles.cell} accessibilityRole="imagebutton" testID="area-photo">
-            <Image source={{ uri: p.uri }} style={styles.image} />
+            <Image source={photoSource(p.uri)} style={styles.image} />
           </Pressable>
         ))}
       </View>

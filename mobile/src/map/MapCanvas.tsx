@@ -8,6 +8,7 @@ import { C, F } from '../theme';
 import type { Level } from '../types';
 import { baseStyle, OVERLAY_LAYERS } from './style';
 import type { MapCanvasProps } from './types';
+import { photoSource } from '../ui/photoSource';
 
 const EMPTY = { type: 'FeatureCollection' as const, features: [] };
 const layers = (source: string) => OVERLAY_LAYERS.filter((l) => 'source' in l && l.source === source);
@@ -75,7 +76,7 @@ export function MapCanvas(p: MapCanvasProps) {
             accessibilityRole="imagebutton"
             style={styles.pinWrap}
           >
-            <View style={styles.pin}>{p.thumbs[c.coverId] ? <Image source={{ uri: p.thumbs[c.coverId] }} style={styles.thumb} /> : null}</View>
+            <View style={styles.pin}>{p.thumbs[c.coverId] ? <Image source={photoSource(p.thumbs[c.coverId])} style={styles.thumb} /> : null}</View>
             <View style={styles.point} />
             {c.count > 1 && (
               <View style={styles.badge}>

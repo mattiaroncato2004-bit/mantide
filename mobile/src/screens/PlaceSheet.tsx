@@ -7,6 +7,7 @@ import { formatDate, t, tc } from '../i18n';
 import type { Count } from '../stats/passport';
 import { C, F, R } from '../theme';
 import type { Level } from '../types';
+import { photoSource } from '../ui/photoSource';
 
 const FILL = 'rgba(255, 255, 255, 0.07)';
 const CHILD_UNIT = { country: 'unit.region', region: 'unit.province', province: 'unit.province' } as const;
@@ -72,7 +73,7 @@ export function PlaceSheet({ suggestions, selectedEvent, onSelectEvent, empty, n
           >
             {first.image ? (
               <View>
-                <Image source={{ uri: first.image }} style={styles.cover} />
+                <Image source={photoSource(first.image)} style={styles.cover} />
                 <Text style={styles.badge}>{when(first.rec)} · {Math.round(first.km)} km</Text>
               </View>
             ) : null}
@@ -91,7 +92,7 @@ export function PlaceSheet({ suggestions, selectedEvent, onSelectEvent, empty, n
               accessibilityLabel={t('place.showOnMap', { title: rec.event.title })}
               testID="suggestion"
             >
-              {image ? <Image source={{ uri: image }} style={styles.thumb} /> : <View style={styles.thumb} />}
+              {image ? <Image source={photoSource(image)} style={styles.thumb} /> : <View style={styles.thumb} />}
               <View style={styles.rowText}>
                 <Text style={styles.rowTitle} numberOfLines={1}>{rec.event.title}</Text>
                 <Text style={styles.rowWhy} numberOfLines={1}>{when(rec)} · {why(rec)}</Text>
@@ -115,7 +116,7 @@ export function PlaceSheet({ suggestions, selectedEvent, onSelectEvent, empty, n
           <View style={styles.grid}>
             {photos.slice(0, 8).map((p) => (
               <Pressable key={p.id} onPress={() => onOpenPhoto(p.id)} style={styles.cell} accessibilityRole="imagebutton">
-                <Image source={{ uri: p.uri }} style={styles.cellImage} />
+                <Image source={photoSource(p.uri)} style={styles.cellImage} />
               </Pressable>
             ))}
           </View>
