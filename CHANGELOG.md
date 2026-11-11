@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- The README lists what the Android emulator run now checks: the sheet without the gallery, the place sheet after reading the gallery, and the back button.
 - Android: the distance rings around you show (solid now: dashed lines don't appear on Android's emulator renderer), and "You are here" appears from the phone's last known position while a fresh GPS fix is on its way.
 - The main screen is the map and one sheet, as in the iPhone Photos map. Zooming lights up countries, then regions, then provinces. The sheet shows your world far out, the photos in view at middle height, and the place you're looking at at full height, with "For you here" first. Two map buttons (style, back to me), a full-screen photo with what Gemma saw, and Android's back button going back one step at a time. The header, the scale switcher and the Local panel are gone; your interests and "Stop using the gallery" moved to the passport.
 - Inter replaces the hackathon fonts; translucent materials; a three-height bottom sheet with iOS-like settling. Needs a rebuild (font packages).

@@ -95,8 +95,9 @@ On Android, with an emulator or a phone: [docs/android-setup.md](docs/android-se
 - **Every push** ([ci.yml](.github/workflows/ci.yml)): typecheck, unit tests, and the web demo end to end.
 - **Every push to `main`** ([android.yml](.github/workflows/android.yml)): the Android release APK is built and run on an emulator. The run checks:
   - the welcome screen;
-  - the main screen and the Local panel;
-  - reading the 45 demo photos from the gallery, down to "6 countries · 11 regions · 13 provinces".
+  - the map and its sheet without the gallery, down to the offer to connect it;
+  - reading the 45 demo photos from the gallery, down to "6 countries" and the place sheet's suggestions from Gemma's earlier answers;
+  - Android's back button, one step at a time: the photo, the grid, the sheet, then out of the app.
 
 **Not yet verified:**
 
