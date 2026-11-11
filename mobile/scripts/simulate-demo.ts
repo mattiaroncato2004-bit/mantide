@@ -1,5 +1,5 @@
 // Runs the demo's logic on the demo data, without Android: places from GPS, the interest
-// profile from Gemma's saved answers, and the events shown at each scale from H-FARM.
+// profile from Gemma's saved answers, and the events shown at each scale from the demo traveler's home.
 // Run: npx tsx scripts/simulate-demo.ts
 import { readFileSync } from 'node:fs';
 import { DETAILED, levelWords, locate, nameOf, provinceCount, regionCount } from '../src/geo/locate';
@@ -39,21 +39,21 @@ for (const a of Object.values(analyses)) for (const i of a.interests) counts[i] 
 const profile = profileFromCounts(counts);
 console.log('\nInterests:', profile.map((w) => `${labelOf(w.id)} ${w.photoCount}`).join(' · '));
 
-// Suggestions at each scale, from the emulator's position at H-FARM (Roncade).
-const focus: Focus = { country: 'ITA', region: '05', lat: 45.6297, lon: 12.3766 };
+// Suggestions at each scale, from the demo traveler's home (the Mission District, San Francisco).
+const focus: Focus = { country: 'USA', region: 'US-CA', lat: 37.7599, lon: -122.4148 };
 for (const scale of ['global', 'national', 'regional', 'local'] as Scale[]) {
-  const recs = recommend(EVENTS, profile, scale, focus, new Date('2026-10-24'));
+  const recs = recommend(EVENTS, profile, scale, focus, new Date('2026-11-11'));
   console.log(`\nFor you · ${scale} (${recs.length})`);
   for (const r of recs.slice(0, 3)) console.log(`  ${r.event.title} (${r.event.city}) — ${why(r)}`);
 }
 
 // The place sheet, when you tap an area on the map.
 const sheets = [
-  { label: 'Veneto (region)', inPlace: (e: (typeof EVENTS)[number]) => e.region === '05', photos: places.filter((p) => p.region === '05').length },
-  { label: 'Venezia (province)', inPlace: (e: (typeof EVENTS)[number]) => locate(e.lat, e.lon).province === 'VE', photos: places.filter((p) => p.province === 'VE').length },
+  { label: 'California (region)', inPlace: (e: (typeof EVENTS)[number]) => e.region === 'US-CA', photos: places.filter((p) => p.region === 'US-CA').length },
+  { label: 'San Francisco (county)', inPlace: (e: (typeof EVENTS)[number]) => locate(e.lat, e.lon).province === 'US-06075', photos: places.filter((p) => p.province === 'US-06075').length },
 ];
 for (const sheet of sheets) {
-  const recs = recommendIn(EVENTS, profile, sheet.inPlace, focus, new Date('2026-10-24'));
+  const recs = recommendIn(EVENTS, profile, sheet.inPlace, focus, new Date('2026-11-11'));
   console.log(`\nPlace sheet · ${sheet.label}: ${sheet.photos} photos, ${recs.length} events`);
   for (const r of recs.slice(0, 2)) console.log(`  ${r.event.title} (${r.event.city}) — ${why(r)}`);
 }

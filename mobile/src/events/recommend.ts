@@ -14,7 +14,7 @@ export type Event = {
   end?: string; // ISO date, inclusive
   city: string;
   country: string; // Natural Earth ADM0_A3
-  region?: string; // region id, only in a country with detailed levels: ISTAT code in Italy, "US-CA" in the USA
+  region?: string; // region id, set only when isDetailed(country): ISTAT code in Italy, "US-CA" in the USA
   lat: number;
   lon: number;
   scale: Scale;
