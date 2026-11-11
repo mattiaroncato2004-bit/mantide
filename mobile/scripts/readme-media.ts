@@ -56,14 +56,14 @@ async function main() {
 
     // 1. Far out: your world.
     await shot('1-world.jpg');
-    // 2. Italy, with the photos in view.
-    await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [12.5, 42.4], zoom: 4.7 }));
+    // 2. The US by state, with the photos in view.
+    await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [-113, 29], zoom: 3.6 }));
     await page.waitForTimeout(3000);
     await dragSheet(page, 844 - 388);
     await page.waitForTimeout(2000);
     await shot('2-country.jpg');
-    // 3. Veneto: the place sheet, "For you here" first.
-    await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [12.3, 45.6], zoom: 7 }));
+    // 3. San Francisco: the place sheet, "For you here" first.
+    await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [-122.44, 37.76], zoom: 9.5 }));
     await page.waitForTimeout(1500);
     await dragSheet(page, 844 - 760);
     await page.waitForTimeout(3000);
@@ -76,7 +76,7 @@ async function main() {
     await page.waitForTimeout(1200);
     await shot('4-passport.jpg');
 
-    // The GIF: from the world to Veneto, a pin's photos, the sheet raised.
+    // The GIF: from the world to San Francisco, a pin's photos, the sheet raised.
     const small = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, locale: 'en-US' });
     await small.route('**/v1/chat/completions', (route) => route.abort());
     await small.goto(`${URL}?reset`);
@@ -87,7 +87,7 @@ async function main() {
     const frame = async (delay: number) => frames.push({ png: await small.screenshot(), delay });
 
     await frame(1400);
-    await small.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.flyTo({ center: [12.3, 45.6], zoom: 7.2, duration: 3600 }));
+    await small.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.flyTo({ center: [-122.44, 37.76], zoom: 9.7, duration: 3600 }));
     for (let i = 0; i < 12; i++) {
       await small.waitForTimeout(260);
       await frame(160);

@@ -8,23 +8,23 @@
 [![Winner: Best Open-Source AI Project, Hacktoberfest 2026](https://img.shields.io/badge/🏆_winner-Best_Open--Source_AI_Project_·_Hacktoberfest_2026-ff6b35)](docs/hackathon.md)
 
 <p align="center">
-  <img src="docs/images/demo.gif" width="292" alt="Zooming from the globe to Veneto: visited areas light up, photos sit on the map, the sheet rises to suggestions for you there">
+  <img src="docs/images/demo.gif" width="292" alt="Zooming from the globe to San Francisco: visited areas light up, photos sit on the map, the sheet rises to suggestions for you there, in miles">
 </p>
 
 <p>
-  <img src="docs/images/1-world.jpg" width="200" alt="Far out: the countries you've visited lit up, and your world in the sheet">
-  <img src="docs/images/2-country.jpg" width="200" alt="Italy's visited regions, with the photos in view in the sheet">
-  <img src="docs/images/3-place.jpg" width="200" alt="Veneto's place sheet: events for you first, each with the reason and one of your photos">
-  <img src="docs/images/4-passport.jpg" width="200" alt="The passport: level, share of the world, regions and what you photograph">
+  <img src="docs/images/1-world.jpg" width="200" alt="Far out: the globe on North America, the countries you've visited lit up, and your world in the sheet">
+  <img src="docs/images/2-country.jpg" width="200" alt="The western US: California and Texas lit up, with the photos in view in the sheet">
+  <img src="docs/images/3-place.jpg" width="200" alt="San Francisco's place sheet: events for you first, with distances in miles, each with the reason and one of your photos">
+  <img src="docs/images/4-passport.jpg" width="200" alt="The passport: level, share of the world, states and counties and what you photograph">
 </p>
 
-Mantide is an open-source Android app for travellers. It reads the date and GPS of every photo in your gallery and lights up the countries, regions and provinces you've been to. **Gemma 4**, Google's open model, looks at what you photograph to learn what you love, and suggests events near you with the reason ("You have 14 photos of architecture"). Gemma runs on hardware you own: your photos never leave it.
+Mantide is an open-source Android app for travelers. It reads the date and GPS of every photo in your gallery and lights up the countries you've been to, then the states and counties in the US (regions and provinces elsewhere). **Gemma 4**, Google's open model, looks at what you photograph to learn what you love, and suggests events near you with the reason ("You have 14 photos of architecture"). Gemma runs on hardware you own: your photos never leave it.
 
-**Try it:** [web demo](https://mattiaroncato2004-bit.github.io/mantide/), a fictional traveller's gallery in your browser. The Android APK comes with the next release.
+**Try it:** [web demo](https://mattiaroncato2004-bit.github.io/mantide/), a fictional San Francisco traveler's gallery in your browser. The Android APK comes with the next release.
 
 ## What it does
 
-- **The iPhone Photos map, on Android:** a satellite map (a globe in the browser) where the countries you've visited light up; zoom in for their regions, then provinces, with your photos on the map in numbered groups. Tap a place to fly into it.
+- **The iPhone Photos map, on Android:** a satellite map (a globe in the browser) where the countries you've visited light up; zoom in for their states and counties in the US (regions and provinces elsewhere), with your photos on the map in numbered groups. Tap a place to fly into it.
 - **One sheet that follows what you look at:** your world far out, the photos in view as you pull it up, then the place itself: three small numbers and "For you here" first.
 - **Your photos say what you love:** Gemma 4 labels a sample of your photos with 12 interests; you can remove any of them in the passport.
 - **Events for you where you're looking,** each with why it was picked and one of your photos that explains it; tap one to see it on the map.
@@ -39,7 +39,7 @@ Your photos and your movements are the most private data there is: where you liv
 
 - **No server, no account.** Nothing is uploaded; anyone can read the code.
 - **Gemma 4 runs locally:** on your own computer today, on the phone itself next (see [roadmap](#status-and-roadmap)).
-- **Open data:** MapLibre, Natural Earth, ISTAT boundaries, Sentinel-2 imagery.
+- **Open data:** MapLibre, Natural Earth, US Census and ISTAT boundaries, Sentinel-2 imagery.
 
 ## Why
 
@@ -52,7 +52,7 @@ Your photos and your movements are the most private data there is: where you liv
 ```
 Android phone (mobile/: Expo, React Native, TypeScript)
 ├── Gallery: date and GPS of every photo (expo-media-library, ACCESS_MEDIA_LOCATION)
-├── Places: point → country, region, province, offline (src/geo)
+├── Places: point → country, state or region, county or province, offline (src/geo)
 ├── Map: native MapLibre (MapLibre GL JS in the browser), satellite imagery, visited areas, photo pins (src/map)
 ├── Interests and suggestions: plain code over Gemma's labels (src/events)
 └── Storage: SQLite on the device
@@ -69,10 +69,10 @@ The same code runs in a browser, where platform-specific pieces have a `.web.ts(
 | Part | Status |
 |---|---|
 | Reading photos, dates and GPS from the gallery | Real |
-| Map, regions, visited areas, timeline, passport | Real |
+| Map, states and regions, visited areas, timeline, passport | Real |
 | Interests | Real: Gemma 4 E2B labels a sample of your photos on your hardware |
-| Events | **Sample:** 46 invented events around Italy and Europe ([events.json](mobile/src/events/events.json)); real open-data events are next |
-| Demo gallery | **Sample:** 45 open-licensed photos with invented GPS and dates for a fictional traveller ([demo-data/](demo-data/)); "Try with sample photos" loads them on a phone, with Gemma's prepared answers |
+| Events | **Sample:** 46 invented events around the US and abroad ([events.json](mobile/src/events/events.json)); real open-data events are next |
+| Demo gallery | **Sample:** 45 open-licensed photos with invented GPS and dates for a fictional San Francisco traveler ([demo-data/](demo-data/)); "Try with sample photos" loads them on a phone, with Gemma's prepared answers |
 | Web demo | Gemma can't run for a visitor: it shows the answers Gemma gave earlier on the demo photos, and says so |
 
 ## Run it
@@ -123,7 +123,7 @@ Built by **Mattia Roncato** and **Giorgio Caligiuri** at the Hacktoberfest hack 
 - [Gemma 4](https://ai.google.dev/gemma) by Google (Apache 2.0), run with [LiteRT-LM](https://developers.google.com/edge/litert-lm)
 - [MapLibre GL JS](https://maplibre.org) (BSD-3-Clause)
 - Satellite imagery: [Sentinel-2 cloudless 2016](https://s2maps.eu) by EOX IT Services (CC BY 4.0), contains modified Copernicus Sentinel data
-- Boundaries and place names: [Natural Earth](https://www.naturalearthdata.com) (public domain) and [openpolis/geojson-italy](https://github.com/openpolis/geojson-italy) (CC BY 4.0, ISTAT data), see [mobile/src/geo/README.md](mobile/src/geo/README.md)
+- Boundaries and place names: [Natural Earth](https://www.naturalearthdata.com) (public domain), [US Census Bureau cartographic boundary files](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html) (public domain) and [openpolis/geojson-italy](https://github.com/openpolis/geojson-italy) (CC BY 4.0, ISTAT data), see [mobile/src/geo/README.md](mobile/src/geo/README.md)
 - Demo photos: Wikimedia Commons authors, listed in [demo-data/CREDITS.md](demo-data/CREDITS.md)
 
 ## License

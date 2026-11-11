@@ -9,6 +9,7 @@
 - Miles and US date formats when the device region is the US (miles in the UK too, kilometers elsewhere), and American spelling in English ("Traveler").
 - Counts have thousands separators ("14/3,144"), the Italian "all seen" line fits states and counties, Washington D.C. and Mexico City have their own names, and the Seattle hike sample event says what it is.
 - The USA at the same depth as Italy: zooming in lights up states, then counties (US Census Bureau boundaries), and the place sheet and the passport count states and counties there.
+- The README, its screenshots and the GIF show the US: the globe on North America, California and Texas lit, San Francisco with distances in miles, and the passport with states and counties.
 - Plan for the America stage: [design](docs/superpowers/specs/2026-11-11-america-design.md) and [plan](docs/superpowers/plans/2026-11-11-stage-2b-america.md).
 
 ## 0.3.0 · Stage 2a: the Photos map
