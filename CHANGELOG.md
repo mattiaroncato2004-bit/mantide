@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- US counties from the Census 1:5m boundaries at about 100 m precision: Manhattan, Brooklyn and independent cities like St. Louis no longer land in a neighboring county.
 - The sample photos are a new demo traveler who lives in San Francisco: 45 photos from the Mission, California, five other states, Mexico City, Banff, Tokyo, Rome and London, with Gemma's answers run again on them.
 - Miles and US date formats when the device region is the US (miles in the UK too, kilometers elsewhere), and American spelling in English ("Traveler").
 - The USA at the same depth as Italy: zooming in lights up states, then counties (US Census Bureau boundaries), and the place sheet and the passport count states and counties there.

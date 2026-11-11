@@ -55,6 +55,19 @@ const US: [string, number, number, Place][] = [
   ['Miami Beach', 25.7907, -80.13, { country: 'USA', region: 'US-FL', province: 'US-12086' }],
   ['Key West (island)', 24.5551, -81.78, { country: 'USA', region: 'US-FL', province: 'US-12087' }],
   ['Bay off Pier 39 (water)', 37.811, -122.41, { country: 'USA', region: 'US-CA', province: 'US-06075' }],
+  // No country within 0.25° (Natural Earth's 1:50m USA has no Keys): the nearest county.
+  ['Sea off Key West (water)', 24.5, -81.8, { country: 'USA', region: 'US-FL', province: 'US-12087' }],
+  // Small counties and independent cities: they need ~100 m precision.
+  ['The Met, Manhattan', 40.7794, -73.9632, { country: 'USA', region: 'US-NY', province: 'US-36061' }],
+  ['Upper East Side', 40.7736, -73.9566, { country: 'USA', region: 'US-NY', province: 'US-36061' }],
+  ['Harlem', 40.8116, -73.9465, { country: 'USA', region: 'US-NY', province: 'US-36061' }],
+  ['Bushwick, Brooklyn', 40.7061, -73.9214, { country: 'USA', region: 'US-NY', province: 'US-36047' }],
+  ['The Bronx', 40.8448, -73.8648, { country: 'USA', region: 'US-NY', province: 'US-36005' }],
+  ['St. Louis (independent city)', 38.627, -90.1994, { country: 'USA', region: 'US-MO', province: 'US-29510' }],
+  ['Baltimore (independent city)', 39.2904, -76.6122, { country: 'USA', region: 'US-MD', province: 'US-24510' }],
+  ['Alexandria VA (independent city)', 38.8048, -77.0469, { country: 'USA', region: 'US-VA', province: 'US-51510' }],
+  ['Arlington VA', 38.8816, -77.091, { country: 'USA', region: 'US-VA', province: 'US-51013' }],
+  ['Richmond VA (independent city)', 37.5407, -77.436, { country: 'USA', region: 'US-VA', province: 'US-51760' }],
 ];
 for (const [name, lat, lon, expected] of US) {
   assert.deepEqual(locate(lat, lon), expected, name);
@@ -72,7 +85,7 @@ assert.deepEqual(levelWords('FRA'), { region: 'region', province: 'province' });
 assert.ok(isDetailed('USA') && isDetailed('ITA') && !isDetailed('FRA'));
 assert.equal(nameOf('region', 'US-CA'), 'California');
 assert.deepEqual(placeOfProvince('US-06075'), { country: 'USA', region: 'US-CA' });
-assert.ok(statSync('src/geo/us-states.json').size + statSync('src/geo/us-counties.json').size < 900 * 1024);
+assert.ok(statSync('src/geo/us-states.json').size + statSync('src/geo/us-counties.json').size < 1.5 * 1024 * 1024);
 // Natural Earth's US states left world-regions.json: the Census states replace them.
 assert.equal(countryOfRegion('USA-3521'), undefined);
 // State names in Italian where they differ.
