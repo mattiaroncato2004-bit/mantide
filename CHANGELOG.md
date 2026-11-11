@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Home and the first map view are in San Francisco and North America: the demo traveler starts in the Mission District, and the web and Android tests follow.
 - The 46 sample events are now around the US: San Francisco, California, other states, and cities like Mexico City, Tokyo, Vancouver, Paris, London and Rome (all invented, with US dollars and local currencies).
 - US counties from the Census 1:5m boundaries at about 100 m precision: Manhattan, Brooklyn and independent cities like St. Louis no longer land in a neighboring county.
 - The sample photos are a new demo traveler who lives in San Francisco: 45 photos from the Mission, California, five other states, Mexico City, Banff, Tokyo, Rome and London, with Gemma's answers run again on them.

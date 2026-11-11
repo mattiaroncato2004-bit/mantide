@@ -68,17 +68,29 @@ test('tapping a numbered pin shows its photos oldest first', async ({ page }) =>
 test('the place sheet leads with suggestions', async ({ page }) => {
   const errors = watchErrors(page);
   await startWithGallery(page);
-  await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [12.3, 45.6], zoom: 7 }));
-  await expect(page.getByRole('heading', { name: 'Veneto' })).toBeVisible();
+  await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [-122.3, 37.6], zoom: 7 }));
+  await expect(page.getByRole('heading', { name: 'California' })).toBeVisible();
   await sheetTo(page, 'high');
 
   const sheet = page.getByTestId('sheet-high');
   await expect(sheet.getByTestId('suggestion').first()).toBeVisible({ timeout: 30_000 });
-  expect(await sheet.getByRole('heading').allTextContents()).toEqual(['Veneto', 'For you here', 'Photos']);
+  expect(await sheet.getByRole('heading').allTextContents()).toEqual(['California', 'For you here', 'Photos']);
   const first = sheet.getByTestId('suggestion').first();
   // react-native-web adds the <img> once the photo has loaded.
   await expect(first.locator('img')).toHaveCount(1, { timeout: 15_000 });
   await expect(first.getByText(/^You have \d+ photos? of/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('distances in miles in the US', async ({ page }) => {
+  const errors = watchErrors(page);
+  await startWithGallery(page);
+  await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [-122.3, 37.6], zoom: 7 }));
+  await expect(page.getByRole('heading', { name: 'California' })).toBeVisible();
+  await sheetTo(page, 'high');
+  const first = page.getByTestId('sheet-high').getByTestId('suggestion').first();
+  await expect(first).toBeVisible({ timeout: 30_000 });
+  await expect(first.getByText(/ · \d+ mi$/)).toBeVisible();
   expect(errors).toEqual([]);
 });
 

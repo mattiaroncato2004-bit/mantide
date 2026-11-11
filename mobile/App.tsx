@@ -41,8 +41,8 @@ import Storage from './src/storage';
 import { C, F, R } from './src/theme';
 import type { Level } from './src/types';
 
-// Roncade (TV), home of H-FARM: the demo traveller's home, and yours until the GPS answers.
-const DEFAULT_HOME = { lat: 45.6297, lon: 12.3766 };
+// San Francisco (Mission District): the demo traveler's home, and yours until the GPS answers.
+const DEFAULT_HOME = { lat: 37.7599, lon: -122.4148 };
 const WORLD_ZOOM = 1.4;
 const HOME_ZOOM = 10;
 const TIMELINE_ZOOM = 4;
@@ -78,7 +78,7 @@ function Home() {
   const insets = useSafeAreaInsets();
   const { height: screen } = useWindowDimensions();
   const [choice, setChoice] = useState<GalleryChoice | null | undefined>(undefined); // undefined: still loading
-  // The web demo is a fixed traveller at H-FARM: the browser never asks for the visitor's location.
+  // The web demo is a fixed traveler in San Francisco: the browser never asks for the visitor's location.
   const [home, setHome] = useState(DEFAULT_HOME);
   const [located, setLocated] = useState(Platform.OS === 'web');
   const [photos, setPhotos] = useState<Photo[]>([]);

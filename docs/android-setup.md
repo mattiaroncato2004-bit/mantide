@@ -67,14 +67,14 @@ If the photos don't show up, restart the emulator. To use your own photos, copy 
 
 ## 8. Emulator location
 
-**⋯ (Extended controls) → Location**: search for H-FARM, Roncade and press **Set location**. The sample events are around there.
+**⋯ (Extended controls) → Location**: search for San Francisco and press **Set location**. The sample events are around there.
 
 ## 9. Check it works
 
 1. Allow location when the app asks.
 2. On the welcome screen choose **Use my gallery**, then **Allow all** photos. The sheet at the bottom shows the gallery being read, then Gemma at work.
-3. The sheet reads **Your world · 6 countries · …** and the countries light up; zooming in lights their regions, then provinces, and the photos group into numbered pins.
-4. Tap the arrow top right (**Back to me**), then pull the sheet up: **For you here** lists events around H-FARM, each with why it was picked.
+3. The sheet reads **Your world · 6 countries · …** and the countries light up; zooming in lights their regions, then provinces and counties, and the photos group into numbered pins.
+4. Tap the arrow top right (**Back to me**), then pull the sheet up: **For you here** lists events around San Francisco, each with why it was picked.
 5. **▶ Timeline**, in the sheet when you're zoomed out, plays the journey to "photo 45 of 45".
 6. Tap **Your world**: the **passport** says Traveler and "4 more to Explorer", and lists what you photograph.
 

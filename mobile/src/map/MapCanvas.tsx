@@ -35,7 +35,7 @@ export function MapCanvas(p: MapCanvasProps) {
       attributionPosition={{ top: insets.top + 8, left: 8 }}
       onRegionDidChange={({ nativeEvent: v }) => p.onViewChange({ zoom: v.zoom, bounds: v.bounds, center: v.center, user: v.userInteraction })}
     >
-      <Camera ref={camera} initialViewState={{ center: [12.37, 45.63], zoom: 1.4 }} />
+      <Camera ref={camera} initialViewState={{ center: [-98, 39], zoom: 1.4 }} />
 
       <GeoJSONSource
         id="areas"

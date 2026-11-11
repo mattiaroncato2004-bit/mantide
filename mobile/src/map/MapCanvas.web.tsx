@@ -53,7 +53,7 @@ export function MapCanvas(props: MapCanvasProps) {
     const map = new maplibregl.Map({
       container: host.current as unknown as HTMLElement,
       style: baseStyle(latest.current.basemap) as maplibregl.StyleSpecification | string,
-      center: [12.37, 45.63],
+      center: [-98, 39],
       zoom: 1.4,
       attributionControl: false,
     });
