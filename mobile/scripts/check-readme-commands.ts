@@ -9,7 +9,8 @@ const ci = readFileSync(join(repo, '.github/workflows/ci.yml'), 'utf8');
 const readme = readFileSync(join(repo, 'README.md'), 'utf8');
 
 const checkJob = ci.slice(ci.indexOf('  check:'), ci.indexOf('  deploy-pages:'));
-const ciCommands = [...checkJob.matchAll(/^\s+(?:- )?run: (.+)$/gm)].map((m) => m[1].trim());
+// `a || b` in CI is a fallback for the runner (b when a fails there): the README needs a.
+const ciCommands = [...checkJob.matchAll(/^\s+(?:- )?run: (.+)$/gm)].map((m) => m[1].split(' || ')[0].trim());
 
 const runIt = readme.slice(readme.indexOf('## Run it'));
 const block = runIt.slice(runIt.indexOf('```sh') + 5, runIt.indexOf('```', runIt.indexOf('```sh') + 5));
