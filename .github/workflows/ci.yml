@@ -29,7 +29,9 @@ jobs:
         run: npx expo export --platform android --output-dir /tmp/android-bundle
       - name: Build the web demo
         run: npm run export:web
-      - run: npx playwright install --with-deps chromium
+      # Ubuntu's package mirrors are sometimes unreachable from the runner: GitHub's image already has
+      # the browser's libraries, so fall back to the browser alone (the e2e still fails if one is missing).
+      - run: npx playwright install --with-deps chromium || npx playwright install chromium
       - name: Test the web demo end to end
         run: npm run e2e
       - if: github.ref == 'refs/heads/main' && github.event_name == 'push'

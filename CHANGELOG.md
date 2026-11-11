@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- CI keeps running the web tests when Ubuntu's package mirrors are unreachable.
 - Try with sample photos: a third choice on the welcome loads 45 sample photos (from Wikimedia Commons) with Gemma's prepared answers, so the app can be tried on any Android phone without your own gallery or Gemma. Leaving the samples or stopping the gallery now also forgets the places those photos had marked.
 - The README lists what the Android emulator run now checks: the sheet without the gallery, the place sheet after reading the gallery, and the back button.
 - Android: the distance rings around you show (solid now: dashed lines don't appear on Android's emulator renderer), and "You are here" appears from the phone's last known position while a fresh GPS fix is on its way.
