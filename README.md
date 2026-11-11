@@ -7,11 +7,15 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Winner: Best Open-Source AI Project, Hacktoberfest 2026](https://img.shields.io/badge/🏆_winner-Best_Open--Source_AI_Project_·_Hacktoberfest_2026-ff6b35)](docs/hackathon.md)
 
+<p align="center">
+  <img src="docs/images/demo.gif" width="292" alt="Zooming from the globe to Veneto: visited areas light up, photos sit on the map, the sheet rises to suggestions for you there">
+</p>
+
 <p>
-  <img src="docs/images/1-world.jpg" width="200" alt="The globe with the countries you've visited lit up">
-  <img src="docs/images/2-country.jpg" width="200" alt="Italy's visited regions with photo thumbnails on the map">
-  <img src="docs/images/3-local.jpg" width="200" alt="Around you: distance rings and events matched to your interests">
-  <img src="docs/images/4-passport.jpg" width="200" alt="The travel passport: level, share of the world, continents">
+  <img src="docs/images/1-world.jpg" width="200" alt="Far out: the countries you've visited lit up, and your world in the sheet">
+  <img src="docs/images/2-country.jpg" width="200" alt="Italy's visited regions, with the photos in view in the sheet">
+  <img src="docs/images/3-place.jpg" width="200" alt="Veneto's place sheet: events for you first, each with the reason and one of your photos">
+  <img src="docs/images/4-passport.jpg" width="200" alt="The passport: level, share of the world, regions and what you photograph">
 </p>
 
 Mantide is an open-source Android app for travellers. It reads the date and GPS of every photo in your gallery and lights up the countries, regions and provinces you've been to. **Gemma 4**, Google's open model, looks at what you photograph to learn what you love, and suggests events near you with the reason ("You have 14 photos of architecture"). Gemma runs on hardware you own: your photos never leave it.
@@ -20,11 +24,12 @@ Mantide is an open-source Android app for travellers. It reads the date and GPS 
 
 ## What it does
 
-- **A map of where you've been** on a satellite globe: far out the countries you've visited light up, closer their regions, then provinces. Real regions for every country; tap a place to fly into it.
-- **Your gallery rebuilds your past:** photos appear where you took them, grouped like the iPhone Photos map; tap a group to see them all.
-- **Your photos say what you love:** Gemma 4 labels a sample of your photos with 12 interests; you can remove any of them.
+- **The iPhone Photos map, on Android:** a satellite globe where the countries you've visited light up; zoom in for their regions, then provinces, with your photos on the map in numbered groups. Tap a place to fly into it.
+- **One sheet that follows what you look at:** your world far out, the photos in view as you pull it up, then the place itself: three small numbers and "For you here" first.
+- **Your photos say what you love:** Gemma 4 labels a sample of your photos with 12 interests; you can remove any of them in the passport.
 - **Events for you where you're looking,** each with why it was picked and one of your photos that explains it; tap one to see it on the map.
 - **A timeline** that replays your journeys, and a **passport** with your level, the share of the world you've seen and what's left.
+- **Try it with sample photos** on any phone, without your gallery or Gemma.
 
 In English and Italian, following your phone's language.
 
@@ -67,7 +72,7 @@ The same code runs in a browser, where platform-specific pieces have a `.web.ts(
 | Map, regions, visited areas, timeline, passport | Real |
 | Interests | Real: Gemma 4 E2B labels a sample of your photos on your hardware |
 | Events | **Sample:** 46 invented events around Italy and Europe ([events.json](mobile/src/events/events.json)); real open-data events are next |
-| Demo gallery | **Sample:** 45 open-licensed photos with invented GPS and dates for a fictional traveller ([demo-data/](demo-data/)) |
+| Demo gallery | **Sample:** 45 open-licensed photos with invented GPS and dates for a fictional traveller ([demo-data/](demo-data/)); "Try with sample photos" loads them on a phone, with Gemma's prepared answers |
 | Web demo | Gemma can't run for a visitor: it shows the answers Gemma gave earlier on the demo photos, and says so |
 
 ## Run it
@@ -92,9 +97,9 @@ On Android, with an emulator or a phone: [docs/android-setup.md](docs/android-se
 
 **Verified in CI:**
 
-- **Every push** ([ci.yml](.github/workflows/ci.yml)): typecheck, unit tests, and the web demo end to end.
+- **Every push** ([ci.yml](.github/workflows/ci.yml)): typecheck, unit tests, and the web demo end to end: the sheet at each height, a pin's photos, the place sheet, the sample photos, the timeline, the passport, without the gallery and without Gemma.
 - **Every push to `main`** ([android.yml](.github/workflows/android.yml)): the Android release APK is built and run on an emulator. The run checks:
-  - the welcome screen;
+  - the welcome screen, and trying the sample photos;
   - the map and its sheet without the gallery, down to the offer to connect it;
   - reading the 45 demo photos from the gallery, down to "6 countries" and the place sheet's suggestions from Gemma's earlier answers;
   - Android's back button, one step at a time: the photo, the grid, the sheet, then out of the app.
@@ -106,7 +111,6 @@ On Android, with an emulator or a phone: [docs/android-setup.md](docs/android-se
 
 **Next** ([design](docs/superpowers/specs/2026-11-10-mantide-v1-design.md)):
 
-- A redesign around the iPhone Photos map, with one bottom sheet that follows what you look at.
 - Real events from open data, plus places from OpenStreetMap.
 - Gemma 4 on the phone itself, with LiteRT-LM, on phones with 8 GB of RAM.
 - An APK in Releases.
