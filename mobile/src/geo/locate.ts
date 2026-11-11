@@ -1,9 +1,11 @@
-// Finds the country, region and (in Italy) province that contain a point.
+// Finds the country, region and (in Italy and the USA) province that contain a point.
 // Plain ray casting with a bounding-box prefilter: no dependency, fast enough
 // for a few thousand photos on a phone.
 import countries from './countries.json';
-import regions from './it-regions.json';
-import provinces from './it-provinces.json';
+import itRegions from './it-regions.json';
+import itProvinces from './it-provinces.json';
+import usStates from './us-states.json';
+import usCounties from './us-counties.json';
 import worldRegions from './world-regions.json';
 import worldGroups from './world-groups.json';
 import countryNames from './country-names.json';
@@ -14,7 +16,7 @@ type Ring = number[][];
 type Geometry =
   | { type: 'Polygon'; coordinates: Ring[] }
   | { type: 'MultiPolygon'; coordinates: Ring[][] };
-type Props = { id: string; name: string; region?: string; country?: string; continent?: string; group?: string };
+type Props = { id: string; name: string; name_it?: string; region?: string; country?: string; continent?: string; group?: string };
 type Feature = { properties: Props; geometry: Geometry };
 type Indexed = Feature & { bbox: [number, number, number, number] };
 
@@ -42,8 +44,6 @@ function index(fc: { features: unknown[] }): Indexed[] {
 }
 
 const COUNTRIES = index(countries);
-const REGIONS = index(regions);
-const PROVINCES = index(provinces);
 
 function byCountry(features: Indexed[]): Map<string, Indexed[]> {
   const map = new Map<string, Indexed[]>();
@@ -59,10 +59,30 @@ const WORLD_GROUPS = byCountry(index(worldGroups));
 
 // The indexed boundaries (each feature with its bbox), for the map model in src/map/model.ts.
 export type AreaFeature = Indexed;
+
+// The countries with two detailed levels of their own, and what each calls them: Italy's ISTAT
+// regions and provinces, the USA's Census states and counties. A province's `region` is its region id.
+export type Detailed = {
+  regions: AreaFeature[];
+  provinces: AreaFeature[];
+  words: { region: 'region' | 'state'; province: 'province' | 'county' };
+};
+export const DETAILED: ReadonlyMap<string, Detailed> = new Map<string, Detailed>([
+  ['ITA', { regions: index(itRegions), provinces: index(itProvinces), words: { region: 'region', province: 'province' } }],
+  ['USA', { regions: index(usStates), provinces: index(usCounties), words: { region: 'state', province: 'county' } }],
+]);
+const DETAILED_REGIONS = [...DETAILED.values()].flatMap((d) => d.regions);
+const DETAILED_PROVINCES = [...DETAILED.values()].flatMap((d) => d.provinces);
+
+export const isDetailed = (country: string): boolean => DETAILED.has(country);
+
+// What the two levels are called in a country: states and counties in the USA, regions and provinces elsewhere.
+const PLAIN_WORDS: Detailed['words'] = { region: 'region', province: 'province' };
+export const levelWords = (country: string): Detailed['words'] => DETAILED.get(country)?.words ?? PLAIN_WORDS;
+
 export const AREAS = {
   countries: COUNTRIES,
-  italianRegions: REGIONS,
-  italianProvinces: PROVINCES,
+  detailed: DETAILED,
   worldRegionsByCountry: WORLD_REGIONS,
   worldGroupsByCountry: WORLD_GROUPS,
 };
@@ -123,25 +143,35 @@ function nearest(features: Indexed[], lon: number, lat: number, maxDeg = 0.25): 
   return best;
 }
 
-function italy(province: Indexed | undefined): Place {
-  return { country: 'ITA', region: province?.properties.region, province: province?.properties.id };
+function detailedPlace(country: string, province: Indexed | undefined): Place {
+  return { country, region: province?.properties.region, province: province?.properties.id };
 }
 
-// Italy has regions and provinces (ISTAT); every other country has its first-level regions.
-// Order matters near borders: a point inside France must never snap to an Italian province.
+// Detailed countries (Italy, the USA) have regions and provinces; every other country has its
+// first-level regions. Order matters near borders: a point inside France must never snap to an
+// Italian province, so a province wins by containing the point, or as the nearest one once the
+// country is known, or when no country at all is within reach.
 export function locate(lat: number, lon: number): Place {
-  const province = find(PROVINCES, lon, lat); // more detailed than the Italian country border
-  if (province) return italy(province);
+  for (const [owner, { provinces }] of DETAILED) {
+    const province = find(provinces, lon, lat); // more detailed than the country border
+    if (province) return detailedPlace(owner, province);
+  }
   const country = (find(COUNTRIES, lon, lat) ?? nearest(COUNTRIES, lon, lat))?.properties.id;
-  if (country === 'ITA') return italy(nearest(PROVINCES, lon, lat));
+  const detailed = country ? DETAILED.get(country) : undefined;
+  if (country && detailed) return detailedPlace(country, nearest(detailed.provinces, lon, lat));
+  if (!country) {
+    // Small islands that the 1:50m country borders leave out (Key West): the nearest detailed province.
+    for (const [owner, { provinces }] of DETAILED) {
+      const province = nearest(provinces, lon, lat);
+      if (province) return detailedPlace(owner, province);
+    }
+  }
   const units = (country && WORLD_REGIONS.get(country)) || [];
   const unit = find(units, lon, lat) ?? nearest(units, lon, lat);
   // Spain, France, UK, Portugal: region = the real region, province = the unit inside it.
   if (unit?.properties.group) return { country, region: unit.properties.group, province: unit.properties.id };
   return { country, region: unit?.properties.id };
 }
-
-export const TOTALS = { region: REGIONS.length, province: PROVINCES.length };
 
 // Area in km² on an equirectangular projection around each ring's latitude: within a few percent
 // at this level of simplification, enough for "you've seen 4% of the land".
@@ -165,29 +195,35 @@ export const COUNTRY_INFO = COUNTRIES.map((f) => ({
   areaKm2: areaKm2(f.geometry),
 }));
 
-// How many regions a country has: the 20 ISTAT regions for Italy, the real regions for Spain,
-// France, UK and Portugal, Natural Earth's first-level units elsewhere.
+// How many regions a country has: the regions of a detailed country (20 in Italy, 50 states and DC
+// in the USA), the real regions for Spain, France, UK and Portugal, Natural Earth's first-level units elsewhere.
 export function regionCount(country: string): number {
-  if (country === 'ITA') return REGIONS.length;
-  return (WORLD_GROUPS.get(country) ?? WORLD_REGIONS.get(country))?.length ?? 0;
+  return (DETAILED.get(country)?.regions ?? WORLD_GROUPS.get(country) ?? WORLD_REGIONS.get(country))?.length ?? 0;
 }
 
+// How many provinces a detailed country has (110 in Italy, the counties of the USA); 0 elsewhere.
+export const provinceCount = (country: string): number => DETAILED.get(country)?.provinces.length ?? 0;
+
 const REGION_COUNTRY = new Map<string, string>([
-  ...REGIONS.map((f): [string, string] => [f.properties.id, 'ITA']),
-  ...[...WORLD_REGIONS.entries(), ...WORLD_GROUPS.entries()].flatMap(([country, list]) =>
-    list.map((f): [string, string] => [f.properties.id, country]),
-  ),
+  ...[...DETAILED].flatMap(([country, d]) => d.regions.map((f): [string, string] => [f.properties.id, country])),
+  ...[...WORLD_REGIONS, ...WORLD_GROUPS].flatMap(([country, list]) => list.map((f): [string, string] => [f.properties.id, country])),
 ]);
 
 export const countryOfRegion = (id: string): string | undefined => REGION_COUNTRY.get(id);
 
-// The country and region of a province: an Italian province, or a unit of Spain, France, UK, Portugal.
-export function placeOfProvince(id: string): { country: string; region: string } | undefined {
-  const italian = PROVINCES.find((f) => f.properties.id === id);
-  if (italian) return { country: 'ITA', region: italian.properties.region ?? '' };
-  const unit = [...WORLD_REGIONS.values()].flat().find((f) => f.properties.id === id);
-  return unit && { country: unit.properties.country!, region: unit.properties.group || unit.properties.id };
-}
+// The country and region of a province: one of a detailed country, or a unit of Spain, France, UK, Portugal.
+type Parent = { country: string; region: string };
+const PROVINCE_PARENT = new Map<string, Parent>([
+  ...[...DETAILED].flatMap(([country, d]) =>
+    d.provinces.map((f): [string, Parent] => [f.properties.id, { country, region: f.properties.region ?? '' }]),
+  ),
+  ...[...WORLD_REGIONS.values()].flat().map((f): [string, Parent] => [
+    f.properties.id,
+    { country: f.properties.country!, region: f.properties.group || f.properties.id },
+  ]),
+]);
+
+export const placeOfProvince = (id: string): Parent | undefined => PROVINCE_PARENT.get(id);
 
 // Where the map goes when you tap a place: the middle of its largest piece, so France means
 // mainland France and not a point in the Atlantic between Paris and French Guiana.
@@ -206,7 +242,7 @@ function mainBox(g: Geometry): [number, number, number, number] {
 }
 
 const MAIN_BOXES = new Map<string, [number, number, number, number]>(
-  [...COUNTRIES, ...REGIONS, ...PROVINCES, ...[...WORLD_REGIONS.values()].flat(), ...[...WORLD_GROUPS.values()].flat()].map((f) => [
+  [...COUNTRIES, ...DETAILED_REGIONS, ...DETAILED_PROVINCES, ...[...WORLD_REGIONS.values()].flat(), ...[...WORLD_GROUPS.values()].flat()].map((f) => [
     f.properties.id,
     mainBox(f.geometry),
   ]),
@@ -219,17 +255,17 @@ export function centerOf(id: string): [number, number] | undefined {
   return b && [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
 }
 
-// The areas one level down: a country's regions, a region's provinces (Italy, and the units inside
-// the real regions of Spain, France, the UK and Portugal). Provinces have none.
+// The areas one level down: a country's regions, a region's provinces (detailed countries, and the
+// units inside the real regions of Spain, France, the UK and Portugal). Provinces have none.
 export function childrenOf(level: 'country' | 'region' | 'province', id: string): string[] {
   if (level === 'country') {
-    const list = id === 'ITA' ? REGIONS : (WORLD_GROUPS.get(id) ?? WORLD_REGIONS.get(id) ?? []);
+    const list = DETAILED.get(id)?.regions ?? WORLD_GROUPS.get(id) ?? WORLD_REGIONS.get(id) ?? [];
     return list.map((f) => f.properties.id);
   }
   if (level === 'region') {
-    const italian = PROVINCES.filter((f) => f.properties.region === id);
-    if (italian.length) return italian.map((f) => f.properties.id);
     const country = REGION_COUNTRY.get(id);
+    const detailed = country ? DETAILED.get(country) : undefined;
+    if (detailed) return detailed.provinces.filter((f) => f.properties.region === id).map((f) => f.properties.id);
     const units = country && WORLD_GROUPS.has(country) ? (WORLD_REGIONS.get(country) ?? []) : [];
     return units.filter((f) => f.properties.group === id).map((f) => f.properties.id);
   }
@@ -239,20 +275,25 @@ export function childrenOf(level: 'country' | 'region' | 'province', id: string)
 const NAMES: Record<'country' | 'region' | 'province', Map<string, string>> = {
   country: new Map(COUNTRIES.map((f) => [f.properties.id, f.properties.name])),
   region: new Map(
-    [...REGIONS, ...[...WORLD_REGIONS.values()].flat(), ...[...WORLD_GROUPS.values()].flat()].map((f) => [f.properties.id, f.properties.name]),
+    [...DETAILED_REGIONS, ...[...WORLD_REGIONS.values()].flat(), ...[...WORLD_GROUPS.values()].flat()].map((f) => [f.properties.id, f.properties.name]),
   ),
-  province: new Map([...PROVINCES, ...[...WORLD_REGIONS.values()].flat()].map((f) => [f.properties.id, f.properties.name])),
+  province: new Map([...DETAILED_PROVINCES, ...[...WORLD_REGIONS.values()].flat()].map((f) => [f.properties.id, f.properties.name])),
 };
 
 // Country names in English and Italian (Natural Earth NAME_EN / NAME_IT). Regions abroad are stored
 // with their Italian name where one exists ("Lisbona"); region-names-en.json holds the English name
-// where it differs ("Lisbon"). Italian regions and provinces keep their own names.
+// where it differs ("Lisbon"). Italian regions and provinces keep their own names. US states and
+// counties are stored in English, states with `name_it` where Italian differs ("Carolina del Nord").
 const COUNTRY_NAMES = countryNames as Record<string, { en: string; it: string }>;
 const REGION_NAMES_EN = regionNamesEn as Record<string, string>;
+const NAMES_IT = new Map(
+  [...DETAILED_REGIONS, ...DETAILED_PROVINCES].flatMap((f) => (f.properties.name_it ? [[f.properties.id, f.properties.name_it] as const] : [])),
+);
 
 // Human-readable name of a country, region or province id ("VE" → "Venezia", "GBR" → "United Kingdom").
 export function nameOf(level: 'country' | 'region' | 'province', id: string | undefined): string {
   if (level === 'country' && id && COUNTRY_NAMES[id]) return COUNTRY_NAMES[id][locale];
   if (level !== 'country' && id && locale === 'en' && REGION_NAMES_EN[id]) return REGION_NAMES_EN[id];
+  if (level !== 'country' && id && locale === 'it' && NAMES_IT.has(id)) return NAMES_IT.get(id)!;
   return (id && NAMES[level].get(id)) || t('place.unknown');
 }

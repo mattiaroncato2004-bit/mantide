@@ -2,7 +2,8 @@
 // profile from Gemma's saved answers, and the events shown at each scale from H-FARM.
 // Run: npx tsx scripts/simulate-demo.ts
 import { readFileSync } from 'node:fs';
-import { locate, nameOf, TOTALS } from '../src/geo/locate';
+import { DETAILED, levelWords, locate, nameOf, provinceCount, regionCount } from '../src/geo/locate';
+import { tc } from '../src/i18n';
 import { labelOf, type InterestId } from '../src/ai/interests';
 import { EVENTS, profileFromCounts, recommend, recommendIn, why } from '../src/events/recommend';
 import type { Focus, Scale } from '../src/types';
@@ -16,8 +17,18 @@ const places = photos.map((p) => locate(p.lat, p.lon));
 const countries = new Set(places.map((p) => p.country).filter(Boolean));
 const regions = new Set(places.map((p) => p.region).filter(Boolean));
 const provinces = new Set(places.map((p) => p.province).filter(Boolean));
-const italianRegions = places.filter((p) => p.country === 'ITA').map((p) => p.region);
-console.log(`Map: ${countries.size} countries · ${regions.size} regions (${new Set(italianRegions).size}/${TOTALS.region} in Italy) · ${provinces.size}/${TOTALS.province} provinces`);
+console.log(`Map: ${countries.size} countries · ${regions.size} regions · ${provinces.size} provinces`);
+// Countries with two detailed levels: regions and provinces in Italy, states and counties in the USA.
+for (const country of DETAILED.keys()) {
+  const here = places.filter((p) => p.country === country);
+  if (!here.length) continue;
+  const words = levelWords(country);
+  const seen = (key: 'region' | 'province') => new Set(here.map((p) => p[key]).filter(Boolean)).size;
+  console.log(
+    `  ${nameOf('country', country)}: ${seen('region')}/${regionCount(country)} ${tc(`unit.${words.region}`, regionCount(country))}` +
+      ` · ${seen('province')}/${provinceCount(country)} ${tc(`unit.${words.province}`, provinceCount(country))}`,
+  );
+}
 console.log('  countries:', [...countries].map((c) => nameOf('country', c)).join(', '));
 console.log('  provinces:', [...provinces].map((p) => nameOf('province', p)).join(', '));
 

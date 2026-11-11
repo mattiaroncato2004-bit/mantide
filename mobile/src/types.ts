@@ -2,16 +2,16 @@
 
 export type Scale = 'global' | 'national' | 'regional' | 'local';
 
-// The map level the global, national and regional scales color: countries, Italian regions,
-// Italian provinces. The local scale colors nothing: it shows photos and events around you.
+// The map level the global, national and regional scales color: countries, regions (states in the
+// USA), provinces (counties). The local scale colors nothing: it shows photos and events around you.
 export type Level = 'country' | 'region' | 'province';
 
 // How a place became visited.
 export type Source = 'manual' | 'gps' | 'photo';
 
 export type Focus = {
-  country: string; // Natural Earth ADM0_A3, e.g. "ITA"
-  region: string; // ISTAT region code, e.g. "05" (Veneto)
+  country: string; // Natural Earth ADM0_A3, e.g. "USA"
+  region: string; // region id, e.g. "US-CA" (California) or the ISTAT code "05" (Veneto)
   lat: number;
   lon: number;
 };

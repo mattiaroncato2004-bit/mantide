@@ -3,6 +3,7 @@
 // then your photos there, last.
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { why, type Recommendation } from '../events/recommend';
+import { countryOfRegion, levelWords } from '../geo/locate';
 import { formatDate, t, tc } from '../i18n';
 import type { Count } from '../stats/passport';
 import { C, F, R } from '../theme';
@@ -10,18 +11,25 @@ import type { Level } from '../types';
 import { photoSource } from '../ui/photoSource';
 
 const FILL = 'rgba(255, 255, 255, 0.07)';
-const CHILD_UNIT = { country: 'unit.region', region: 'unit.province', province: 'unit.province' } as const;
+
+// The areas one level down, as their country calls them: a country's regions (states in the USA),
+// a region's provinces (counties). Provinces have none.
+function childUnit(level: Level, id: string): string {
+  const words = levelWords(level === 'country' ? id : (countryOfRegion(id) ?? ''));
+  return `unit.${level === 'country' ? words.region : words.province}`;
+}
 
 // The sheet's header on a place, at every height: the name and the small numbers.
-export function PlaceHeader({ name, level, stats, status }: {
+export function PlaceHeader({ name, level, id, stats, status }: {
   name: string;
   level: Level;
+  id: string;
   stats: { photos: number; children?: Count; trips: number };
   status: string | null;
 }) {
   const pills: [string, string][] = [];
   if (stats.photos) pills.push([String(stats.photos), tc('unit.photo', stats.photos)]);
-  if (stats.children) pills.push([`${stats.children.visited}/${stats.children.total}`, tc(CHILD_UNIT[level], stats.children.total)]);
+  if (stats.children) pills.push([`${stats.children.visited}/${stats.children.total}`, tc(childUnit(level, id), stats.children.total)]);
   if (stats.trips) pills.push([String(stats.trips), tc('unit.trip', stats.trips)]);
   return (
     <View style={styles.head}>

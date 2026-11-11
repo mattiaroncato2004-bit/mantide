@@ -38,6 +38,21 @@ console.log(`${p.countries.visited}/${p.countries.total} countries, ${p.countrie
 console.log(`Italy: ${p.here?.regions.visited}/${p.here?.regions.total} regions, ${p.here?.provinces?.visited}/${p.here?.provinces?.total} provinces`);
 console.log(p.byCountry.map((c) => `${c.name} ${c.regions.visited}/${c.regions.total}`).join(' · '));
 
+// A gallery with Italian and US photos: "where you are" counts only that country's provinces or counties.
+const both = { country: ['ITA', 'USA'], region: ['05', 'US-CA', 'US-NY'], province: ['TV', 'VE', 'US-06075'] };
+const usa = passport(both, 'USA').here!;
+assert.deepEqual(usa.regions, { visited: 2, total: 51 });
+assert.equal(usa.provinces?.visited, 1);
+assert.equal(usa.words.province, 'county');
+assert.equal(usa.words.region, 'state');
+const ita = passport(both, 'ITA').here!;
+assert.deepEqual(ita.provinces, { visited: 2, total: 110 });
+assert.deepEqual(ita.words, { region: 'region', province: 'province' });
+assert.equal(passport(both, 'FRA').here?.provinces, undefined);
+// Marks saved by 0.3.0 with Natural Earth's US ids are never counted.
+assert.equal(passport({ country: ['USA'], region: ['USA-3521'], province: [] }, 'USA').here?.regions.visited, 0);
+console.log(`USA: ${usa.regions.visited}/${usa.regions.total} states, ${usa.provinces?.visited}/${usa.provinces?.total} counties`);
+
 // The place sheet's three small numbers: photos, areas inside visited / total, trips.
 const DAY = 86_400_000;
 assert.equal(countTrips([]), 0);

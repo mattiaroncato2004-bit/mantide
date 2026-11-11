@@ -1,6 +1,10 @@
 // Travel stats for the "passport": countries, share of the world's land, continents, regions and
-// provinces of the country you're in, and a traveller level. Pure functions, testable in Node.
-import { childrenOf, COUNTRY_INFO, countryOfRegion, nameOf, regionCount, TOTALS, type Place } from '../geo/locate';
+// provinces (states and counties in the USA) of the country you're in, and a traveller level.
+// Pure functions, testable in Node.
+import {
+  childrenOf, COUNTRY_INFO, countryOfRegion, isDetailed, levelWords, nameOf, placeOfProvince, provinceCount, regionCount,
+  type Detailed, type Place,
+} from '../geo/locate';
 import type { Level } from '../types';
 import { t } from '../i18n';
 
@@ -10,7 +14,7 @@ export type Passport = {
   countries: Count & { landPct: number };
   level: { name: string; next?: { name: string; missing: number } };
   continents: (Count & { name: string })[];
-  here?: { name: string; regions: Count; provinces?: Count };
+  here?: { name: string; words: Detailed['words']; regions: Count; provinces?: Count };
   byCountry: { id: string; name: string; regions: Count }[];
 };
 
@@ -72,9 +76,12 @@ export function passport(
     here: hereCountry
       ? {
           name: nameOf('country', hereCountry),
+          words: levelWords(hereCountry),
           regions: regionsOf(hereCountry),
-          // Italian province ids are plates ("TV"); units abroad look like "FRA-1234".
-          provinces: hereCountry === 'ITA' ? { visited: visited.province.filter((id) => !id.includes('-')).length, total: TOTALS.province } : undefined,
+          // Only that country's provinces: a gallery from Italy and the USA has both.
+          provinces: isDetailed(hereCountry)
+            ? { visited: visited.province.filter((id) => placeOfProvince(id)?.country === hereCountry).length, total: provinceCount(hereCountry) }
+            : undefined,
         }
       : undefined,
     byCountry: seen

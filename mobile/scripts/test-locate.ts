@@ -1,6 +1,11 @@
 // Checks locate() on known places. Run: npx tsx scripts/test-locate.ts
 import assert from 'node:assert/strict';
-import { childrenOf, locate, regionCount } from '../src/geo/locate';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import {
+  childrenOf, countryOfRegion, isDetailed, levelWords, locate, nameOf, placeOfProvince, provinceCount, regionCount, type Place,
+} from '../src/geo/locate';
+import { setLocaleForTests } from '../src/i18n';
 
 const cases: [string, number, number, ReturnType<typeof locate>][] = [
   ['Roncade (H-FARM)', 45.6297, 12.3766, { country: 'ITA', region: '05', province: 'TV' }],
@@ -39,3 +44,54 @@ assert.equal(childrenOf('country', 'ESP').length, regionCount('ESP'));
 assert.ok(childrenOf('region', locate(40.4168, -3.7038).region!).length > 0, 'a Spanish region has provinces');
 assert.deepEqual(childrenOf('province', 'TV'), []);
 console.log('ok children');
+
+// The USA at the same depth as Italy: Census states and counties.
+const US: [string, number, number, Place][] = [
+  ['San Francisco', 37.7749, -122.4194, { country: 'USA', region: 'US-CA', province: 'US-06075' }],
+  ['Los Angeles', 34.0522, -118.2437, { country: 'USA', region: 'US-CA', province: 'US-06037' }],
+  ['Manhattan', 40.7831, -73.9712, { country: 'USA', region: 'US-NY', province: 'US-36061' }],
+  ['Honolulu', 21.3069, -157.8583, { country: 'USA', region: 'US-HI', province: 'US-15003' }],
+  ['Anchorage', 61.2181, -149.9003, { country: 'USA', region: 'US-AK', province: 'US-02020' }],
+  ['Miami Beach', 25.7907, -80.13, { country: 'USA', region: 'US-FL', province: 'US-12086' }],
+  ['Key West (island)', 24.5551, -81.78, { country: 'USA', region: 'US-FL', province: 'US-12087' }],
+  ['Bay off Pier 39 (water)', 37.811, -122.41, { country: 'USA', region: 'US-CA', province: 'US-06075' }],
+];
+for (const [name, lat, lon, expected] of US) {
+  assert.deepEqual(locate(lat, lon), expected, name);
+  console.log('ok', name, JSON.stringify(expected));
+}
+assert.equal(childrenOf('country', 'USA').length, 51);
+assert.equal(childrenOf('region', 'US-CA').length, 58, "California's counties");
+assert.equal(regionCount('USA'), 51);
+assert.ok(provinceCount('USA') > 3100 && provinceCount('USA') < 3200);
+assert.equal(provinceCount('ITA'), 110);
+assert.equal(provinceCount('FRA'), 0);
+assert.deepEqual(levelWords('USA'), { region: 'state', province: 'county' });
+assert.deepEqual(levelWords('ITA'), { region: 'region', province: 'province' });
+assert.deepEqual(levelWords('FRA'), { region: 'region', province: 'province' });
+assert.ok(isDetailed('USA') && isDetailed('ITA') && !isDetailed('FRA'));
+assert.equal(nameOf('region', 'US-CA'), 'California');
+assert.deepEqual(placeOfProvince('US-06075'), { country: 'USA', region: 'US-CA' });
+assert.ok(statSync('src/geo/us-states.json').size + statSync('src/geo/us-counties.json').size < 900 * 1024);
+// Natural Earth's US states left world-regions.json: the Census states replace them.
+assert.equal(countryOfRegion('USA-3521'), undefined);
+// State names in Italian where they differ.
+setLocaleForTests('it');
+assert.equal(nameOf('region', 'US-ND'), 'Dakota del Nord');
+setLocaleForTests('en');
+assert.equal(nameOf('region', 'US-ND'), 'North Dakota');
+console.log('ok USA');
+
+// No Italy special case left outside the table.
+function sources(dir: string): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) return sources(path);
+    return /\.tsx?$/.test(name) ? [path] : [];
+  });
+}
+const special = ['App.tsx', ...sources('src')]
+  .filter((file) => file !== join('src', 'geo', 'locate.ts'))
+  .filter((file) => /['"]ITA['"]/.test(readFileSync(file, 'utf8')));
+assert.deepEqual(special, [], 'files that still special-case Italy');
+console.log('ok one table');

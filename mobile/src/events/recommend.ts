@@ -1,6 +1,7 @@
 // Event recommendations: filters the catalog of sample events by map scale and scores events by
 // the interests inferred from the photo gallery. Pure functions, no React.
 import { InterestId, labelOf } from '../ai/interests';
+import { isDetailed } from '../geo/locate';
 import { t } from '../i18n';
 import type { Focus, Scale } from '../types';
 import catalog from './events.json';
@@ -13,7 +14,7 @@ export type Event = {
   end?: string; // ISO date, inclusive
   city: string;
   country: string; // Natural Earth ADM0_A3
-  region?: string; // ISTAT region code, only for Italy
+  region?: string; // region id, only in a country with detailed levels: ISTAT code in Italy, "US-CA" in the USA
   lat: number;
   lon: number;
   scale: Scale;
@@ -78,7 +79,7 @@ function inScale(e: Event, scale: Scale, focus: Focus, distanceKm: number): bool
       return e.scale === 'global';
     case 'national':
       if (e.country !== focus.country) return false;
-      return focus.country !== 'ITA' || e.scale === 'national' || e.scale === 'regional';
+      return !isDetailed(focus.country) || e.scale === 'national' || e.scale === 'regional';
     case 'regional':
       return e.region === focus.region && (e.scale === 'regional' || e.scale === 'local');
     case 'local':

@@ -277,7 +277,7 @@ function Home() {
     () => ({ country: ids(visited, 'country'), region: ids(visited, 'region'), province: ids(visited, 'province') }),
     [visited],
   );
-  const travel = useMemo(() => passport(visitedIds, locate(home.lat, home.lon).country ?? 'ITA'), [visitedIds, home]);
+  const travel = useMemo(() => passport(visitedIds, locate(home.lat, home.lon).country ?? ''), [visitedIds, home]);
 
   // Your interests: how many analysed photos show each one, minus the ones you removed.
   const profile = useMemo(() => {
@@ -477,7 +477,7 @@ function Home() {
   }, [opened, group, passportOpen, timelineOn, detent]);
 
   const header = place ? (
-    <PlaceHeader name={nameOf(place.level, place.id)} level={place.level} stats={stats!} status={progress} />
+    <PlaceHeader name={nameOf(place.level, place.id)} level={place.level} id={place.id} stats={stats!} status={progress} />
   ) : (
     <WorldSummary
       travel={travel}

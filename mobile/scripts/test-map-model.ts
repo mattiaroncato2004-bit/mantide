@@ -22,6 +22,17 @@ const veneto = areasInView('province', [11.5, 45, 13, 46], { country: [], region
 assert.equal(veneto.features.find((f) => f.properties.id === 'TV')?.properties.level, 'province');
 assert.equal(veneto.features.find((f) => f.properties.id === 'TV')?.properties.visited, true);
 
+// The USA at the same depth: states, then counties.
+const none = { country: [], region: [], province: [] };
+const west = areasInView('region', [-125, 32, -114, 42], none);
+assert.equal(west.features.find((f) => f.properties.id === 'US-CA')?.properties.level, 'region');
+const bay = areasInView('province', [-122.6, 37.6, -122.3, 37.9], none);
+assert.equal(bay.features.find((f) => f.properties.id === 'US-06075')?.properties.level, 'province');
+assert.deepEqual(placeAt(-122.42, 37.77, 'province'), { level: 'province', id: 'US-06075' });
+// The Aleutians cross the antimeridian: tapping Alaska frames the mainland, not the Pacific.
+const alaska = frameOf('region', 'US-AK')!.center[0];
+assert.ok(alaska > -170 && alaska < -140, `Alaska framed at ${alaska}`);
+
 // 10,000 photos: build once, then each view well inside a frame, at most 60 markers.
 const many = Array.from({ length: 10_000 }, (_, i) => ({ id: String(i), lon: -10 + (i % 200) / 10, lat: 36 + (i % 150) / 10, takenAt: i }));
 const index = makePhotoIndex(many);

@@ -2,25 +2,25 @@
 // map draws at the national scale, and each visited province one of the areas at the regional
 // scale (the hackathon's scale rules; src/map/model.ts areasInView() now draws by zoom). Run: npx tsx scripts/check-visited.ts
 import { readFileSync } from 'node:fs';
-import regions from '../src/geo/it-regions.json';
-import provinces from '../src/geo/it-provinces.json';
 import worldRegions from '../src/geo/world-regions.json';
 import worldGroups from '../src/geo/world-groups.json';
-import { locate, nameOf } from '../src/geo/locate';
+import { DETAILED, locate, nameOf } from '../src/geo/locate';
 
 type F = { properties: { id: string; country?: string; group?: string; region?: string } };
 const units = worldRegions.features as unknown as F[];
 const groups = worldGroups.features as unknown as F[];
 
 function nationalIds(country: string): string[] {
-  if (country === 'ITA') return (regions.features as unknown as F[]).map((f) => f.properties.id);
+  const detailed = DETAILED.get(country);
+  if (detailed) return detailed.regions.map((f) => f.properties.id);
   const g = groups.filter((f) => f.properties.country === country);
   if (g.length) return g.map((f) => f.properties.id);
   return units.filter((f) => f.properties.country === country).map((f) => f.properties.id);
 }
 
 function regionalIds(country: string, region: string): { level: string; ids: string[] } {
-  if (country === 'ITA') return { level: 'province', ids: (provinces.features as unknown as F[]).filter((f) => f.properties.region === region).map((f) => f.properties.id) };
+  const detailed = DETAILED.get(country);
+  if (detailed) return { level: 'province', ids: detailed.provinces.filter((f) => f.properties.region === region).map((f) => f.properties.id) };
   const inside = units.filter((f) => f.properties.country === country && f.properties.group === region);
   if (inside.length) return { level: 'province', ids: inside.map((f) => f.properties.id) };
   return { level: 'region', ids: units.filter((f) => f.properties.id === region).map((f) => f.properties.id) };

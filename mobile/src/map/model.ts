@@ -71,9 +71,10 @@ export function areasInView(level: ZoomLevel, bounds: BBox, visited: Record<Leve
   const features: Feature<Polygon | MultiPolygon, AreaProps>[] = [];
   for (const country of countries) {
     const id = country.properties.id;
-    if (id === 'ITA') {
-      const italian = level === 'region' ? AREAS.italianRegions : AREAS.italianProvinces;
-      features.push(...italian.filter(inView).map((f) => area(f, level)));
+    // Italy and the USA: their regions (states), then their provinces (counties).
+    const detailed = AREAS.detailed.get(id);
+    if (detailed) {
+      features.push(...(level === 'region' ? detailed.regions : detailed.provinces).filter(inView).map((f) => area(f, level)));
       continue;
     }
     // Spain, France, UK, Portugal: their real regions, then the units inside them as provinces.

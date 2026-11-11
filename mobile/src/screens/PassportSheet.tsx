@@ -19,6 +19,9 @@ type Props = {
   bottomInset: number;
 };
 
+// The two levels of the country you're in, as it calls them: states and counties in the USA.
+const LEVEL_LABEL = { region: 'passport.regions', state: 'passport.states', province: 'passport.provinces', county: 'passport.counties' } as const;
+
 const pct = (c: Count) => (c.total ? Math.round((100 * c.visited) / c.total) : 0);
 
 function Bar({ value }: { value: number }) {
@@ -81,13 +84,13 @@ export function PassportSheet({ data, interests, onRemoveInterest, onStopGallery
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>{t('passport.here', { name: here.name })}</Text>
               <Row
-                label={t('passport.regions')}
+                label={t(LEVEL_LABEL[here.words.region])}
                 count={here.regions}
                 hint={missingRegions ? t('passport.missing', { count: missingRegions }) : t('passport.allSeen')}
               />
               {here.provinces && (
                 <Row
-                  label={t('passport.provinces')}
+                  label={t(LEVEL_LABEL[here.words.province])}
                   count={here.provinces}
                   hint={t('passport.missing', { count: here.provinces.total - here.provinces.visited })}
                 />
