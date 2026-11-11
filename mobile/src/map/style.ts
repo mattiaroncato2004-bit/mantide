@@ -63,7 +63,8 @@ export const OVERLAY_LAYERS: LayerSpecification[] = [
   // Distance rings around you: "12 km" on a card gets a size on the map.
   {
     id: 'rings', type: 'line', source: 'rings',
-    paint: { 'line-color': '#ffffff', 'line-width': 1.5, 'line-opacity': 0.8, 'line-dasharray': ['literal', [3, 2]] },
+    // Solid: Android's emulator renderer doesn't show dashed lines (see scripts/test-map-style.ts).
+    paint: { 'line-color': '#ffffff', 'line-width': 1.5, 'line-opacity': 0.7 },
   },
   // Suggested events: accent dots with a white ring; the picked one is bigger.
   {

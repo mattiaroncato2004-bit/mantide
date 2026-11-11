@@ -8,6 +8,10 @@ appId: com.mantide.app
     clearState: true
     permissions:
       all: allow
+# The emulator sends no position by itself: give it H-FARM, where the demo traveller lives.
+- setLocation:
+    latitude: 45.6297
+    longitude: 12.3766
 - tapOn: "Use my gallery"
 - tapOn:
     text: "Allow all"

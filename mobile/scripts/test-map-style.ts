@@ -20,13 +20,10 @@ const withOverlays: StyleSpecification = {
 assert.deepEqual(validateStyleMin(withOverlays), [], 'overlay layers are valid');
 assert.ok(JSON.stringify(OVERLAY_LAYERS[0]).includes(C.accent), 'visited areas use the accent colour');
 
-// maplibre-react-native reads every array in a paint or layout value as an expression: a plain
-// number list such as a dash pattern must be wrapped in ['literal', …], or Android drops the layer.
+// No dashed lines: on Android's emulator renderer a dashed line is counted as drawn but never
+// appears (Android run 42929808655: plain rings showed, dashed ones didn't).
 for (const layer of OVERLAY_LAYERS) {
-  const values = { ...('paint' in layer ? layer.paint : {}), ...('layout' in layer ? layer.layout : {}) } as Record<string, unknown>;
-  for (const [key, value] of Object.entries(values)) {
-    if (Array.isArray(value)) assert.equal(typeof value[0], 'string', `${layer.id} ${key}: an array must be an expression, not ${JSON.stringify(value)}`);
-  }
+  assert.ok(!JSON.stringify(layer).includes('line-dasharray'), `${layer.id} draws a dashed line`);
 }
 
 assert.match(ATTRIBUTION.satellite, /EOX/);
