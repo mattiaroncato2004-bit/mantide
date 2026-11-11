@@ -4,7 +4,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { why, type Recommendation } from '../events/recommend';
 import { countryOfRegion, levelWords } from '../geo/locate';
-import { formatDate, formatDistance, t, tc } from '../i18n';
+import { formatCount, formatDate, formatDistance, t, tc } from '../i18n';
 import type { Count } from '../stats/passport';
 import { C, F, R } from '../theme';
 import type { Level } from '../types';
@@ -28,9 +28,9 @@ export function PlaceHeader({ name, level, id, stats, status }: {
   status: string | null;
 }) {
   const pills: [string, string][] = [];
-  if (stats.photos) pills.push([String(stats.photos), tc('unit.photo', stats.photos)]);
-  if (stats.children) pills.push([`${stats.children.visited}/${stats.children.total}`, tc(childUnit(level, id), stats.children.total)]);
-  if (stats.trips) pills.push([String(stats.trips), tc('unit.trip', stats.trips)]);
+  if (stats.photos) pills.push([formatCount(stats.photos), tc('unit.photo', stats.photos)]);
+  if (stats.children) pills.push([`${formatCount(stats.children.visited)}/${formatCount(stats.children.total)}`, tc(childUnit(level, id), stats.children.total)]);
+  if (stats.trips) pills.push([formatCount(stats.trips), tc('unit.trip', stats.trips)]);
   return (
     <View style={styles.head}>
       <Text style={styles.title} numberOfLines={1} accessibilityRole="header">{name}</Text>

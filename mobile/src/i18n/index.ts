@@ -42,7 +42,7 @@ function deviceTags(): string[] {
 const tags = deviceTags();
 export let locale: Locale = pickLocale(tags);
 export let distanceUnit: 'km' | 'mi' = unitFor(pickRegion(tags));
-let dateLocale = dateLocaleFor(locale, pickRegion(tags));
+let dateLocale = dateLocaleFor(locale, pickRegion(tags)); // dates and numbers share it
 
 export function setLocaleForTests(l: Locale, region?: string): void {
   locale = l;
@@ -62,7 +62,7 @@ export function t(key: StringKey, params?: Record<string, string | number>): str
 
 // English and Italian both have one form for 1 and one for everything else.
 export function tc(base: string, count: number, params?: Record<string, string | number>): string {
-  return t(`${base}_${count === 1 ? 'one' : 'other'}` as StringKey, { count, ...params });
+  return t(`${base}_${count === 1 ? 'one' : 'other'}` as StringKey, { ...params, count: formatCount(count) });
 }
 
 const DATE_STYLES: Record<'month' | 'day-month' | 'medium' | 'long', Intl.DateTimeFormatOptions> = {
@@ -74,6 +74,11 @@ const DATE_STYLES: Record<'month' | 'day-month' | 'medium' | 'long', Intl.DateTi
 
 export function formatDate(ms: number, style: keyof typeof DATE_STYLES): string {
   return new Date(ms).toLocaleDateString(dateLocale, DATE_STYLES[style]).replace('.', '');
+}
+
+// "3,144" in English, "3.144" in Italian.
+export function formatCount(n: number): string {
+  return n.toLocaleString(dateLocale, { useGrouping: 'always' } as Intl.NumberFormatOptions);
 }
 
 // "1.3" in English, "1,3" in Italian.

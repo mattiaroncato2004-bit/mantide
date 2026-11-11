@@ -93,6 +93,15 @@ setLocaleForTests('it');
 assert.equal(nameOf('region', 'US-ND'), 'Dakota del Nord');
 setLocaleForTests('en');
 assert.equal(nameOf('region', 'US-ND'), 'North Dakota');
+// The capital is not mistaken for the state, and Mexico City is not "Mexico".
+assert.equal(nameOf('region', 'US-DC'), 'District of Columbia');
+assert.equal(nameOf('region', 'US-WA'), 'Washington');
+const mexicoCity = locate(19.4326, -99.1332).region;
+assert.equal(nameOf('region', mexicoCity), 'Mexico City');
+setLocaleForTests('it');
+assert.equal(nameOf('region', 'US-DC'), 'Washington D.C.');
+assert.equal(nameOf('region', mexicoCity), 'Città del Messico');
+setLocaleForTests('en');
 console.log('ok USA');
 
 // No Italy special case left outside the table.

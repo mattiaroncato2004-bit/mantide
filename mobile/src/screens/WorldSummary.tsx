@@ -1,7 +1,7 @@
 // The sheet far out: your world in one line, your level and how far the next one is. Tapping it opens
 // the passport; the timeline starts from here because the journey is a whole-world view.
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { formatDecimal, t, tc } from '../i18n';
+import { formatCount, formatDecimal, t, tc } from '../i18n';
 import type { Passport } from '../stats/passport';
 import { C, F } from '../theme';
 
@@ -15,7 +15,7 @@ type Props = {
 export function WorldSummary({ travel, status, onOpenPassport, onTimeline }: Props) {
   const { countries, level } = travel;
   const line = tc('world.line', countries.visited, { pct: formatDecimal(countries.landPct, 1) });
-  const next = level.next && t('world.next', { count: level.next.missing, level: level.next.name });
+  const next = level.next && t('world.next', { count: formatCount(level.next.missing), level: level.next.name });
   const progress = level.next ? countries.visited / (countries.visited + level.next.missing) : 1;
   return (
     // Not an accessibility element itself: the title and the line stay readable one by one.

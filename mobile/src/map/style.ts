@@ -60,7 +60,7 @@ export const OVERLAY_LAYERS: LayerSpecification[] = [
     layout: { 'line-join': 'round', 'line-cap': 'round' },
     paint: { 'line-color': C.accent, 'line-width': 3, 'line-opacity': 0.95 },
   },
-  // Distance rings around you: "12 km" on a card gets a size on the map.
+  // Distance rings around you: a distance on a card gets a size on the map.
   {
     id: 'rings', type: 'line', source: 'rings',
     // Solid: Android's emulator renderer doesn't show dashed lines (see scripts/test-map-style.ts).

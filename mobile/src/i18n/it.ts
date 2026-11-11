@@ -95,7 +95,7 @@ export const it = {
   'passport.states': 'Stati',
   'passport.counties': 'Contee',
   'passport.missing': 'Te ne mancano {count}',
-  'passport.allSeen': 'Le hai viste tutte',
+  'passport.allSeen': 'Tutto visto',
   'passport.continents': 'Continenti',
   'passport.byCountry': 'Regioni per paese',
 

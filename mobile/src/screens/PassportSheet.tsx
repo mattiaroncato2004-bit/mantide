@@ -4,7 +4,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { labelOf, type InterestId } from '../ai/interests';
 import type { InterestWeight } from '../events/recommend';
-import { formatDecimal, t, tc } from '../i18n';
+import { formatCount, formatDecimal, t, tc } from '../i18n';
 import type { Count, Passport } from '../stats/passport';
 import { C, F, R, S } from '../theme';
 
@@ -38,7 +38,7 @@ function Row({ label, count, hint }: { label: string; count: Count; hint?: strin
       <View style={styles.rowHead}>
         <Text style={styles.rowLabel}>{label}</Text>
         <Text style={styles.rowCount}>
-          {count.visited}/{count.total}
+          {formatCount(count.visited)}/{formatCount(count.total)}
         </Text>
       </View>
       <Bar value={pct(count)} />
@@ -67,10 +67,10 @@ export function PassportSheet({ data, interests, onRemoveInterest, onStopGallery
           <View style={styles.hero}>
             <Text style={styles.level}>{level.name}</Text>
             <Text style={styles.big}>
-              {countries.visited} <Text style={styles.bigUnit}>{tc('unit.country', countries.visited)}</Text>
+              {formatCount(countries.visited)} <Text style={styles.bigUnit}>{tc('unit.country', countries.visited)}</Text>
             </Text>
             <Text style={styles.sub}>
-              {t('passport.share', { land: formatDecimal(countries.landPct, 1), pct: pct(countries), total: countries.total })}
+              {t('passport.share', { land: formatDecimal(countries.landPct, 1), pct: pct(countries), total: formatCount(countries.total) })}
             </Text>
             {level.next && (
               <>
@@ -86,13 +86,13 @@ export function PassportSheet({ data, interests, onRemoveInterest, onStopGallery
               <Row
                 label={t(LEVEL_LABEL[here.words.region])}
                 count={here.regions}
-                hint={missingRegions ? t('passport.missing', { count: missingRegions }) : t('passport.allSeen')}
+                hint={missingRegions ? t('passport.missing', { count: formatCount(missingRegions) }) : t('passport.allSeen')}
               />
               {here.provinces && (
                 <Row
                   label={t(LEVEL_LABEL[here.words.province])}
                   count={here.provinces}
-                  hint={t('passport.missing', { count: here.provinces.total - here.provinces.visited })}
+                  hint={t('passport.missing', { count: formatCount(here.provinces.total - here.provinces.visited) })}
                 />
               )}
             </View>

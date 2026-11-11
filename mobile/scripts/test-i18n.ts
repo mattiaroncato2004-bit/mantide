@@ -1,6 +1,6 @@
 // The string layer: language choice and interpolation. Run: npx tsx scripts/test-i18n.ts
 import assert from 'node:assert/strict';
-import { formatDate, formatDistance, pickLocale, pickRegion, setLocaleForTests, t, tc } from '../src/i18n';
+import { formatCount, formatDate, formatDistance, pickLocale, pickRegion, setLocaleForTests, t, tc } from '../src/i18n';
 
 assert.equal(pickLocale(['it-IT']), 'it');
 assert.equal(pickLocale(['de-DE', 'it-CH']), 'it');
@@ -38,5 +38,20 @@ assert.equal(formatDistance(16.09), '16 km');
 setLocaleForTests('it', 'IT');
 assert.equal(formatDate(d, 'day-month'), '7 nov');
 assert.equal(formatDistance(16.09), '16 km');
+
+
+// Thousands separators follow the number locale.
+setLocaleForTests('en', 'US');
+assert.equal(formatCount(3144), '3,144');
+assert.equal(formatCount(14), '14');
+assert.equal(tc('count.photos', 1500), '1,500 photos');
+setLocaleForTests('en', 'GB');
+assert.equal(formatCount(3144), '3,144');
+setLocaleForTests('it', 'IT');
+assert.equal(formatCount(3144), '3.144');
+assert.equal(formatCount(14), '14');
+
+// "All seen" is said once for regions, provinces, states and counties.
+assert.ok(!/\bviste\b/.test(t('passport.allSeen')), t('passport.allSeen'));
 
 console.log('i18n: ok');

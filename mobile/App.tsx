@@ -36,7 +36,7 @@ import { TimelineBar } from './src/screens/TimelineBar';
 import { passport, placeStats } from './src/stats/passport';
 import { Sheet } from './src/ui/Sheet';
 import { detentHeights, type Detent } from './src/ui/detents';
-import { distanceUnit, formatDate, t } from './src/i18n';
+import { distanceUnit, formatCount, formatDate, t } from './src/i18n';
 import Storage from './src/storage';
 import { C, F, R } from './src/theme';
 import type { Level } from './src/types';
@@ -151,7 +151,7 @@ function Home() {
     const results = { ...prior };
     try {
       for (const [i, photo] of todo.entries()) {
-        setProgress(t('status.analyzing', { n: i + 1, total: todo.length }));
+        setProgress(t('status.analyzing', { n: formatCount(i + 1), total: formatCount(todo.length) }));
         try {
           results[photo.id] = await analyzePhoto(photo.uri);
           setAnalyses({ ...results });

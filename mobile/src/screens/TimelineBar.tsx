@@ -2,7 +2,7 @@
 // whole journey. Built on PanResponder, so it needs no native slider and also runs in a browser.
 import { useRef } from 'react';
 import { PanResponder, Pressable, StyleSheet, Text, View, type GestureResponderEvent, type LayoutChangeEvent } from 'react-native';
-import { t } from '../i18n';
+import { formatCount, t } from '../i18n';
 import { C, F, R, S } from '../theme';
 
 type Props = {
@@ -59,7 +59,7 @@ export function TimelineBar({ count, index, onChange, playing, onTogglePlay, pla
         </Pressable>
         <View style={styles.label}>
           <Text style={styles.place} numberOfLines={1}>{place}</Text>
-          <Text style={styles.date}>{t('timeline.position', { n: index + 1, total: count })}</Text>
+          <Text style={styles.date}>{t('timeline.position', { n: formatCount(index + 1), total: formatCount(count) })}</Text>
         </View>
         <Pressable onPress={onClose} hitSlop={8} style={styles.close} accessibilityRole="button" accessibilityLabel={t('timeline.close')}>
           <Text style={styles.closeText}>✕</Text>
