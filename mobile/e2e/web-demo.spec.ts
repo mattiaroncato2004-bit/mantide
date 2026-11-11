@@ -180,10 +180,12 @@ test('after the timeline, every numbered pin opens its own photos', async ({ pag
   await page.getByRole('button', { name: '▶ Timeline' }).click();
   await expect(page.getByText(/^photo (1[0-9]|[2-9][0-9]) of 45$/)).toBeVisible({ timeout: 30_000 });
   await page.getByRole('button', { name: 'Close the timeline' }).click();
-  // Back to the whole world, where every group sits above the sheet and a finger can reach it.
-  await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [12.37, 45.63], zoom: 1.4 }));
+  // Back to the whole world, seen from the western US: every group on this side of the globe sits
+  // above the sheet, where a finger can reach it. Groups on the far side (MapLibre marks them
+  // covered) lie under the ones in front.
+  await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [-115, 35], zoom: 1.4 }));
   await page.waitForTimeout(1500);
-  const pins = page.locator('[data-testid="photo-pin"]:has(.mt-badge)');
+  const pins = page.locator('[data-testid="photo-pin"]:not(.maplibregl-marker-covered):has(.mt-badge)');
   const n = await pins.count();
   expect(n).toBeGreaterThan(0);
   for (let i = 0; i < n; i++) {

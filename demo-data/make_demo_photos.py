@@ -8,7 +8,8 @@ For the demo we need a believable gallery of ONE invented person, so this
 script:
 
   1. takes a hand-written travel PLAN (date, place, coordinates, theme,
-     Wikimedia Commons file title) for the persona "Marco from Roncade (TV)";
+     Wikimedia Commons file title) for the persona, a traveler who lives in
+     San Francisco's Mission District;
   2. asks the Commons API for each file's 1024px thumbnail URL and its
      licence/author metadata, and refuses anything that is not CC0 / Public
      Domain / CC BY / CC BY-SA or not a JPEG;
@@ -22,7 +23,7 @@ The GPS positions and dates are INVENTED for the persona: they are not where
 or when the photos were actually taken.
 
 Usage (Pillow + piexif required):
-    python3 -I make_demo_photos.py search "street art mural Lisbon"   # find candidates
+    python3 -I make_demo_photos.py search "Mission District mural"    # find candidates
     python3 -I make_demo_photos.py build                              # (re)build dataset
 """
 
@@ -57,13 +58,9 @@ CAMERA = ("Google", "Pixel 8")  # invented phone of the persona
 # (with attribution where required). Anything else is rejected.
 ALLOWED_LICENSE = re.compile(r"^(CC0|Public domain|PD|CC BY(-SA)? \d\.\d)", re.I)
 
-# The PLAN uses the Italian theme names of the hackathon (they are also in the file names);
-# photos.json carries the app's English interest ids.
-THEME_IDS = {"street-art": "street-art", "cibo": "food", "mare": "sea", "montagna": "mountains", "arte": "art",
-             "architettura": "architecture", "musica": "live-music", "natura": "nature", "sport": "sport",
-             "vino": "wine", "storia": "history", "notte": "nightlife"}
-THEMES = {"street-art", "cibo", "mare", "montagna", "arte", "architettura",
-          "musica", "natura", "sport", "vino", "storia", "notte"}
+# The app's 12 interest ids (local-ai/test_photo.py INTERESTS): the PLAN's themes, also in the file names.
+THEMES = {"street-art", "food", "sea", "mountains", "art", "architecture",
+          "live-music", "nature", "sport", "wine", "history", "nightlife"}
 
 # --------------------------------------------------------------------------
 # The persona's travel plan.
@@ -73,131 +70,143 @@ THEMES = {"street-art", "cibo", "mare", "montagna", "arte", "architettura",
 # on the same 1-3 days, from 2024-03 to 2026-10.
 # --------------------------------------------------------------------------
 
-# UTC offsets: Italy/Germany/Spain/France (winter, summer), Lisbon summer, London summer.
-CET, CEST, WEST, BST = "+01:00", "+02:00", "+01:00", "+01:00"
+# UTC offsets of each trip's dates: US Pacific, Central and Eastern (winter, summer), Alberta summer,
+# Hawaii, Mexico City (no daylight saving since 2022), Japan, Rome in winter, London in summer.
+PST, PDT, CST, CDT, EDT = "-08:00", "-07:00", "-06:00", "-05:00", "-04:00"
+MDT, HST, MEX, JST, CET, BST = "-06:00", "-10:00", "-06:00", "+09:00", "+01:00", "+01:00"
 
 PLAN = [
-    # --- Roncade (home), spring 2024: castle and the Sile river park --------
-    ("2024-03-16T11:20:00" + CET, "Roncade", "ITA", 45.62831, 12.37792, "storia", "roncade",
-     "File:Castello di Roncade 1.jpg"),
-    ("2024-03-17T10:05:00" + CET, "Roncade", "ITA", 45.60512, 12.35208, "natura", "roncade",
-     "File:Parco naturale regionale del Fiume Sile, Treviso 01.jpg"),
+    # --- Home, March 2024: a burrito on Mission Street, then Balmy Alley ------
+    ("2024-03-09T13:10:00" + PST, "San Francisco", "USA", 37.75266, -122.41818, "food", "san-francisco",
+     "File:Mission burrito and totopos at El Farolito.jpg"),
+    ("2024-03-09T14:05:00" + PST, "San Francisco", "USA", 37.75226, -122.41228, "street-art", "san-francisco",
+     "File:Balmy Alley.jpg"),
 
-    # --- Venezia, April 2024: bacaro in Cannaregio, then Burano -------------
-    ("2024-04-20T13:10:00" + CEST, "Venezia", "ITA", 45.44318, 12.33297, "cibo", "venezia",
-     "File:Sarde in saor dans un restaurant vénitien (décembre 2022).JPG"),
-    ("2024-04-21T11:30:00" + CEST, "Venezia", "ITA", 45.48530, 12.41672, "architettura", "venezia",
-     "File:Burano Venice 17.jpg"),
-    ("2024-04-21T13:15:00" + CEST, "Venezia", "ITA", 45.48571, 12.41803, "cibo", "venezia",
-     "File:Spaghetti alle vongole.jpg"),
+    # --- New York, April 2024: a slice, the bridge, Bushwick, the Met, jazz --
+    ("2024-04-12T12:40:00" + EDT, "New York", "USA", 40.73303, -73.95473, "food", "new-york",
+     "File:Paulie Gee's Slice Shop (35386).jpg"),
+    ("2024-04-12T17:30:00" + EDT, "New York", "USA", 40.70608, -73.99683, "architecture", "new-york",
+     "File:2024-06-15 09 53 30 View from the middle of the Brooklyn Bridge looking northwest along the "
+     "pedestrian walkway in Manhattan, New York City, New York.jpg"),
+    ("2024-04-13T11:15:00" + EDT, "New York", "USA", 40.70600, -73.93300, "street-art", "new-york",
+     "File:Graffiti éponyme du quartier de Bushwick.jpg"),
+    ("2024-04-13T15:00:00" + EDT, "New York", "USA", 40.77929, -73.96323, "art", "new-york",
+     "File:Metropolitan Museum of Art Gallery 131 Temple of Dendur.jpg"),
+    ("2024-04-13T21:45:00" + EDT, "New York", "USA", 40.76212, -73.98347, "live-music", "new-york",
+     "File:Iridium Jazz Club, New York City, Home of Les Paul.jpg"),
 
-    # --- Lisbona, May 2024: murals, sardines, MAAT, Atlantic sunset ----------
-    ("2024-05-24T17:40:00" + WEST, "Lisbona", "PRT", 38.70362, -9.17841, "street-art", "lisbona",
-     "File:Lisboa mural Pelikany.jpg"),
-    ("2024-05-25T11:00:00" + WEST, "Lisbona", "PRT", 38.71802, -9.15297, "street-art", "lisbona",
-     "File:Mural - Travessa de Santa Quitéria, Lisboa.jpg"),
-    ("2024-05-25T20:30:00" + WEST, "Lisbona", "PRT", 38.71103, -9.12904, "cibo", "lisbona",
-     "File:Grilled Sardines in-the-Charcoal with salad 7.50€ (3784714323).jpg"),
-    ("2024-05-26T10:45:00" + WEST, "Lisbona", "PRT", 38.69568, -9.19461, "architettura", "lisbona",
-     "File:The MAAT (34943440096).jpg"),
-    ("2024-05-26T20:40:00" + WEST, "Lisbona", "PRT", 38.67781, -9.33662, "mare", "lisbona",
-     "File:2025-05-11 Sunset over the Adriatic Sea seen from Šušanj Beach, Bar 1.jpg"),
+    # --- Mexico City, May 2024: Roma's murals, tacos al pastor, Bellas Artes --
+    ("2024-05-25T12:30:00" + MEX, "Mexico City", "MEX", 19.41927, -99.15837, "street-art", "mexico-city",
+     "File:Mexico City (26223880537).jpg"),
+    ("2024-05-25T14:20:00" + MEX, "Mexico City", "MEX", 19.41212, -99.16950, "food", "mexico-city",
+     "File:Tacos al pastor prepa 1.jpg"),
+    ("2024-05-26T11:00:00" + MEX, "Mexico City", "MEX", 19.40692, -99.16270, "street-art", "mexico-city",
+     "File:Mexico City (41049187222).jpg"),
+    ("2024-05-26T17:00:00" + MEX, "Mexico City", "MEX", 19.43521, -99.14125, "architecture", "mexico-city",
+     "File:Interior del Palacio de Bellas Artes 05.jpg"),
 
-    # --- Dolomiti, July 2024: Tre Cime di Lavaredo loop -----------------------
-    ("2024-07-13T09:40:00" + CEST, "Dolomiti", "ITA", 46.61862, 12.30204, "montagna", "dolomiti",
-     "File:Trail and Tre Cime.jpg"),
-    ("2024-07-13T11:15:00" + CEST, "Dolomiti", "ITA", 46.62297, 12.31503, "montagna", "dolomiti",
-     "File:Forcella Lavaredo.jpg"),
-    ("2024-07-14T10:20:00" + CEST, "Dolomiti", "ITA", 46.63048, 12.30711, "montagna", "dolomiti",
-     "File:Wandern 001 2019 09 24.jpg"),
+    # --- Yosemite, July 2024: the Mist Trail, then the Half Dome cables -------
+    ("2024-07-13T10:30:00" + PDT, "Yosemite", "USA", 37.72760, -119.54420, "mountains", "yosemite",
+     "File:Vernal Falls and Mist Trail.jpg"),
+    ("2024-07-14T12:15:00" + PDT, "Yosemite", "USA", 37.74600, -119.53320, "mountains", "yosemite",
+     "File:The Climb Up - Half Dome - Yosemite National Park (7617874892).jpg"),
 
-    # --- Venezia Lido, August 2024: a beach day ------------------------------
-    ("2024-08-10T15:30:00" + CEST, "Venezia", "ITA", 45.40853, 12.37198, "mare", "venezia",
-     "File:Spiaggia del Lido di Venezia.jpg"),
+    # --- Big Sur, August 2024: a stop on Highway 1 ---------------------------
+    ("2024-08-17T16:40:00" + PDT, "Big Sur", "USA", 36.46000, -121.92700, "sea", "big-sur",
+     "File:Coastal bluff near Big Sur California.jpg"),
 
-    # --- Berlino, September 2024: East Side Gallery, Kreuzberg, a gig -------
-    ("2024-09-13T16:30:00" + CEST, "Berlino", "DEU", 52.50501, 13.44004, "street-art", "berlino",
-     "File:Mural Himlen over Berlin Karina Bjerregaard Lotte Haubert East Side Gallery Berlin 02.jpg"),
-    ("2024-09-13T16:50:00" + CEST, "Berlino", "DEU", 52.50342, 13.44251, "street-art", "berlino",
-     "File:Stay Free Mural by Christoph Frank, East Side Gallery (Ank Kumar, Infosys Limited).jpg"),
-    ("2024-09-14T12:10:00" + CEST, "Berlino", "DEU", 52.50049, 13.40903, "street-art", "berlino",
-     "File:Mural Bergfriedstraße 20 Berlin-Kreuzberg.jpg"),
-    ("2024-09-14T18:30:00" + CEST, "Berlino", "DEU", 52.51861, 13.37622, "architettura", "berlino",
-     "File:Interior of the Reichstag dome 2015 2.jpg"),
-    ("2024-09-14T22:15:00" + CEST, "Berlino", "DEU", 52.48402, 13.38697, "musica", "berlino",
-     "File:Musicians performing on stage at a night concert featuring vibrant lights and energetic atmosphere.jpg"),
+    # --- Los Angeles, September 2024: a Mid-City wall, Boyle Heights tacos ---
+    ("2024-09-21T15:30:00" + PDT, "Los Angeles", "USA", 34.04770, -118.34400, "street-art", "los-angeles",
+     "File:Los Angeles, CA, 33 1-3 - Mid City Arts, April 13, 2012 - panoramio.jpg"),
+    ("2024-09-21T19:10:00" + PDT, "Los Angeles", "USA", 34.03950, -118.20320, "food", "los-angeles",
+     "File:Pork shoulder tacos - 33983678678.jpg"),
 
-    # --- Milano, November 2024: Porta Nuova and a concert at Assago ---------
-    ("2024-11-08T15:00:00" + CET, "Milano", "ITA", 45.48551, 9.19003, "architettura", "milano",
-     "File:Milan skyline with Unicredit Tower and Bosco Verticale.jpg"),
-    ("2024-11-08T21:40:00" + CET, "Milano", "ITA", 45.41293, 9.15224, "musica", "milano",
-     "File:Beach-Please-2022-crowd-stage-lights-night-performance.jpg"),
+    # --- Texas, October 2024: barbecue in Lockhart, Austin's walls and music --
+    ("2024-10-05T13:30:00" + CDT, "Lockhart", "USA", 29.88534, -97.67037, "food", "lockhart",
+     "File:Barbecue plate at Black's Barbecue.jpg"),
+    ("2024-10-05T18:45:00" + CDT, "Austin", "USA", 30.26740, -97.74270, "street-art", "austin",
+     "File:Wallpainting and Oldtimer in Austin, Texas.jpg"),
+    ("2024-10-06T13:00:00" + CDT, "Austin", "USA", 30.26260, -97.72730, "live-music", "austin",
+     "File:Live Music Hope Farmers Market Plaza Saltillo.jpg"),
 
-    # --- Roma, February 2025: murals, carbonara in Trastevere, Vatican ------
-    ("2025-02-21T15:30:00" + CET, "Roma", "ITA", 41.86398, 12.48902, "street-art", "roma",
-     "File:Street art in Lisbon IMG 8015 (43099713260).jpg"),
-    ("2025-02-21T20:45:00" + CET, "Roma", "ITA", 41.88931, 12.47003, "cibo", "roma",
-     "File:Spaghetti Carbonara, Trastevere, Roma.jpg"),
-    ("2025-02-22T10:30:00" + CET, "Roma", "ITA", 41.90652, 12.45361, "arte", "roma",
-     "File:Spiral staircase in the Vatican Museums from bottom 02.jpg"),
+    # --- Home, November 2024: a gig at the Fillmore -------------------------
+    ("2024-11-15T21:40:00" + PST, "San Francisco", "USA", 37.78403, -122.43301, "live-music", "san-francisco",
+     "File:BRMC @ The Fillmore, San Francisco, 4 22 13 (8690371427).jpg"),
 
-    # --- Napoli, April 2025: Quartieri Spagnoli, pizza, seafood -------------
-    ("2025-04-18T16:00:00" + CEST, "Napoli", "ITA", 40.84302, 14.24698, "street-art", "napoli",
-     "File:Kreuzberg Luckauer Straße 14 Mural-001.jpg"),
-    ("2025-04-18T20:30:00" + CEST, "Napoli", "ITA", 40.85098, 14.25851, "cibo", "napoli",
-     "File:Eq it-na pizza-margherita sep2005 sml.jpg"),
-    ("2025-04-19T13:30:00" + CEST, "Napoli", "ITA", 40.82851, 14.24752, "cibo", "napoli",
-     "File:Calamari grillati.JPG"),
+    # --- New Orleans, March 2025: beignets, the Quarter, Frenchmen Street ----
+    ("2025-03-01T10:00:00" + CST, "New Orleans", "USA", 29.95752, -90.06177, "food", "new-orleans",
+     "File:Beignets and Café au Lait at Café du Monde, New Orleans.jpg"),
+    ("2025-03-01T16:20:00" + CST, "New Orleans", "USA", 29.95860, -90.06480, "architecture", "new-orleans",
+     "File:Balconies in the French Quarter with fine greenery.jpg"),
+    ("2025-03-01T22:30:00" + CST, "New Orleans", "USA", 29.96360, -90.05770, "live-music", "new-orleans",
+     "File:Mardi Gras in New Orleans - Carnival party at the Blue Nile on Frenchmen Street 2017 - 09.jpg"),
 
-    # --- Barcellona, June 2025: Poblenou, Gaudí, paella, a festival ---------
-    ("2025-06-05T17:00:00" + CEST, "Barcellona", "ESP", 41.40903, 2.18702, "street-art", "barcellona",
-     "File:Street Art, Barcelona (14250274665).jpg"),
-    ("2025-06-06T11:00:00" + CEST, "Barcellona", "ESP", 41.39162, 2.16494, "architettura", "barcellona",
-     "File:Casa Batlló 01.jpg"),
-    ("2025-06-06T14:00:00" + CEST, "Barcellona", "ESP", 41.37951, 2.18903, "cibo", "barcellona",
-     "File:Paella de marisco 01.jpg"),
-    ("2025-06-06T18:00:00" + CEST, "Barcellona", "ESP", 41.40302, 2.15604, "street-art", "barcellona",
-     "File:Mural Sator Art 20240218.jpg"),
-    ("2025-06-06T23:50:00" + CEST, "Barcellona", "ESP", 41.41104, 2.22101, "musica", "barcellona",
-     "File:Dance Yrself Clean (2010-04-16 by Ian T. McFarland).jpg"),
+    # --- Tokyo, April 2025: ramen at Tokyo Station, Golden Gai at night ------
+    ("2025-04-05T12:30:00" + JST, "Tokyo", "JPN", 35.68030, 139.76840, "food", "tokyo",
+     "File:Shoyu Ramen @ Shichisai @ Tokyo Ramen Street (13165344585).jpg"),
+    ("2025-04-05T22:10:00" + JST, "Tokyo", "JPN", 35.69400, 139.70480, "nightlife", "tokyo",
+     "File:2024-10-20 Shinjuku Golden Gai at night.jpg"),
 
-    # --- Treviso, July 2025: tiramisù and a summer gig on the city walls ----
-    ("2025-07-05T19:30:00" + CEST, "Treviso", "ITA", 45.66502, 12.24453, "cibo", "treviso",
-     "File:Tiramisu dessert.jpg"),
-    ("2025-07-05T22:00:00" + CEST, "Treviso", "ITA", 45.66493, 12.23902, "musica", "treviso",
-     "File:Live band performance at an outdoor concert with lights and energetic crowd during nighttime.jpg"),
+    # --- Chicago, May 2025: from the river -----------------------------------
+    ("2025-05-17T11:00:00" + CDT, "Chicago", "USA", 41.88800, -87.62880, "architecture", "chicago",
+     "File:Architecture boat tour, Chicago, 2026 - 135.jpg"),
+    ("2025-05-17T19:40:00" + CDT, "Chicago", "USA", 41.88870, -87.62500, "architecture", "chicago",
+     "File:Architecture boat tour, Chicago, 2026 - 232.jpg"),
 
-    # --- Dolomiti, August 2025: Lago di Sorapis and Croda da Lago -----------
-    ("2025-08-09T10:15:00" + CEST, "Dolomiti", "ITA", 46.52497, 12.21502, "montagna", "dolomiti",
-     "File:Monte Cristallo Lago di Sorapis hike.jpg"),
-    ("2025-08-09T11:30:00" + CEST, "Dolomiti", "ITA", 46.51448, 12.22047, "montagna", "dolomiti",
-     "File:Lago di Sorapis 2.jpg"),
-    ("2025-08-10T12:00:00" + CEST, "Dolomiti", "ITA", 46.50003, 12.11502, "montagna", "dolomiti",
-     "File:Croda da Lago, Cortina dolomites.jpg"),
+    # --- Muir Woods, June 2025: redwoods across the bridge -------------------
+    ("2025-06-14T11:20:00" + PDT, "Muir Woods", "USA", 37.89200, -122.57180, "nature", "muir-woods",
+     "File:Muir Woods Path Through Trees June 2022.jpg"),
 
-    # --- Bologna, November 2025: tagliatelle and the porticoes at night -----
-    ("2025-11-14T13:00:00" + CET, "Bologna", "ITA", 44.49381, 11.34302, "cibo", "bologna",
-     "File:Tagliatelle ragù bolognese 01.jpg"),
-    ("2025-11-14T21:30:00" + CET, "Bologna", "ITA", 44.49602, 11.34601, "notte", "bologna",
-     "File:Bologna Portici di notte.jpg"),
+    # --- Yosemite, July 2025: Tuolumne Meadows and Olmsted Point -------------
+    ("2025-07-19T09:50:00" + PDT, "Yosemite", "USA", 37.87300, -119.38300, "mountains", "yosemite",
+     "File:Cathedral Peak from the start of the trail in Tuolumne Meadows.jpg"),
+    ("2025-07-19T16:30:00" + PDT, "Yosemite", "USA", 37.81060, -119.48530, "mountains", "yosemite",
+     "File:Half Dome's Other Side, Yosemite (11840288274).jpg"),
 
-    # --- Parigi, March 2026: Belleville walls and the Louvre ----------------
-    ("2026-03-20T16:00:00" + CET, "Parigi", "FRA", 48.87102, 2.38503, "street-art", "parigi",
-     "File:Street Art (2012) (33879759628).jpg"),
-    ("2026-03-21T10:30:00" + CET, "Parigi", "FRA", 48.86061, 2.33762, "arte", "parigi",
-     "File:LouvreMonaLisa.jpg"),
+    # --- Banff, August 2025: Moraine Lake and the Plain of Six Glaciers ------
+    ("2025-08-23T10:40:00" + MDT, "Banff", "CAN", 51.32230, -116.18300, "mountains", "banff",
+     "File:Picture perfect Moraine Lake.jpg"),
+    ("2025-08-24T11:30:00" + MDT, "Banff", "CAN", 51.40800, -116.24800, "mountains", "banff",
+     "File:20130627 20 Plain of the Six Glaciers Trail (11371930943).jpg"),
 
-    # --- Londra, June 2026: Shoreditch and a Hyde Park concert ---------------
-    ("2026-06-27T14:30:00" + BST, "Londra", "GBR", 51.52352, -0.07151, "street-art", "londra",
-     "File:Mural Wassertorstaße 4 Berlin-Kreuzberg.jpg"),
-    ("2026-06-27T21:30:00" + BST, "Londra", "GBR", 51.50731, -0.16572, "musica", "londra",
-     "File:A large crowd enjoys a music concert illuminated by colorful lights and a stunning stage display.jpg"),
+    # --- Napa, September 2025: a glass among the vines -----------------------
+    ("2025-09-27T16:00:00" + PDT, "Napa", "USA", 38.27310, -122.33480, "wine", "napa",
+     "File:Truchard Vineyards - Nov 2018 - Stierch 03.jpg"),
 
-    # --- Back home, autumn 2026: prosecco at the castle, Treviso canals -----
-    ("2026-09-19T18:30:00" + CEST, "Roncade", "ITA", 45.62852, 12.37903, "vino", "roncade",
-     "File:VJB Vineyards & Cellars - June 2024 - Sarah Stierch 07.jpg"),
-    ("2026-10-03T11:00:00" + CEST, "Treviso", "ITA", 45.66681, 12.24452, "architettura", "treviso",
-     "File:Canale Buranelli a Treviso.jpg"),
+    # --- Home, November 2025: Ferry Building, SFMOMA, a mural on Capp Street --
+    ("2025-11-08T12:30:00" + PST, "San Francisco", "USA", 37.79550, -122.39370, "food", "san-francisco",
+     "File:Spring Rolls at Imperial Tea -- Saturday at the Ferry Building Marketplace (6367086043).jpg"),
+    ("2025-11-08T15:30:00" + PST, "San Francisco", "USA", 37.78570, -122.40110, "art", "san-francisco",
+     "File:Graves Bronze Fayum 1981 Sculpture Annathepiano.jpg"),
+    ("2025-11-09T11:00:00" + PST, "San Francisco", "USA", 37.75803, -122.41780, "street-art", "san-francisco",
+     "File:Mission Mural - Political Art - 39364787244.jpg"),
+
+    # --- Oahu, January 2026: Hanauma Bay and the Manoa Falls trail ----------
+    ("2026-01-17T10:30:00" + HST, "Honolulu", "USA", 21.27320, -157.69400, "sea", "honolulu",
+     "File:Hanauma Bay (8701274230).jpg"),
+    ("2026-01-18T09:40:00" + HST, "Honolulu", "USA", 21.33280, -157.80050, "nature", "honolulu",
+     "File:Manoa Falls Trail (8330330105).jpg"),
+
+    # --- Rome, March 2026: cacio e pepe in Trastevere, the Colosseum --------
+    ("2026-03-14T13:30:00" + CET, "Rome", "ITA", 41.88870, 12.46990, "food", "rome",
+     "File:Cacio e pepe at trattoria in Rome.jpg"),
+    ("2026-03-15T10:15:00" + CET, "Rome", "ITA", 41.89021, 12.49223, "history", "rome",
+     "File:Arch Colosseum Rome Italy.jpg"),
+
+    # --- London, June 2026: Shoreditch and a Hyde Park concert --------------
+    ("2026-06-20T14:00:00" + BST, "London", "GBR", 51.52540, -0.07430, "street-art", "london",
+     "File:Street art in Chance Street, Shoreditch - geograph.org.uk - 3810142.jpg"),
+    ("2026-06-20T21:15:00" + BST, "London", "GBR", 51.50720, -0.16400, "live-music", "london",
+     "File:Taylor Swift - The 1989 World Tour - Crowd at HYDE Park during Wildest Dream & Enchanted "
+     "performance.jpg"),
+
+    # --- Home, autumn 2026: the bridge in the fog, murals on 18th and 24th ---
+    ("2026-09-12T11:00:00" + PDT, "San Francisco", "USA", 37.80740, -122.47490, "architecture", "san-francisco",
+     "File:Golden Gate bridge 3.jpg"),
+    ("2026-10-03T13:20:00" + PDT, "San Francisco", "USA", 37.76152, -122.42240, "street-art", "san-francisco",
+     "File:Gui 2143.jpg"),
+    ("2026-10-10T12:00:00" + PDT, "San Francisco", "USA", 37.75292, -122.41258, "street-art", "san-francisco",
+     "File:Chata mural.jpg"),
 ]
 
 
@@ -394,7 +403,7 @@ def build() -> None:
 
         records.append({
             "file": name, "lat": lat, "lon": lon, "takenAt": taken.isoformat(),
-            "place": place, "country": country, "theme": THEME_IDS[theme],
+            "place": place, "country": country, "theme": theme,
             "source_url": m["source_url"], "thumb_url": m["thumb_url"],
             "license": m["license"], "author": m["author"],
             "_title": m["title"], "_description": m["description"],

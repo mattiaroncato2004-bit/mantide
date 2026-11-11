@@ -1,300 +1,306 @@
 {
- "2024-03-16_roncade_storia-01.jpg": {
-  "scene": "Arched gateway to a historic building",
+ "2024-03-09_san-francisco_food-01.jpg": {
+  "scene": "Food items on a yellow surface",
+  "interests": [
+   "food"
+  ]
+ },
+ "2024-03-09_san-francisco_street-art-01.jpg": {
+  "scene": "A street with colorful murals and buildings",
+  "interests": [
+   "street-art",
+   "architecture",
+   "nature"
+  ]
+ },
+ "2024-04-12_new-york_architecture-01.jpg": {
+  "scene": "Wooden bridge over a city",
+  "interests": [
+   "architecture"
+  ]
+ },
+ "2024-04-12_new-york_food-01.jpg": {
+  "scene": "Pizza on a tray",
+  "interests": [
+   "food"
+  ]
+ },
+ "2024-04-13_new-york_art-01.jpg": {
+  "scene": "Indoor pool with a large glass roof",
+  "interests": [
+   "architecture",
+   "nature"
+  ]
+ },
+ "2024-04-13_new-york_live-music-01.jpg": {
+  "scene": "A nightclub with a band performing",
+  "interests": [
+   "live-music",
+   "nightlife"
+  ]
+ },
+ "2024-04-13_new-york_street-art-01.jpg": {
+  "scene": "Street art mural on a wall",
+  "interests": [
+   "street-art"
+  ]
+ },
+ "2024-05-25_mexico-city_food-01.jpg": {
+  "scene": "A plate of loaded tacos",
+  "interests": [
+   "food"
+  ]
+ },
+ "2024-05-25_mexico-city_street-art-01.jpg": {
+  "scene": "Street scene with cars and a mural",
+  "interests": [
+   "street-art",
+   "architecture"
+  ]
+ },
+ "2024-05-26_mexico-city_architecture-01.jpg": {
+  "scene": "Interior of a grand, ornate building",
+  "interests": [
+   "architecture",
+   "art"
+  ]
+ },
+ "2024-05-26_mexico-city_street-art-01.jpg": {
+  "scene": "Street scene with buildings and cars",
+  "interests": [
+   "architecture",
+   "street-art"
+  ]
+ },
+ "2024-07-13_yosemite_mountains-01.jpg": {
+  "scene": "A large waterfall with a stone staircase",
+  "interests": [
+   "nature"
+  ]
+ },
+ "2024-07-14_yosemite_mountains-01.jpg": {
+  "scene": "A steep, rocky mountain face",
+  "interests": [
+   "mountains",
+   "nature"
+  ]
+ },
+ "2024-08-17_big-sur_sea-01.jpg": {
+  "scene": "Coastal landscape with rocks and greenery",
+  "interests": [
+   "sea",
+   "nature"
+  ]
+ },
+ "2024-09-21_los-angeles_food-01.jpg": {
+  "scene": "A plate of tacos with toppings",
+  "interests": [
+   "food"
+  ]
+ },
+ "2024-09-21_los-angeles_street-art-01.jpg": {
+  "scene": "A street art mural and a glass-topped table",
+  "interests": [
+   "street-art",
+   "art"
+  ]
+ },
+ "2024-10-05_austin_street-art-01.jpg": {
+  "scene": "A blue car on a street with a mural",
+  "interests": [
+   "street-art",
+   "architecture"
+  ]
+ },
+ "2024-10-05_lockhart_food-01.jpg": {
+  "scene": "Platter of grilled meats and onions",
+  "interests": [
+   "food"
+  ]
+ },
+ "2024-10-06_austin_live-music-01.jpg": {
+  "scene": "Outdoor event with performers and food stalls",
+  "interests": [
+   "live-music",
+   "food",
+   "nature"
+  ]
+ },
+ "2024-11-15_san-francisco_live-music-01.jpg": {
+  "scene": "A live music concert with a large audience",
+  "interests": [
+   "live-music",
+   "nightlife"
+  ]
+ },
+ "2025-03-01_new-orleans_architecture-01.jpg": {
+  "scene": "Ornate building facade with abundant greenery",
+  "interests": [
+   "architecture",
+   "nature"
+  ]
+ },
+ "2025-03-01_new-orleans_food-01.jpg": {
+  "scene": "A plate of powdered sugar pastries and coffee",
+  "interests": [
+   "food"
+  ]
+ },
+ "2025-03-01_new-orleans_live-music-01.jpg": {
+  "scene": "A band performing on a stage",
+  "interests": [
+   "live-music",
+   "nightlife"
+  ]
+ },
+ "2025-04-05_tokyo_food-01.jpg": {
+  "scene": "A bowl of soup with meat and egg",
+  "interests": [
+   "food"
+  ]
+ },
+ "2025-04-05_tokyo_nightlife-01.jpg": {
+  "scene": "Narrow, crowded street scene with shops",
+  "interests": [
+   "architecture",
+   "nightlife"
+  ]
+ },
+ "2025-05-17_chicago_architecture-01.jpg": {
+  "scene": "Modern city skyline with tall buildings",
+  "interests": [
+   "architecture"
+  ]
+ },
+ "2025-05-17_chicago_architecture-02.jpg": {
+  "scene": "City skyline with historic buildings",
   "interests": [
    "architecture",
    "history"
   ]
  },
- "2024-03-17_roncade_natura-01.jpg": {
-  "scene": "Green park with a river and trees",
+ "2025-06-14_muir-woods_nature-01.jpg": {
+  "scene": "Forest path with tall trees",
   "interests": [
    "nature"
   ]
  },
- "2024-04-20_venezia_cibo-01.jpg": {
-  "scene": "A close-up of a savory dish",
+ "2025-07-19_yosemite_mountains-01.jpg": {
+  "scene": "Mountain landscape with forest and clear sky",
   "interests": [
-   "food"
+   "mountains",
+   "nature"
   ]
  },
- "2024-04-21_venezia_architettura-01.jpg": {
-  "scene": "A canal with colorful buildings and boats",
+ "2025-07-19_yosemite_mountains-02.jpg": {
+  "scene": "Mountain landscape with a person",
   "interests": [
-   "architecture",
-   "art"
+   "mountains",
+   "nature"
   ]
  },
- "2024-04-21_venezia_cibo-01.jpg": {
-  "scene": "Pasta with mussels and herbs",
+ "2025-08-23_banff_mountains-01.jpg": {
+  "scene": "Alpine lake surrounded by rugged mountains",
   "interests": [
-   "food"
+   "mountains",
+   "nature"
   ]
  },
- "2024-05-24_lisbona_street-art-01.jpg": {
-  "scene": "A large mural of a bird on a building",
+ "2025-08-24_banff_mountains-01.jpg": {
+  "scene": "Mountain trail with forest and peaks",
+  "interests": [
+   "mountains",
+   "nature"
+  ]
+ },
+ "2025-09-27_napa_wine-01.jpg": {
+  "scene": "Wine tasting in a vineyard",
+  "interests": [
+   "wine",
+   "nature"
+  ]
+ },
+ "2025-11-08_san-francisco_art-01.jpg": {
+  "scene": "Abstract metal sculpture with foliage",
   "interests": [
    "art",
-   "architecture",
-   "street-art"
+   "nature"
   ]
  },
- "2024-05-25_lisbona_cibo-01.jpg": {
-  "scene": "Grilled fish and cheese on a plate",
+ "2025-11-08_san-francisco_food-01.jpg": {
+  "scene": "A plate of cooked rolls",
   "interests": [
    "food"
   ]
  },
- "2024-05-25_lisbona_street-art-01.jpg": {
-  "scene": "Street art mural of a man",
+ "2025-11-09_san-francisco_street-art-01.jpg": {
+  "scene": "Colorful building with murals and text",
   "interests": [
    "street-art",
-   "art"
+   "art",
+   "architecture"
   ]
  },
- "2024-05-26_lisbona_architettura-01.jpg": {
-  "scene": "Modern architectural structure by the sea",
-  "interests": [
-   "architecture",
-   "sea"
-  ]
- },
- "2024-05-26_lisbona_mare-01.jpg": {
-  "scene": "Sunset over the sea with a rocky shore",
+ "2026-01-17_honolulu_sea-01.jpg": {
+  "scene": "Coastal landscape with clear turquoise water",
   "interests": [
    "sea",
    "nature"
   ]
  },
- "2024-07-13_dolomiti_montagna-01.jpg": {
-  "scene": "People hiking in a mountainous landscape",
+ "2026-01-18_honolulu_nature-01.jpg": {
+  "scene": "A dirt path through a dense forest",
   "interests": [
-   "mountains",
    "nature"
   ]
  },
- "2024-07-13_dolomiti_montagna-02.jpg": {
-  "scene": "A rocky mountain landscape with a signpost",
+ "2026-03-14_rome_food-01.jpg": {
+  "scene": "Plate of pasta with a fork",
   "interests": [
-   "mountains"
+   "food"
   ]
  },
- "2024-07-14_dolomiti_montagna-01.jpg": {
-  "scene": "Hiking in a mountainous, rocky landscape",
-  "interests": [
-   "mountains",
-   "nature"
-  ]
- },
- "2024-08-10_venezia_mare-01.jpg": {
-  "scene": "Sandy beach with people and a lifeguard tower",
-  "interests": [
-   "sea",
-   "sport"
-  ]
- },
- "2024-09-13_berlino_street-art-01.jpg": {
-  "scene": "A colorful outdoor mural on a wall",
-  "interests": [
-   "street-art"
-  ]
- },
- "2024-09-13_berlino_street-art-02.jpg": {
-  "scene": "Graffiti on a wall",
-  "interests": [
-   "street-art"
-  ]
- },
- "2024-09-14_berlino_architettura-01.jpg": {
-  "scene": "People gathered under a large glass dome",
-  "interests": [
-   "architecture"
-  ]
- },
- "2024-09-14_berlino_musica-01.jpg": {
-  "scene": "A live music performance on stage",
-  "interests": [
-   "live-music"
-  ]
- },
- "2024-09-14_berlino_street-art-01.jpg": {
-  "scene": "A modern building with a mural",
+ "2026-03-15_rome_history-01.jpg": {
+  "scene": "Ancient stone archway framing a large historical building",
   "interests": [
    "architecture",
-   "art"
+   "history"
   ]
  },
- "2024-11-08_milano_architettura-01.jpg": {
-  "scene": "City skyline with modern buildings",
-  "interests": [
-   "architecture"
-  ]
- },
- "2024-11-08_milano_musica-01.jpg": {
-  "scene": "A large crowd at a concert",
+ "2026-06-20_london_live-music-01.jpg": {
+  "scene": "Large outdoor concert crowd at dusk",
   "interests": [
    "live-music",
    "nightlife"
   ]
  },
- "2025-02-21_roma_cibo-01.jpg": {
-  "scene": "A plate of pasta with bacon on it",
-  "interests": [
-   "food"
-  ]
- },
- "2025-02-21_roma_street-art-01.jpg": {
-  "scene": "A large mural on a building wall",
+ "2026-06-20_london_street-art-01.jpg": {
+  "scene": "Street art on a city street",
   "interests": [
    "street-art",
    "art",
    "architecture"
   ]
  },
- "2025-02-22_roma_arte-01.jpg": {
-  "scene": "Interior of a circular architectural space",
+ "2026-09-12_san-francisco_architecture-01.jpg": {
+  "scene": "Golden Gate Bridge with fog",
   "interests": [
-   "architecture"
+   "architecture",
+   "nature"
   ]
  },
- "2025-04-18_napoli_cibo-01.jpg": {
-  "scene": "A close-up of a pizza",
-  "interests": [
-   "food"
-  ]
- },
- "2025-04-18_napoli_street-art-01.jpg": {
-  "scene": "Street art on a building facade",
+ "2026-10-03_san-francisco_street-art-01.jpg": {
+  "scene": "Colorful street art on a city street",
   "interests": [
    "street-art",
    "architecture"
   ]
  },
- "2025-04-19_napoli_cibo-01.jpg": {
-  "scene": "A plate of food",
+ "2026-10-10_san-francisco_street-art-01.jpg": {
+  "scene": "Colorful mural on a building facade",
   "interests": [
-   "food"
-  ]
- },
- "2025-06-05_barcellona_street-art-01.jpg": {
-  "scene": "A vibrant street art mural featuring portraits",
-  "interests": [
-   "street-art",
-   "art"
-  ]
- },
- "2025-06-06_barcellona_architettura-01.jpg": {
-  "scene": "Colorful, ornate building facade",
-  "interests": [
-   "architecture",
-   "art"
-  ]
- },
- "2025-06-06_barcellona_cibo-01.jpg": {
-  "scene": "A platter of cooked seafood and spices",
-  "interests": [
-   "food"
-  ]
- },
- "2025-06-06_barcellona_musica-01.jpg": {
-  "scene": "Crowd at a live music concert",
-  "interests": [
-   "live-music",
-   "nightlife"
-  ]
- },
- "2025-06-06_barcellona_street-art-01.jpg": {
-  "scene": "Colorful street art mural on a building",
-  "interests": [
-   "street-art",
-   "art"
-  ]
- },
- "2025-07-05_treviso_cibo-01.jpg": {
-  "scene": "A plate of chocolate pancakes with cream",
-  "interests": [
-   "food"
-  ]
- },
- "2025-07-05_treviso_musica-01.jpg": {
-  "scene": "A live music concert performance",
-  "interests": [
-   "live-music"
-  ]
- },
- "2025-08-09_dolomiti_montagna-01.jpg": {
-  "scene": "Majestic, rugged mountain range with a forest",
-  "interests": [
-   "mountains",
-   "nature"
-  ]
- },
- "2025-08-09_dolomiti_montagna-02.jpg": {
-  "scene": "Mountain landscape with a turquoise lake",
-  "interests": [
-   "mountains",
-   "nature"
-  ]
- },
- "2025-08-10_dolomiti_montagna-01.jpg": {
-  "scene": "Rugged, rocky mountain peaks under a cloudy sky",
-  "interests": [
-   "mountains",
-   "nature"
-  ]
- },
- "2025-11-14_bologna_cibo-01.jpg": {
-  "scene": "A plate of pasta with meat sauce",
-  "interests": [
-   "food"
-  ]
- },
- "2025-11-14_bologna_notte-01.jpg": {
-  "scene": "Arched street at night",
-  "interests": [
-   "architecture",
-   "nightlife"
-  ]
- },
- "2026-03-20_parigi_street-art-01.jpg": {
-  "scene": "Street art on a building facade",
-  "interests": [
-   "street-art",
    "art",
    "architecture"
-  ]
- },
- "2026-03-21_parigi_arte-01.jpg": {
-  "scene": "Crowd at an indoor event or exhibition",
-  "interests": [
-   "art"
-  ]
- },
- "2026-06-27_londra_musica-01.jpg": {
-  "scene": "Large outdoor concert with stage and crowd",
-  "interests": [
-   "live-music",
-   "nightlife"
-  ]
- },
- "2026-06-27_londra_street-art-01.jpg": {
-  "scene": "A large mural on a building with graffiti in the foreground",
-  "interests": [
-   "art",
-   "street-art"
-  ]
- },
- "2026-09-19_roncade_vino-01.jpg": {
-  "scene": "Person holding a glass of champagne outdoors",
-  "interests": [
-   "wine"
-  ]
- },
- "2026-10-03_treviso_architettura-01.jpg": {
-  "scene": "Canal with buildings and greenery",
-  "interests": [
-   "architecture",
-   "nature"
   ]
  }
 }
