@@ -527,24 +527,23 @@ function Home() {
       )}
 
       {timelineOn && reached ? (
-        <View style={[styles.timeline, { paddingBottom: insets.bottom + 12 }]}>
-          <TimelineBar
-            count={journey.length}
-            index={Math.min(timelineIndex, journey.length - 1)}
-            onChange={(i) => {
-              setPlaying(false);
-              setTimelineIndex(i);
-            }}
-            playing={playing}
-            onTogglePlay={() => {
-              if (timelineIndex >= journey.length - 1) setTimelineIndex(0);
-              setPlaying((p) => !p);
-            }}
-            place={reached.province ? nameOf('province', reached.province) : nameOf('country', reached.country)}
-            marks={timelineMarks}
-            onClose={closeTimeline}
-          />
-        </View>
+        <TimelineBar
+          count={journey.length}
+          index={Math.min(timelineIndex, journey.length - 1)}
+          onChange={(i) => {
+            setPlaying(false);
+            setTimelineIndex(i);
+          }}
+          playing={playing}
+          onTogglePlay={() => {
+            if (timelineIndex >= journey.length - 1) setTimelineIndex(0);
+            setPlaying((p) => !p);
+          }}
+          place={reached.province ? nameOf('province', reached.province) : nameOf('country', reached.country)}
+          marks={timelineMarks}
+          onClose={closeTimeline}
+          bottomInset={insets.bottom}
+        />
       ) : (
         <Sheet detent={detent} onDetentChange={setDetent} header={header} bottomInset={insets.bottom}>
           {detent === 'high' ? (
@@ -614,7 +613,6 @@ function Home() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.bg },
-  timeline: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   toast: {
     position: 'absolute', alignSelf: 'center', maxWidth: '70%',
     backgroundColor: C.material, borderRadius: R.md, borderWidth: StyleSheet.hairlineWidth, borderColor: C.materialLine,

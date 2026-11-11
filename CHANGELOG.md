@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- The timeline and the passport in the new design: the timeline takes the sheet's place while it plays, the passport is a full-height sheet with grouped cards, your interests and the gallery choice at the bottom.
 - CI keeps running the web tests when Ubuntu's package mirrors are unreachable.
 - Try with sample photos: a third choice on the welcome loads 45 sample photos (from Wikimedia Commons) with Gemma's prepared answers, so the app can be tried on any Android phone without your own gallery or Gemma. Leaving the samples or stopping the gallery now also forgets the places those photos had marked.
 - The README lists what the Android emulator run now checks: the sheet without the gallery, the place sheet after reading the gallery, and the back button.

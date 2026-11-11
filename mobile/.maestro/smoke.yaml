@@ -16,4 +16,14 @@ appId: com.mantide.app
     id: "map-canvas"
 - waitForAnimationToEnd
 - takeScreenshot: sample-photos
+# The sample photos come from the web: give them time, then look at the pins and the grid again.
+- swipe:
+    start: 50%, 92%
+    end: 50%, 72%
+    duration: 1200
+- assertVisible:
+    id: "area-photo"
+- waitForAnimationToEnd:
+    timeout: 15000
+- takeScreenshot: sample-grid
 - assertNotVisible: "Error"

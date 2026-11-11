@@ -124,6 +124,37 @@ test('sample photos need no gallery and no Gemma', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('the timeline replays the journey', async ({ page }) => {
+  const errors = watchErrors(page);
+  await startWithGallery(page);
+  await page.getByRole('button', { name: '▶ Timeline' }).click();
+  // It replaces the sheet while it plays, one photo every half second.
+  await expect(page.getByTestId('timeline')).toBeVisible();
+  await expect(page.getByTestId(/^sheet-/).first()).toHaveCount(0);
+  await expect(page.getByText('photo 45 of 45')).toBeVisible({ timeout: 60_000 });
+  const points = await page.evaluate(async () => {
+    const map = (window as unknown as { __mantideMap: { getSource(id: string): { getData(): Promise<GeoJSON.FeatureCollection> } } }).__mantideMap;
+    const data = await map.getSource('journey').getData();
+    return data.features.map((f) => (f.geometry as GeoJSON.LineString).coordinates.length);
+  });
+  expect(points).toEqual([45]);
+  // Closing it brings the sheet back as it was.
+  await page.getByRole('button', { name: 'Close the timeline' }).click();
+  await expect(page.getByTestId('sheet-low')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('the passport opens from your world', async ({ page }) => {
+  const errors = watchErrors(page);
+  await startWithGallery(page);
+  await page.getByText('Your world').click();
+  const passport = page.getByTestId('passport');
+  await expect(passport.getByText('Traveller')).toBeVisible();
+  await expect(passport.getByText('4 more countries to become Explorer')).toBeVisible();
+  await expect(passport.getByRole('button', { name: 'Stop using the gallery' })).toBeAttached();
+  expect(errors).toEqual([]);
+});
+
 test('the map draws visited areas and photo pins without basemap tiles', async ({ page }) => {
   const errors = watchErrors(page);
   // Offline basemap: the satellite and standard tile servers never answer.
