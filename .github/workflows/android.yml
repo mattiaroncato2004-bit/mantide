@@ -73,6 +73,7 @@ jobs:
             adb shell content call --method scan_volume --uri content://media --arg external_primary
             adb install -r apk/app-release.apk
             maestro test mobile/.maestro/smoke.yaml
+            maestro test mobile/.maestro/no-gallery.yaml
             maestro test mobile/.maestro/gallery.yaml
             maestro test mobile/.maestro/back.yaml
       - name: Keep Maestro's screenshots, screen hierarchy and device logs

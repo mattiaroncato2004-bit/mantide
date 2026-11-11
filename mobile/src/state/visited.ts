@@ -4,16 +4,13 @@ import { useCallback, useEffect, useState } from 'react';
 import Storage from '../storage';
 import type { Place } from '../geo/locate';
 import type { Level, Source } from '../types';
+import { addMarks, removeSource, type Visited } from './marks';
 
-export type Visited = Record<Level, Record<string, Source[]>>;
+export { ids, type Visited } from './marks';
 
 // v2: regions of Spain, France, UK and Portugal changed ids (real regions, 18:20).
 const KEY = 'visited:v2';
 const empty = (): Visited => ({ country: {}, region: {}, province: {} });
-
-export function ids(v: Visited, level: Level): string[] {
-  return Object.keys(v[level]);
-}
 
 export function useVisited() {
   const [visited, setVisited] = useState<Visited>(empty);
@@ -46,20 +43,10 @@ export function useVisited() {
   );
 
   // Marks every country, region and province of the given places, in one save.
-  const mark = useCallback(
-    (source: Source, places: Place[]) =>
-      update((v) => {
-        for (const place of places) {
-          for (const level of ['country', 'region', 'province'] as const) {
-            const id = place[level];
-            if (!id) continue;
-            const sources = v[level][id] ?? [];
-            if (!sources.includes(source)) v[level][id] = [...sources, source];
-          }
-        }
-      }),
-    [update],
-  );
+  const mark = useCallback((source: Source, places: Place[]) => update((v) => addMarks(v, source, places)), [update]);
 
-  return { visited, toggleManual, mark };
+  // Forgets what one source marked: the photos, when the gallery changes or stops.
+  const forget = useCallback((source: Source) => update((v) => removeSource(v, source)), [update]);
+
+  return { visited, toggleManual, mark, forget };
 }

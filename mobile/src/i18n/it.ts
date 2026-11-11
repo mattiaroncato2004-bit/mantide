@@ -52,6 +52,7 @@ export const it = {
 
   'gallery.stop': 'Smetti di usare la galleria',
   'gallery.offText': 'Collegala per vedere qui le tue foto, segnare dove le hai scattate e ricevere eventi su misura.',
+  'gallery.useInstead': 'Usa invece la mia galleria',
   'gallery.use': 'Usa la mia galleria',
 
   'photos.close': 'Chiudi le foto',
@@ -66,6 +67,7 @@ export const it = {
   'welcome.privacyLabel': 'Privacy',
   'welcome.privacy': 'Le foto restano tue, mai nel cloud.',
   'welcome.skip': 'Continua senza galleria',
+  'welcome.sample': 'Prova con foto di esempio',
   'welcome.note': 'Puoi cambiare idea più avanti.',
 
   'place.mark': 'Segna come visitato',
@@ -126,6 +128,7 @@ export const it = {
   'place.connectGallery': 'Collega la galleria: Gemma capirà cosa ti piace e qui ti suggerirà eventi.',
   'place.sampleNote': 'Eventi di esempio, inventati per la demo.',
   'place.fallbackNote': 'Gemma non risponde da qui: interessi dalle risposte che aveva già dato sulle foto demo.',
+  'place.sampleGallery': 'Foto di esempio, con le risposte che Gemma aveva già dato su di esse.',
   'place.showOnMap': '{title}: mostra sulla mappa',
   'area.none': 'Nessuna foto in questa parte della mappa.',
   'gallery.connect': 'Collega la tua galleria',

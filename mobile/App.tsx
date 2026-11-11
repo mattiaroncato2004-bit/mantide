@@ -17,7 +17,7 @@ import type { CameraTarget, MapView } from './src/map/types';
 import { makeThumbs } from './src/map/thumbs';
 import { locate, nameOf } from './src/geo/locate';
 import { ids, useVisited } from './src/state/visited';
-import { askForAllPhotos, forgetPhotos, loadPhotos, requestGallery, scanGallery, type Photo } from './src/gallery/photos';
+import { askForAllPhotos, forgetPhotos, loadPhotos, loadSample, requestGallery, scanGallery, type Photo } from './src/gallery/photos';
 import {
   analyzePhoto, demoAnalysis, GEMMA_URL, loadAnalyses, sample, saveAnalyses, whereGemmaRuns, type Analysis,
 } from './src/ai/gemma';
@@ -53,8 +53,8 @@ const MAX_POINTS = 1500;
 // The timeline's play button moves one photo forward this often.
 const PLAY_STEP_MS = 500;
 
-// Whether the user let the app read the gallery: asked once, at first launch.
-type GalleryChoice = 'all' | 'none';
+// Whether the user let the app read the gallery, or chose the sample photos: asked once, at first launch.
+type GalleryChoice = 'all' | 'none' | 'sample';
 const CHOICE_KEY = 'gallery:choice';
 
 type Area = { level: Level; id: string };
@@ -102,7 +102,7 @@ function Home() {
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const resumed = useRef(false);
-  const { visited, toggleManual, mark } = useVisited();
+  const { visited, toggleManual, mark, forget } = useVisited();
 
   // The map: what it shows, where the camera goes, the sheet over it.
   const [view, setView] = useState<MapView>({ zoom: WORLD_ZOOM, bounds: [-180, -85, 180, 85], center: [DEFAULT_HOME.lon, DEFAULT_HOME.lat], user: false });
@@ -136,7 +136,7 @@ function Home() {
       .then(([saved, savedPhotos, savedAnalyses]) => {
         setPhotos(savedPhotos);
         setAnalyses(savedAnalyses);
-        setChoice(saved === 'all' || saved === 'none' ? saved : null);
+        setChoice(saved === 'all' || saved === 'none' || saved === 'sample' ? saved : null);
       })
       .catch((e) => {
         console.warn('[start] load failed', e);
@@ -219,8 +219,12 @@ function Home() {
   // On later launches, finish whatever Gemma had not looked at yet; if the saved photos were
   // dropped (a new data version), read the gallery again.
   useEffect(() => {
-    if (resumed.current || choice !== 'all') return;
+    if (resumed.current || (choice !== 'all' && choice !== 'sample')) return;
     resumed.current = true;
+    if (choice === 'sample') {
+      if (!photos.length) loadSampleGallery();
+      return;
+    }
     if (!photos.length) {
       readGallery();
       return;
@@ -229,7 +233,21 @@ function Home() {
     analyze(photos, analyses).finally(() => setBusy(false));
   }, [choice, photos, analyses, analyze, readGallery]);
 
+  // Drops the photos in use (gallery or samples) and the places they marked.
+  const dropPhotos = () => {
+    setPhotos([]);
+    setThumbs({});
+    setAnalyses({});
+    forgetPhotos();
+    saveAnalyses({});
+    forget('photo');
+    setProgress(null);
+    setReusedAnswers(0);
+    setGemmaDown(false);
+  };
+
   const allowGallery = () => {
+    if (choice === 'sample') dropPhotos();
     setChoice('all');
     Storage.setItem(CHOICE_KEY, 'all');
     resumed.current = true; // readGallery runs Gemma itself
@@ -239,12 +257,27 @@ function Home() {
   const skipGallery = () => {
     setChoice('none');
     Storage.setItem(CHOICE_KEY, 'none');
-    setPhotos([]);
-    setThumbs({});
-    setAnalyses({});
-    forgetPhotos();
-    saveAnalyses({});
-    setProgress(null);
+    dropPhotos();
+  };
+
+  // The sample photos, with the answers Gemma gave on them beforehand: no gallery, no Gemma needed.
+  const loadSampleGallery = useCallback(async () => {
+    const found = await loadSample();
+    const answers = Object.fromEntries(found.flatMap((p) => {
+      const a = demoAnalysis(p.filename);
+      return a ? [[p.id, a] as const] : [];
+    }));
+    setPhotos(found);
+    mark('photo', found);
+    setAnalyses(answers);
+    await saveAnalyses(answers);
+  }, [mark]);
+
+  const trySample = () => {
+    setChoice('sample');
+    Storage.setItem(CHOICE_KEY, 'sample');
+    resumed.current = true;
+    loadSampleGallery().catch((e) => console.warn('[sample]', e));
   };
 
   const byId = useMemo(() => new Map(photos.map((p) => [p.id, p])), [photos]);
@@ -448,7 +481,9 @@ function Home() {
   );
 
   const emptyText = choice === 'none' ? t('place.connectGallery') : busy ? t('place.waiting') : t('place.noEvents');
-  const note = reusedAnswers ? t('place.fallbackNote') : gemmaDown ? t('status.noGemma', { url: GEMMA_URL }) : null;
+  const note = choice === 'sample'
+    ? t('place.sampleGallery')
+    : reusedAnswers ? t('place.fallbackNote') : gemmaDown ? t('status.noGemma', { url: GEMMA_URL }) : null;
   const thumb = (p: Photo) => ({ id: p.id, uri: thumbs[p.id] ?? p.uri });
 
   return (
@@ -563,6 +598,7 @@ function Home() {
           interests={profile}
           onRemoveInterest={(id) => setRemoved((r) => [...r, id])}
           onStopGallery={choice === 'all' ? skipGallery : undefined}
+          onUseGallery={choice === 'sample' ? allowGallery : undefined}
           onClose={() => setPassportOpen(false)}
           topInset={insets.top}
           bottomInset={insets.bottom}
@@ -570,7 +606,7 @@ function Home() {
       )}
 
       {choice === null && (
-        <Welcome onUseGallery={allowGallery} onSkip={skipGallery} topInset={insets.top} bottomInset={insets.bottom} />
+        <Welcome onUseGallery={allowGallery} onTrySample={trySample} onSkip={skipGallery} topInset={insets.top} bottomInset={insets.bottom} />
       )}
     </View>
   );

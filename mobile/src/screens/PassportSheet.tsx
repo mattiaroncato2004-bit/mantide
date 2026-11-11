@@ -13,6 +13,7 @@ type Props = {
   interests: InterestWeight[];
   onRemoveInterest: (id: InterestId) => void;
   onStopGallery?: () => void; // only while the gallery is in use
+  onUseGallery?: () => void; // only with the sample photos
   onClose: () => void;
   topInset: number;
   bottomInset: number;
@@ -43,7 +44,7 @@ function Row({ label, count, hint }: { label: string; count: Count; hint?: strin
   );
 }
 
-export function PassportSheet({ data, interests, onRemoveInterest, onStopGallery, onClose, topInset, bottomInset }: Props) {
+export function PassportSheet({ data, interests, onRemoveInterest, onStopGallery, onUseGallery, onClose, topInset, bottomInset }: Props) {
   const { countries, level, continents, here, byCountry } = data;
   const missingRegions = here ? here.regions.total - here.regions.visited : 0;
   return (
@@ -130,6 +131,11 @@ export function PassportSheet({ data, interests, onRemoveInterest, onStopGallery
         {onStopGallery && (
           <Pressable onPress={onStopGallery} style={styles.stop} accessibilityRole="button">
             <Text style={styles.stopText}>{t('gallery.stop')}</Text>
+          </Pressable>
+        )}
+        {onUseGallery && (
+          <Pressable onPress={onUseGallery} style={styles.stop} accessibilityRole="button">
+            <Text style={styles.stopText}>{t('gallery.useInstead')}</Text>
           </Pressable>
         )}
       </ScrollView>

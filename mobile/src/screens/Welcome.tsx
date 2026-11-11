@@ -7,12 +7,13 @@ import { C, F, R, S } from '../theme';
 
 type Props = {
   onUseGallery: () => void;
+  onTrySample: () => void; // the sample photos, for trying it on any phone
   onSkip: () => void;
   topInset: number;
   bottomInset: number;
 };
 
-export function Welcome({ onUseGallery, onSkip, topInset, bottomInset }: Props) {
+export function Welcome({ onUseGallery, onTrySample, onSkip, topInset, bottomInset }: Props) {
   return (
     <View style={[styles.root, { paddingTop: topInset + 28, paddingBottom: bottomInset + 20 }]}>
       <View style={styles.brand}>
@@ -41,6 +42,9 @@ export function Welcome({ onUseGallery, onSkip, topInset, bottomInset }: Props) 
         </Pressable>
         <Pressable onPress={onSkip} style={({ pressed }) => [styles.secondary, pressed && styles.pressed]} accessibilityRole="button">
           <Text style={styles.secondaryText}>{t('welcome.skip')}</Text>
+        </Pressable>
+        <Pressable onPress={onTrySample} hitSlop={8} style={({ pressed }) => [styles.sample, pressed && styles.pressed]} accessibilityRole="button">
+          <Text style={styles.sampleText}>{t('welcome.sample')}</Text>
         </Pressable>
         <Text style={styles.note}>{t('welcome.note')}</Text>
       </View>
@@ -78,5 +82,7 @@ const styles = StyleSheet.create({
   },
   secondaryText: { color: C.text, fontFamily: F.semi, fontSize: 16 },
   pressed: { opacity: 0.75, transform: [{ scale: 0.985 }] },
+  sample: { alignSelf: 'center', paddingVertical: S.sm, marginTop: S.xs },
+  sampleText: { color: C.accent, fontFamily: F.semi, fontSize: 15 },
   note: { color: C.faint, fontFamily: F.mono, fontSize: 11.5, lineHeight: 16, textAlign: 'center', marginTop: S.sm },
 });

@@ -8,7 +8,6 @@ import Storage from '../storage';
 import { imageForGemma } from './image';
 import { parseAnswer, type Analysis } from './parse';
 import type { Photo } from '../gallery/photos';
-import demo from '../demo/demo.json';
 import { t } from '../i18n';
 import { postToGemma } from './call';
 
@@ -49,10 +48,9 @@ const PROMPT =
 
 const KEY = 'analysis:v2'; // v2: English interest ids
 
-// Gemma's answers on the invented demo gallery, computed beforehand by local-ai/precompute_demo.py.
-// Used only when Gemma can't be reached during a live demo; the app says so on screen.
-const DEMO = demo as Record<string, { analysis: Analysis | null }>;
-export const demoAnalysis = (filename: string): Analysis | null => DEMO[filename]?.analysis ?? null;
+// Gemma's answers on the demo photos, computed beforehand: used with the sample photos, and when
+// Gemma can't be reached during a live demo (the app says so on screen).
+export { demoAnalysis } from '../demo/sample';
 
 export async function analyzePhoto(uri: string): Promise<Analysis> {
   const image = await imageForGemma(uri);

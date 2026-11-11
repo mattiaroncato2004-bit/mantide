@@ -104,6 +104,26 @@ test('without Gemma, suggestions come from its earlier answers and say so', asyn
   expect(errors).toEqual([]);
 });
 
+test('sample photos need no gallery and no Gemma', async ({ page }) => {
+  const errors = watchErrors(page);
+  let gemmaCalls = 0;
+  await page.route('**/v1/chat/completions', (route) => {
+    gemmaCalls++;
+    return route.abort();
+  });
+  await page.goto('./?reset');
+  await page.getByText('Try with sample photos').click({ timeout: 15_000 });
+  await expect(page.getByText(/^6 countries · /)).toBeVisible({ timeout: 30_000 });
+  await page.getByRole('button', { name: 'Back to me' }).click();
+  await sheetTo(page, 'high');
+  const sheet = page.getByTestId('sheet-high');
+  await expect(sheet.getByTestId('suggestion').first()).toBeVisible({ timeout: 30_000 });
+  // Gemma's answers on the sample photos were prepared: nothing is unreachable, nothing is asked.
+  await expect(sheet.getByText(/Gemma isn't reachable/)).toHaveCount(0);
+  expect(gemmaCalls).toBe(0);
+  expect(errors).toEqual([]);
+});
+
 test('the map draws visited areas and photo pins without basemap tiles', async ({ page }) => {
   const errors = watchErrors(page);
   // Offline basemap: the satellite and standard tile servers never answer.

@@ -3,7 +3,8 @@
 import Storage from '../storage';
 import { locate, type Place } from '../geo/locate';
 import demo from '../demo/demo.json';
-import { askForAllPhotos, readGallery, requestGallery, type GalleryAccess } from './source';
+import { samplePhotos } from '../demo/sample';
+import { askForAllPhotos, readGallery, requestGallery, type GalleryAccess, type RawPhoto } from './source';
 
 export { askForAllPhotos, requestGallery, type GalleryAccess };
 
@@ -23,6 +24,23 @@ export type Photo = Place & {
 // v2: photos carry the real regions of Spain, France, UK and Portugal (18:20).
 const KEY = 'photos:v2';
 
+// A gallery photo with its place, or null without a position.
+function toPhoto(raw: RawPhoto): Photo | null {
+  const fallback = DEMO[raw.filename];
+  const lat = raw.gps?.latitude ?? fallback?.lat;
+  const lon = raw.gps?.longitude ?? fallback?.lon;
+  if (lat === undefined || lon === undefined) return null;
+  return {
+    id: raw.id,
+    uri: raw.uri,
+    filename: raw.filename,
+    takenAt: raw.gps ? raw.takenAt : (fallback?.takenAt ?? raw.takenAt),
+    lat,
+    lon,
+    ...locate(lat, lon),
+  };
+}
+
 export async function scanGallery(
   onProgress: (read: number, withGps: number) => void,
   limit = 3000,
@@ -30,22 +48,18 @@ export async function scanGallery(
   const photos: Photo[] = [];
   await readGallery((page, read) => {
     for (const raw of page) {
-      const fallback = DEMO[raw.filename];
-      const lat = raw.gps?.latitude ?? fallback?.lat;
-      const lon = raw.gps?.longitude ?? fallback?.lon;
-      if (lat === undefined || lon === undefined) continue;
-      photos.push({
-        id: raw.id,
-        uri: raw.uri,
-        filename: raw.filename,
-        takenAt: raw.gps ? raw.takenAt : (fallback?.takenAt ?? raw.takenAt),
-        lat,
-        lon,
-        ...locate(lat, lon),
-      });
+      const photo = toPhoto(raw);
+      if (photo) photos.push(photo);
     }
     onProgress(read, photos.length);
   }, limit);
+  await Storage.setItem(KEY, JSON.stringify(photos));
+  return photos;
+}
+
+// The sample photos instead of the gallery (src/demo/sample.ts).
+export async function loadSample(): Promise<Photo[]> {
+  const photos = samplePhotos().flatMap((raw) => toPhoto(raw) ?? []);
   await Storage.setItem(KEY, JSON.stringify(photos));
   return photos;
 }

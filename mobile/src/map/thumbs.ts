@@ -36,6 +36,12 @@ async function run(photos: { id: string; uri: string }[], size: number) {
   for (let i = 0; i < missing.length; i += BATCH) {
     await Promise.all(
       missing.slice(i, i + BATCH).map(async (p) => {
+        // The sample photos come from the web, already small: they are their own thumbnails.
+        if (/^https?:/.test(p.uri)) {
+          all[p.id] = p.uri;
+          unsaved++;
+          return;
+        }
         try {
           const r = await manipulateAsync(p.uri, [{ resize: { width: size } }], {
             compress: 0.6,

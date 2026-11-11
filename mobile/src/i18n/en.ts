@@ -52,6 +52,7 @@ export const en = {
 
   'gallery.stop': 'Stop using the gallery',
   'gallery.offText': 'Connect it to see your photos here, mark where you took them and get events made for you.',
+  'gallery.useInstead': 'Use my gallery instead',
   'gallery.use': 'Use my gallery',
 
   'photos.close': 'Close the photos',
@@ -66,6 +67,7 @@ export const en = {
   'welcome.privacyLabel': 'Privacy',
   'welcome.privacy': 'Your photos stay yours, never in the cloud.',
   'welcome.skip': 'Continue without gallery',
+  'welcome.sample': 'Try with sample photos',
   'welcome.note': 'You can change your mind later.',
 
   'place.mark': 'Mark as visited',
@@ -126,6 +128,7 @@ export const en = {
   'place.connectGallery': 'Connect your gallery: Gemma will learn what you like and suggest events here.',
   'place.sampleNote': 'Sample events, made up for the demo.',
   'place.fallbackNote': "Gemma isn't reachable from here: interests come from the answers it gave earlier on the demo photos.",
+  'place.sampleGallery': 'Sample photos, with the answers Gemma gave on them earlier.',
   'place.showOnMap': '{title}: show on the map',
   'area.none': 'No photos in this part of the map.',
   'gallery.connect': 'Connect your gallery',

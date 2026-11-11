@@ -1,5 +1,5 @@
-# Smoke test of the release APK on an emulator: the app starts without a development server,
-# shows the welcome, and the map with its sheet works without the gallery.
+# Smoke test of the release APK on an emulator: the app starts without a development server, and
+# anyone can try it with the sample photos (loaded from Wikimedia Commons, with Gemma's prepared answers).
 # Run: maestro test .maestro/smoke.yaml
 appId: com.mantide.app
 ---
@@ -8,16 +8,12 @@ appId: com.mantide.app
     permissions:
       all: allow
 - assertVisible: "Use my gallery"
-- tapOn: "Continue without gallery"
+- tapOn: "Try with sample photos"
+- extendedWaitUntil:
+    visible: "6 countries · .*"
+    timeout: 60000
 - assertVisible:
     id: "map-canvas"
-- assertVisible: "Your world"
-# A short, slow pull: the sheet settles where a flick would carry it, and a long one reaches the top.
-- swipe:
-    start: 50%, 92%
-    end: 50%, 72%
-    duration: 1200
-- assertVisible:
-    id: "sheet-mid"
-- assertVisible: "Connect your gallery"
+- waitForAnimationToEnd
+- takeScreenshot: sample-photos
 - assertNotVisible: "Error"

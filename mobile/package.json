@@ -39,7 +39,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "test": "tsx scripts/test-i18n.ts && tsx scripts/check-ui-strings.ts && tsx scripts/check-english.ts && tsx scripts/check-theme.ts && tsx scripts/test-sheet.ts && tsx scripts/test-locate.ts && tsx scripts/test-map-model.ts && tsx scripts/test-map-style.ts && tsx scripts/test-parse.ts && tsx scripts/test-gemma-call.ts && tsx scripts/test-recommend.ts && tsx scripts/test-passport.ts && tsx scripts/check-visited.ts && tsx scripts/check-doc-links.ts && tsx scripts/check-readme-commands.ts",
+    "test": "tsx scripts/test-i18n.ts && tsx scripts/check-ui-strings.ts && tsx scripts/check-english.ts && tsx scripts/check-theme.ts && tsx scripts/test-sheet.ts && tsx scripts/test-locate.ts && tsx scripts/test-map-model.ts && tsx scripts/test-map-style.ts && tsx scripts/test-parse.ts && tsx scripts/test-gemma-call.ts && tsx scripts/test-recommend.ts && tsx scripts/test-passport.ts && tsx scripts/test-sample.ts && tsx scripts/test-visited.ts && tsx scripts/check-visited.ts && tsx scripts/check-doc-links.ts && tsx scripts/check-readme-commands.ts",
     "export:web": "bash scripts/export-web.sh",
     "e2e": "playwright test"
   },

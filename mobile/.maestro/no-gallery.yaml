@@ -1,0 +1,22 @@
+# Without the gallery the app still works: the map, its sheet, and the offer to connect the gallery.
+# Run: maestro test .maestro/no-gallery.yaml
+appId: com.mantide.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+- assertVisible: "Use my gallery"
+- tapOn: "Continue without gallery"
+- assertVisible:
+    id: "map-canvas"
+- assertVisible: "Your world"
+# A short, slow pull: the sheet settles where a flick would carry it, and a long one reaches the top.
+- swipe:
+    start: 50%, 92%
+    end: 50%, 72%
+    duration: 1200
+- assertVisible:
+    id: "sheet-mid"
+- assertVisible: "Connect your gallery"
+- assertNotVisible: "Error"
