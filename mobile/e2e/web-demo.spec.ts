@@ -92,6 +92,35 @@ test('without the gallery the app still works', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('dragging the sheet by its title moves it without opening the passport', async ({ page }) => {
+  const errors = watchErrors(page);
+  await startWithGallery(page);
+  await sheetTo(page, 'mid'); // grabbed on "Your world"
+  await page.waitForTimeout(500);
+  await expect(page.getByTestId('passport')).toHaveCount(0);
+  // A plain tap still opens it.
+  await page.getByText('Your world').click();
+  await expect(page.getByTestId('passport')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('at middle height the photos in view scroll down to "See all"', async ({ page }) => {
+  const errors = watchErrors(page);
+  await startWithGallery(page);
+  await sheetTo(page, 'mid');
+  const sheet = page.getByTestId('sheet-mid');
+  await expect(sheet.getByTestId('area-photo').first()).toBeVisible();
+  // Far out all 45 photos are in view: more than the grid shows, so "See all" ends it.
+  const seeAll = sheet.getByRole('button', { name: 'See all' });
+  const firstPhoto = (await sheet.getByTestId('area-photo').first().boundingBox())!;
+  await page.mouse.move(firstPhoto.x + 10, firstPhoto.y + 10);
+  await page.mouse.wheel(0, 3000);
+  await expect.poll(async () => (await seeAll.boundingBox())?.y ?? Infinity).toBeLessThan(844 - 20);
+  await seeAll.click();
+  await expect(page.getByTestId('group-photo')).toHaveCount(45);
+  expect(errors).toEqual([]);
+});
+
 test('without Gemma, suggestions come from its earlier answers and say so', async ({ page }) => {
   const errors = watchErrors(page);
   await startWithGallery(page);
@@ -141,6 +170,26 @@ test('the timeline replays the journey', async ({ page }) => {
   // Closing it brings the sheet back as it was.
   await page.getByRole('button', { name: 'Close the timeline' }).click();
   await expect(page.getByTestId('sheet-low')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('after the timeline, every numbered pin opens its own photos', async ({ page }) => {
+  const errors = watchErrors(page);
+  await startWithGallery(page);
+  // The timeline rebuilds the photo groups at every step; closing it rebuilds them once more.
+  await page.getByRole('button', { name: '▶ Timeline' }).click();
+  await expect(page.getByText(/^photo (1[0-9]|[2-9][0-9]) of 45$/)).toBeVisible({ timeout: 30_000 });
+  await page.getByRole('button', { name: 'Close the timeline' }).click();
+  await page.waitForTimeout(1500);
+  const pins = page.locator('[data-testid="photo-pin"]:has(.mt-badge)');
+  const n = await pins.count();
+  expect(n).toBeGreaterThan(0);
+  for (let i = 0; i < n; i++) {
+    const badge = Number(await pins.nth(i).locator('.mt-badge').textContent());
+    await pins.nth(i).click();
+    await expect(page.getByTestId('group-photo')).toHaveCount(badge);
+    await page.getByRole('button', { name: 'Close the photos' }).click();
+  }
   expect(errors).toEqual([]);
 });
 

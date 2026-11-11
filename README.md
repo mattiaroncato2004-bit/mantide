@@ -24,7 +24,7 @@ Mantide is an open-source Android app for travellers. It reads the date and GPS 
 
 ## What it does
 
-- **The iPhone Photos map, on Android:** a satellite globe where the countries you've visited light up; zoom in for their regions, then provinces, with your photos on the map in numbered groups. Tap a place to fly into it.
+- **The iPhone Photos map, on Android:** a satellite map (a globe in the browser) where the countries you've visited light up; zoom in for their regions, then provinces, with your photos on the map in numbered groups. Tap a place to fly into it.
 - **One sheet that follows what you look at:** your world far out, the photos in view as you pull it up, then the place itself: three small numbers and "For you here" first.
 - **Your photos say what you love:** Gemma 4 labels a sample of your photos with 12 interests; you can remove any of them in the passport.
 - **Events for you where you're looking,** each with why it was picked and one of your photos that explains it; tap one to see it on the map.
@@ -53,7 +53,7 @@ Your photos and your movements are the most private data there is: where you liv
 Android phone (mobile/: Expo, React Native, TypeScript)
 ├── Gallery: date and GPS of every photo (expo-media-library, ACCESS_MEDIA_LOCATION)
 ├── Places: point → country, region, province, offline (src/geo)
-├── Map: MapLibre GL JS in a WebView, satellite globe, visited areas, photo thumbnails
+├── Map: native MapLibre (MapLibre GL JS in the browser), satellite imagery, visited areas, photo pins (src/map)
 ├── Interests and suggestions: plain code over Gemma's labels (src/events)
 └── Storage: SQLite on the device
         │  each photo shrunk to 384 px, local network only
@@ -108,6 +108,7 @@ On Android, with an emulator or a phone: [docs/android-setup.md](docs/android-se
 
 - **A physical Android phone.**
 - **Gemma called from a phone.** The emulator test runs without Gemma and checks the fallback to prepared answers.
+- **Large galleries.** The app reads your newest 3,000 photos; the map groups 10,000 in under a frame in the tests, but reading that many on a phone hasn't been measured.
 
 **Next** ([design](docs/superpowers/specs/2026-11-10-mantide-v1-design.md)):
 

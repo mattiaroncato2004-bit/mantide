@@ -10,7 +10,7 @@ import { useFonts } from 'expo-font';
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold } from '@expo-google-fonts/inter';
 import { MapCanvas } from './src/map/MapCanvas';
 import {
-  areasInView, distanceRings, frameOf, journeyLine, levelForZoom, LOCAL_ZOOM, makePhotoIndex, placeAt, placeLevelForZoom, PROVINCE_ZOOM,
+  areasInView, coversWithoutThumb, distanceRings, frameOf, journeyLine, levelForZoom, LOCAL_ZOOM, makePhotoIndex, placeAt, placeLevelForZoom, PROVINCE_ZOOM,
 } from './src/map/model';
 import type { Basemap } from './src/map/style';
 import type { CameraTarget, MapView } from './src/map/types';
@@ -46,9 +46,6 @@ const DEFAULT_HOME = { lat: 45.6297, lon: 12.3766 };
 const WORLD_ZOOM = 1.4;
 const HOME_ZOOM = 10;
 const TIMELINE_ZOOM = 4;
-
-// The map draws one thumbnail per photo; past this many it only gets slower, not clearer.
-const MAX_POINTS = 1500;
 
 // The timeline's play button moves one photo forward this often.
 const PLAY_STEP_MS = 500;
@@ -144,12 +141,6 @@ function Home() {
       });
   }, []);
 
-  // Small thumbnails for the map and the grids, computed once per photo and cached.
-  useEffect(() => {
-    if (!photos.length) return;
-    makeThumbs(photos.slice(0, MAX_POINTS)).then(setThumbs).catch((e) => console.warn('[thumbs]', e));
-  }, [photos]);
-
   // Gemma looks at a sample of the photos (at most 3 per place and day) and labels each one.
   const analyze = useCallback(async (list: Photo[], prior: Record<string, Analysis>) => {
     const todo = sample(list).filter((p) => !prior[p.id]);
@@ -237,6 +228,7 @@ function Home() {
   const dropPhotos = () => {
     setPhotos([]);
     setThumbs({});
+    thumbsTried.current.clear();
     setAnalyses({});
     forgetPhotos();
     saveAnalyses({});
@@ -402,13 +394,28 @@ function Home() {
   };
 
   // What the map draws.
+  // Every photo is indexed (10,000 group in under a frame); at most 60 pins are drawn.
   const shownPhotos = useMemo(
-    () => (timelineOn && reached ? photos.filter((p) => p.takenAt <= reached.takenAt) : photos).slice(0, MAX_POINTS),
+    () => (timelineOn && reached ? photos.filter((p) => p.takenAt <= reached.takenAt) : photos),
     [photos, timelineOn, reached],
   );
   const photoIndex = useMemo(() => makePhotoIndex(shownPhotos), [shownPhotos]);
   const areas = useMemo(() => areasInView(levelForZoom(view.zoom), view.bounds, visitedIds), [view.zoom, view.bounds, visitedIds]);
   const clusters = useMemo(() => photoIndex.clusters(view.bounds, view.zoom), [photoIndex, view.bounds, view.zoom]);
+
+  // Small thumbnails, made only for the pins on screen and cached on the device; the grids fall
+  // back to the photo itself until a thumbnail exists.
+  const thumbsTried = useRef(new Set<string>()); // asked once each: an unreadable photo isn't retried
+  useEffect(() => {
+    const missing = coversWithoutThumb(clusters, thumbs)
+      .filter((id) => !thumbsTried.current.has(id))
+      .flatMap((id) => byId.get(id) ?? []);
+    if (!missing.length) return;
+    missing.forEach((p) => thumbsTried.current.add(p.id));
+    makeThumbs(missing)
+      .then((made) => Object.keys(made).length && setThumbs((t) => ({ ...t, ...made })))
+      .catch((e) => console.warn('[thumbs]', e));
+  }, [clusters, thumbs, byId]);
   const eventDots = place && !timelineOn ? ordered.map((r) => ({ id: r.event.id, lon: r.event.lon, lat: r.event.lat, selected: r.event.id === selectedEvent })) : [];
   // Rings around you when the suggestions are the ones around you.
   const ringsShown = !!localAt && !timelineOn && haversineKm(home.lat, home.lon, localAt[1], localAt[0]) < 30;

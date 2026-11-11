@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- The map groups every photo, not just the newest 1,500; thumbnails are made only for the pins on screen.
+- At middle height the sheet scrolls, so all the photos in view and "See all" are reachable.
+- In the browser, dragging the sheet by "Your world" no longer opens the passport.
+- README: the map is a globe only in the browser; how it works no longer mentions the old WebView; large galleries listed as not yet measured.
 - README: a GIF and new screenshots of the redesigned map, made by `mobile/scripts/readme-media.ts` from the web demo; "What it does" and the verified list describe the new screen.
 - Android: the sample photos show (Wikimedia refuses Android's generic image loader; the app now names itself when it asks for them).
 - The timeline and the passport in the new design: the timeline takes the sheet's place while it plays, the passport is a full-height sheet with grouped cards, your interests and the gallery choice at the bottom.

@@ -1,6 +1,6 @@
 // The map model shared by the Android and web renderers. Run: npx tsx scripts/test-map-model.ts
 import assert from 'node:assert/strict';
-import { areasInView, distanceRings, frameOf, levelForZoom, makePhotoIndex, placeAt, placeLevelForZoom } from '../src/map/model';
+import { areasInView, coversWithoutThumb, distanceRings, frameOf, levelForZoom, makePhotoIndex, placeAt, placeLevelForZoom } from '../src/map/model';
 
 // Zoom decides what lights up.
 assert.equal(levelForZoom(1.4), 'country');
@@ -59,5 +59,14 @@ for (const [level, id] of [['country', 'ITA'], ['country', 'FRA'], ['region', '1
 }
 assert.ok(frameOf('country', 'RUS')!.zoom < frameOf('country', 'ITA')!.zoom, 'a bigger country is framed from farther');
 assert.equal(frameOf('region', 'nowhere'), null);
+
+// Thumbnails are made only for the pins on screen, each once.
+const pins = [
+  { key: 'c1', lon: 0, lat: 0, count: 3, coverId: 'a' },
+  { key: 'pb', lon: 1, lat: 1, count: 1, coverId: 'b' },
+  { key: 'c2', lon: 2, lat: 2, count: 2, coverId: 'a' },
+];
+assert.deepEqual(coversWithoutThumb(pins, { b: 'data:…' }), ['a']);
+assert.deepEqual(coversWithoutThumb(pins, { a: 'x', b: 'y' }), []);
 
 console.log('map model: ok');

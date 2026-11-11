@@ -139,6 +139,11 @@ export function makePhotoIndex(photos: PhotoPoint[]): PhotoIndex {
   };
 }
 
+// The pins on screen whose cover has no thumbnail yet: thumbnails are made for these only, each once.
+export function coversWithoutThumb(clusters: PhotoCluster[], thumbs: Record<string, string>): string[] {
+  return [...new Set(clusters.map((c) => c.coverId))].filter((id) => !thumbs[id]);
+}
+
 // The journey on the timeline: one line through the photos taken until then, in time order.
 export function journeyLine(photos: PhotoPoint[], until?: number): Feature<LineString> | null {
   const points = photos.filter((p) => until === undefined || p.takenAt <= until).sort((a, b) => a.takenAt - b.takenAt);
