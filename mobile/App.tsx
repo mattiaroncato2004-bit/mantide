@@ -117,6 +117,7 @@ function Home() {
     if (Platform.OS === 'web') return;
     (async () => {
       const { status: permission } = await Location.requestForegroundPermissionsAsync();
+      console.warn('[diag] gps asked', permission);
       if (permission !== 'granted') return;
       const place = ({ latitude, longitude }: { latitude: number; longitude: number }) => {
         setHome({ lat: latitude, lon: longitude });
@@ -125,9 +126,13 @@ function Home() {
       };
       // The last known position answers at once; a fresh fix can take long indoors, or never come on
       // an emulator.
+      console.warn('[diag] gps permission', permission);
       const last = await Location.getLastKnownPositionAsync();
+      console.warn('[diag] gps last', JSON.stringify(last?.coords ?? null));
       if (last) place(last.coords);
-      place((await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })).coords);
+      const fresh = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      console.warn('[diag] gps fresh', JSON.stringify(fresh.coords));
+      place(fresh.coords);
     })().catch((e) => console.warn('[gps]', e));
   }, [mark]);
 

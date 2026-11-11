@@ -1,6 +1,6 @@
 // The map on Android: native MapLibre drawing what src/map/model.ts computed, with the same style
 // objects as the web (src/map/style.ts). Photo pins, "you are here" and ring labels are views.
-import { Camera, GeoJSONSource, Layer, Map, Marker, type CameraRef } from '@maplibre/maplibre-react-native';
+import { Camera, GeoJSONSource, Layer, Map, Marker, type CameraRef, type MapRef } from '@maplibre/maplibre-react-native';
 import { useEffect, useRef } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +14,19 @@ const layers = (source: string) => OVERLAY_LAYERS.filter((l) => 'source' in l &&
 
 export function MapCanvas(p: MapCanvasProps) {
   const camera = useRef<CameraRef>(null);
+  const mapRef = useRef<MapRef>(null);
+  // DIAGNOSTIC (throwaway branch): what the native map rendered after each move.
+  const diag = (zoom: number) =>
+    setTimeout(async () => {
+      const q = async (layers: string[]) => {
+        try {
+          return (await mapRef.current?.queryRenderedFeatures({ layers }))?.length;
+        } catch (e) {
+          return `err ${String(e)}`;
+        }
+      };
+      console.warn('[diag] zoom', zoom.toFixed(2), 'ringsData', p.rings.length, 'rings', await q(['rings']), 'ringsDiag', await q(['rings-diag']), 'events', await q(['events']), 'areasLine', await q(['areas-line']), 'you', JSON.stringify(p.you));
+    }, 2000);
   const insets = useSafeAreaInsets();
 
   // A new camera key moves the camera, framing above the sheet.
@@ -32,7 +45,11 @@ export function MapCanvas(p: MapCanvasProps) {
       logo={false}
       // Credits top-left: the bottom belongs to the sheet, the top-right to the map buttons.
       attributionPosition={{ top: insets.top + 8, left: 8 }}
-      onRegionDidChange={({ nativeEvent: v }) => p.onViewChange({ zoom: v.zoom, bounds: v.bounds, center: v.center, user: v.userInteraction })}
+      ref={mapRef}
+      onRegionDidChange={({ nativeEvent: v }) => {
+        p.onViewChange({ zoom: v.zoom, bounds: v.bounds, center: v.center, user: v.userInteraction });
+        diag(v.zoom);
+      }}
     >
       <Camera ref={camera} initialViewState={{ center: [12.37, 45.63], zoom: 1.4 }} />
 
@@ -51,6 +68,7 @@ export function MapCanvas(p: MapCanvasProps) {
       </GeoJSONSource>
       <GeoJSONSource id="rings" data={{ type: 'FeatureCollection', features: p.rings.map((r) => r.ring) }}>
         {layers('rings').map((l) => <Layer key={l.id} {...l} />)}
+        <Layer id="rings-diag" type="line" source="rings" paint={{ 'line-color': '#00ff00', 'line-width': 3 }} />
       </GeoJSONSource>
       <GeoJSONSource
         id="events"
