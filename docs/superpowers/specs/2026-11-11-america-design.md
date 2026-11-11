@@ -56,7 +56,7 @@ Mattia sends the repository to about 150 startups in the United States (about 10
 - **Files:** `mobile/src/geo/us-states.json` and `us-counties.json`.
   - **Ids:** `US-CA` and `US-06075`, prefixed so they never collide with ISTAT codes or Natural Earth ids.
   - **Names:** English. Italian state names come from Natural Earth's `name_it` where they differ.
-  - **Size:** the two files together stay under 900 KB.
+  - **Size:** the two files together stay under 1.5 MB, enough for about 100 m precision (raised from 900 KB once the coarser data put Manhattan in Queens).
   - **Rebuild:** commands in `mobile/src/geo/README.md`, like the existing files.
 - **Natural Earth's US states leave `world-regions.json`;** the Census states replace them.
 - **One table for countries with two detailed levels (ITA, USA).** Today Italy is a special case in `locate`, the map model, the passport and `recommend`. After this change those modules all read the table, and no `'ITA'` literal is left outside it.

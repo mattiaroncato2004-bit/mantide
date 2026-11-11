@@ -24,7 +24,7 @@
 
 - **Branch:** work on `stage-2b-america`, merge to `main` at the end.
 - **Ids:** US states are `US-<postal>` (`US-CA`), counties are `US-<5-digit GEOID>` (`US-06075`). The 50 states and DC; Puerto Rico and the territories stay countries.
-- **Size:** `us-states.json` + `us-counties.json` under 900 KB together.
+- **Size:** `us-states.json` + `us-counties.json` under 1.5 MB together (raised from 900 KB, see the design).
 - **Level names:** in the USA, "state"/"county" (Italian "stato"/"contea"); everywhere else, "region"/"province".
 - **Miles** when the device region is `US` or `GB`, km otherwise. Ring steps 1, 2, 5, 10, 20 (mi or km). US date formats ("Nov 7", "Nov 7, 2026") for English with region `US`, British for other English, Italian unchanged.
 - **English strings and the README use American spelling** ("Traveler").
@@ -71,7 +71,7 @@
   - Use mapshaper to:
     - keep `STATEFP <= 56`;
     - map `id='US-'+STUSPS`, `name=NAME` for states, and `id='US-'+GEOID`, `name=NAME`, `region='US-'+<the state's STUSPS>` for counties;
-    - simplify with `keep-shapes` until both files together are under 900 KB.
+    - simplify with `keep-shapes` until both files together are under the size budget.
   - Add `name_it` to states from Natural Earth 10m admin-1 (`adm0_a3 == 'USA'`, joined on `postal`) where it differs from `name`.
   - Remove the USA's features from `world-regions.json`, and their now-unused entries from `region-names-en.json`.
   - Write the exact commands in `src/geo/README.md`.
