@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- The pin test after the timeline checks the groups from the world view, where a finger can reach each of them.
 - The map groups every photo, not just the newest 1,500; thumbnails are made only for the pins on screen.
 - At middle height the sheet scrolls, so all the photos in view and "See all" are reachable.
 - In the browser, dragging the sheet by "Your world" no longer opens the passport.
