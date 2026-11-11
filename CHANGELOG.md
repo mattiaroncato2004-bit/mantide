@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Plan for the America stage: [design](docs/superpowers/specs/2026-11-11-america-design.md) and [plan](docs/superpowers/plans/2026-11-11-stage-2b-america.md).
+
 ## 0.3.0 · Stage 2a: the Photos map
 
 - The pin test after the timeline checks the groups from the world view, where a finger can reach each of them.
