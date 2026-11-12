@@ -105,7 +105,7 @@ function Home() {
   const [view, setView] = useState<MapView>({ zoom: WORLD_ZOOM, bounds: [-180, -85, 180, 85], center: [DEFAULT_HOME.lon, DEFAULT_HOME.lat], user: false });
   const [camera, setCamera] = useState<CameraTarget>({ key: 0, center: [DEFAULT_HOME.lon, DEFAULT_HOME.lat], zoom: WORLD_ZOOM });
   const flyTo = useCallback((center: [number, number], zoom: number) => setCamera((c) => ({ key: c.key + 1, center, zoom })), []);
-  const [basemap, setBasemap] = useState<Basemap>('satellite');
+  const [basemap, setBasemap] = useState<Basemap>('standard');
   const [detent, setDetent] = useState<Detent>('low');
   const [tapped, setTapped] = useState<Area | null>(null); // the area tapped, until you move the map
 

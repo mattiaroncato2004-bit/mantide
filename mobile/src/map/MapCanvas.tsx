@@ -1,12 +1,12 @@
 // The map on Android: native MapLibre drawing what src/map/model.ts computed, with the same style
 // objects as the web (src/map/style.ts). Photo pins, "you are here" and ring labels are views.
 import { Camera, GeoJSONSource, Layer, Map, Marker, type CameraRef } from '@maplibre/maplibre-react-native';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { C, F } from '../theme';
 import type { Level } from '../types';
-import { baseStyle, OVERLAY_LAYERS } from './style';
+import { baseStyle, FALLBACK_STYLE, OVERLAY_LAYERS, type Basemap } from './style';
 import type { MapCanvasProps } from './types';
 import { photoSource } from '../ui/photoSource';
 
@@ -16,6 +16,9 @@ const layers = (source: string) => OVERLAY_LAYERS.filter((l) => 'source' in l &&
 export function MapCanvas(p: MapCanvasProps) {
   const camera = useRef<CameraRef>(null);
   const insets = useSafeAreaInsets();
+  // The basemap whose style couldn't be fetched (offline, server down): it draws on FALLBACK_STYLE,
+  // and switching basemap tries again.
+  const [failed, setFailed] = useState<Basemap | null>(null);
 
   // A new camera key moves the camera, framing above the sheet.
   useEffect(() => {
@@ -29,7 +32,8 @@ export function MapCanvas(p: MapCanvasProps) {
     <Map
       style={StyleSheet.absoluteFill}
       testID="map-canvas"
-      mapStyle={baseStyle(p.basemap)}
+      mapStyle={failed === p.basemap ? FALLBACK_STYLE : baseStyle(p.basemap)}
+      onDidFailLoadingMap={() => setFailed(p.basemap)}
       logo={false}
       // Credits top-left: the bottom belongs to the sheet, the top-right to the map buttons.
       attributionPosition={{ top: insets.top + 8, left: 8 }}

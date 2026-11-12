@@ -24,7 +24,7 @@ Mantide is an open-source Android app for travelers. It reads the date and GPS o
 
 ## What it does
 
-- **The iPhone Photos map, on Android:** a satellite map (a globe in the browser) where the countries you've visited light up; zoom in for their states and counties in the US (regions and provinces elsewhere), with your photos on the map in numbered groups. Tap a place to fly into it.
+- **The iPhone Photos map, on Android:** a street map, with satellite one tap away (a globe in the browser), where the countries you've visited light up; zoom in for their states and counties in the US (regions and provinces elsewhere), with your photos on the map in numbered groups. Tap a place to fly into it.
 - **One sheet that follows what you look at:** your world far out, the photos in view as you pull it up, then the place itself: three small numbers and "For you here" first.
 - **Your photos say what you love:** Gemma 4 labels a sample of your photos with 12 interests; you can remove any of them in the passport.
 - **Events for you where you're looking,** each with why it was picked and one of your photos that explains it; tap one to see it on the map.
@@ -39,7 +39,7 @@ Your photos and your movements are the most private data there is: where you liv
 
 - **No server, no account.** Nothing is uploaded; anyone can read the code.
 - **Gemma 4 runs locally:** on your own computer today, on the phone itself next (see [roadmap](#status-and-roadmap)).
-- **Open data:** MapLibre, Natural Earth, US Census and ISTAT boundaries, Sentinel-2 imagery.
+- **Open data:** MapLibre, OpenStreetMap, Natural Earth, US Census and ISTAT boundaries, Sentinel-2 imagery.
 
 ## Why
 
@@ -53,7 +53,7 @@ Your photos and your movements are the most private data there is: where you liv
 Android phone (mobile/: Expo, React Native, TypeScript)
 ├── Gallery: date and GPS of every photo (expo-media-library, ACCESS_MEDIA_LOCATION)
 ├── Places: point → country, state or region, county or province, offline (src/geo)
-├── Map: native MapLibre (MapLibre GL JS in the browser), satellite imagery, visited areas, photo pins (src/map)
+├── Map: native MapLibre (MapLibre GL JS in the browser), street map or satellite imagery, visited areas, photo pins (src/map)
 ├── Interests and suggestions: plain code over Gemma's labels (src/events)
 └── Storage: SQLite on the device
         │  each photo shrunk to 384 px, local network only
@@ -122,6 +122,7 @@ Built by **Mattia Roncato** and **Giorgio Caligiuri** at the Hacktoberfest hack 
 
 - [Gemma 4](https://ai.google.dev/gemma) by Google (Apache 2.0), run with [LiteRT-LM](https://developers.google.com/edge/litert-lm)
 - [MapLibre GL JS](https://maplibre.org) (BSD-3-Clause)
+- Street map: [OpenFreeMap](https://openfreemap.org), © OpenMapTiles, data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) (ODbL)
 - Satellite imagery: [Sentinel-2 cloudless 2016](https://s2maps.eu) by EOX IT Services (CC BY 4.0), contains modified Copernicus Sentinel data
 - Boundaries and place names: [Natural Earth](https://www.naturalearthdata.com) (public domain), [US Census Bureau cartographic boundary files](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html) (public domain) and [openpolis/geojson-italy](https://github.com/openpolis/geojson-italy) (CC BY 4.0, ISTAT data), see [mobile/src/geo/README.md](mobile/src/geo/README.md)
 - Demo photos: Wikimedia Commons authors, listed in [demo-data/CREDITS.md](demo-data/CREDITS.md)

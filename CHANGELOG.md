@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- The map opens on the street map, with country and place names, still a globe in the browser; satellite is one tap away on the map style button. If the street map can't load, your places and photos still draw on a plain globe.
+
 ## 0.4.0 · Stage 2b: America
 
 - Places are read again once after the update: a browser or phone with 0.3.0 photos switches to the San Francisco traveler and the US states, instead of keeping the old Italian ones.

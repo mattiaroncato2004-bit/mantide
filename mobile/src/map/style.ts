@@ -28,8 +28,17 @@ const SATELLITE: StyleSpecification = {
   ],
 };
 
-// OpenFreeMap: free vector tiles from OpenStreetMap, no key.
+// OpenFreeMap: free vector tiles from OpenStreetMap, no key. A remote style: the renderers turn it
+// into a globe once it loads, and use FALLBACK_STYLE when it can't be fetched.
 const STANDARD = 'https://tiles.openfreemap.org/styles/liberty';
+
+// Nothing remote, so the visited areas and photos still draw when the street map is unreachable.
+export const FALLBACK_STYLE: StyleSpecification = {
+  version: 8,
+  projection: { type: 'globe' },
+  sources: {},
+  layers: [{ id: 'space', type: 'background', paint: { 'background-color': '#071521' } }],
+};
 
 export function baseStyle(basemap: Basemap): StyleSpecification | string {
   return basemap === 'satellite' ? SATELLITE : STANDARD;

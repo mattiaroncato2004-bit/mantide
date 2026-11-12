@@ -5,7 +5,7 @@ import maplibregl, { type GeoJSONSource, type Map as MapLibreMap, type Marker } 
 import { useEffect, useRef, type ComponentRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { Level } from '../types';
-import { baseStyle, OVERLAY_LAYERS, OVERLAY_SOURCES } from './style';
+import { baseStyle, FALLBACK_STYLE, OVERLAY_LAYERS, OVERLAY_SOURCES } from './style';
 import type { MapCanvasProps } from './types';
 
 const EMPTY = { type: 'FeatureCollection' as const, features: [] };
@@ -71,9 +71,15 @@ export function MapCanvas(props: MapCanvasProps) {
       });
     };
     map.on('style.load', () => {
+      // The street map's remote style has no projection: in the browser every basemap is a globe.
+      map.setProjection({ type: 'globe' });
       addOverlays(map);
       ready.current = true;
       sync(map, latest.current);
+    });
+    // The style couldn't be fetched (offline, server down): draw on a plain globe instead.
+    map.on('error', () => {
+      if (!ready.current && !map.isStyleLoaded()) map.setStyle(FALLBACK_STYLE as maplibregl.StyleSpecification, { diff: false });
     });
     map.on('load', () => {
       report();
