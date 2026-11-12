@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.4.0 · Stage 2b: America
+
 - Places are read again once after the update: a browser or phone with 0.3.0 photos switches to the San Francisco traveler and the US states, instead of keeping the old Italian ones.
 - Home and the first map view are in San Francisco and North America: the demo traveler starts in the Mission District, and the web and Android tests follow.
 - The 46 sample events are now around the US: San Francisco, California, other states, and cities like Mexico City, Tokyo, Vancouver, Paris, London and Rome (all invented, with US dollars and local currencies).
