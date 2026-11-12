@@ -57,7 +57,7 @@ async function main() {
     // 1. Far out: your world.
     await shot('1-world.jpg');
     // 2. The US by state, with the photos in view.
-    await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [-113, 29], zoom: 3.6 }));
+    await page.evaluate(() => (window as unknown as { __mantideMap: MapHandle }).__mantideMap.jumpTo({ center: [-112, 33], zoom: 3.6 }));
     await page.waitForTimeout(3000);
     await dragSheet(page, 844 - 388);
     await page.waitForTimeout(2000);

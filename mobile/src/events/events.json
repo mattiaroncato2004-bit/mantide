@@ -181,7 +181,7 @@
       "nature",
       "mountains"
     ],
-    "price": "€60",
+    "price": "ISK 9,000",
     "sample": true
   },
   {
@@ -267,7 +267,7 @@
     "city": "New Orleans",
     "country": "USA",
     "region": "US-LA",
-    "lat": 29.9358,
+    "lat": 29.9637,
     "lon": -90.0577,
     "scale": "national",
     "interests": [

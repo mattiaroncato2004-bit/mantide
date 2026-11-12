@@ -29,6 +29,7 @@ setLocaleForTests('en', 'US');
 assert.equal(formatDate(d, 'day-month'), 'Nov 7');
 assert.equal(formatDate(d, 'medium'), 'Nov 7, 2026');
 assert.equal(formatDistance(16.09), '10 mi');
+assert.equal(formatDistance(8604), '5,346 mi');
 assert.equal(t('level.traveller'), 'Traveler');
 setLocaleForTests('en', 'GB');
 assert.equal(formatDate(d, 'day-month'), '7 Nov');

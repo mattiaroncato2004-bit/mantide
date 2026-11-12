@@ -27,6 +27,10 @@ npx mapshaper cb_2024_us_state_20m.shp -filter '+STATEFP <= 56' -join ne_10m_adm
 npx mapshaper cb_2024_us_county_5m.shp -filter '+STATEFP <= 56' -simplify dp variable interval='ALAND < 5e8 ? 100 : Math.sqrt(ALAND) * 0.035' keep-shapes -each "id='US-'+GEOID, name=NAME, region='US-'+STUSPS" -filter-fields id,name,region -o precision=0.001 format=geojson us-counties.json
 ```
 
+Two names were fixed by hand after the build, so a rebuild must redo them:
+- `US-DC` `name_it` "Washington D.C." in `us-states.json` and `MEX-2727` "Mexico City" in `region-names-en.json`;
+- the six independent cities that share a name with their county (St. Louis, Baltimore, Richmond, Fairfax, Franklin, Roanoke) carry the Census name in `us-counties.json` (`US-29510` "St. Louis city"), the only change to a `name`.
+
 The counties keep coordinates to 0.001° (about 100 m), and no vertex moves more than its tolerance:
 - 100 m for counties with less than 500 km² of land: New York's boroughs, St. Louis, Baltimore, most of Virginia's independent cities;
 - 3.5% of the square root of the land area above that: about 1.5 km for a typical 2,000 km² county.

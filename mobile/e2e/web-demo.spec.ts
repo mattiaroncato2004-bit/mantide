@@ -51,6 +51,25 @@ test('far out, the sheet shows your world', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('a browser with 0.3.0 storage reads the places again', async ({ page }) => {
+  const errors = watchErrors(page);
+  // What 0.3.0 left behind: the Italian sample gallery under the v2 keys, and the choice to use it.
+  await page.addInitScript(() => {
+    if (localStorage.getItem('seeded')) return;
+    localStorage.setItem('seeded', '1');
+    const old = { id: 'old', uri: 'x', filename: 'old.jpg', takenAt: 1, lat: 41.9, lon: 12.5, level: 'province', country: 'ITA', region: '12', province: 'RM' };
+    localStorage.setItem('photos:v2', JSON.stringify([old]));
+    localStorage.setItem('visited:v2', JSON.stringify({ country: { ITA: ['photo'] }, region: {}, province: {} }));
+    localStorage.setItem('gallery:choice', 'sample');
+  });
+  await page.route('**/v1/chat/completions', (route) => route.abort());
+  await page.goto('./');
+  await expect(page.getByText('6 countries · 14.1% of the world')).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('[data-testid="photo-pin"]').first()).toBeVisible();
+  expect(await page.evaluate(() => [localStorage.getItem('photos:v2'), localStorage.getItem('visited:v2')])).toEqual([null, null]);
+  expect(errors).toEqual([]);
+});
+
 test('tapping a numbered pin shows its photos oldest first', async ({ page }) => {
   const errors = watchErrors(page);
   await startWithGallery(page);

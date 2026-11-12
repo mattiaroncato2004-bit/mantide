@@ -13,12 +13,12 @@
 
 <p>
   <img src="docs/images/1-world.jpg" width="200" alt="Far out: the globe on North America, the countries you've visited lit up, and your world in the sheet">
-  <img src="docs/images/2-country.jpg" width="200" alt="The western US: California and Texas lit up, with the photos in view in the sheet">
+  <img src="docs/images/2-country.jpg" width="200" alt="The western US: California and Texas lit up, and the sheet naming the United States with 6/51 states and its photos">
   <img src="docs/images/3-place.jpg" width="200" alt="San Francisco's place sheet: events for you first, with distances in miles, each with the reason and one of your photos">
   <img src="docs/images/4-passport.jpg" width="200" alt="The passport: level, share of the world, states and counties and what you photograph">
 </p>
 
-Mantide is an open-source Android app for travelers. It reads the date and GPS of every photo in your gallery and lights up the countries you've been to, then the states and counties in the US (regions and provinces elsewhere). **Gemma 4**, Google's open model, looks at what you photograph to learn what you love, and suggests events near you with the reason ("You have 14 photos of architecture"). Gemma runs on hardware you own: your photos never leave it.
+Mantide is an open-source Android app for travelers. It reads the date and GPS of every photo in your gallery and lights up the countries you've been to, then the states and counties in the US (regions and provinces elsewhere). **Gemma 4**, Google's open model, looks at what you photograph to learn what you love, and suggests events near you with the reason ("You have 17 photos of architecture"). Gemma runs on hardware you own: your photos never leave it.
 
 **Try it:** [web demo](https://mattiaroncato2004-bit.github.io/mantide/), a fictional San Francisco traveler's gallery in your browser. The Android APK comes with the next release.
 

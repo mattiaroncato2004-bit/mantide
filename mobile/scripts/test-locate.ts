@@ -84,6 +84,11 @@ assert.deepEqual(levelWords('ITA'), { region: 'region', province: 'province' });
 assert.deepEqual(levelWords('FRA'), { region: 'region', province: 'province' });
 assert.ok(isDetailed('USA') && isDetailed('ITA') && !isDetailed('FRA'));
 assert.equal(nameOf('region', 'US-CA'), 'California');
+// The six independent cities share a name with their county: they keep the Census "city" name.
+assert.equal(nameOf('province', 'US-24510'), 'Baltimore city');
+assert.equal(nameOf('province', 'US-24005'), 'Baltimore');
+assert.equal(nameOf('province', 'US-29510'), 'St. Louis city');
+assert.equal(locate(29.9637, -90.0577).province, 'US-22071');
 assert.deepEqual(placeOfProvince('US-06075'), { country: 'USA', region: 'US-CA' });
 assert.ok(statSync('src/geo/us-states.json').size + statSync('src/geo/us-counties.json').size < 1.5 * 1024 * 1024);
 // Natural Earth's US states left world-regions.json: the Census states replace them.

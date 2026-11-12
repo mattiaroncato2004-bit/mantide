@@ -7,7 +7,7 @@ const live = process.env.BASE_URL;
 export default defineConfig({
   testDir: 'e2e',
   timeout: 90_000,
-  use: { baseURL: live ?? 'http://127.0.0.1:4173/mantide/', browserName: 'chromium' },
+  use: { baseURL: live ?? 'http://127.0.0.1:4173/mantide/', browserName: 'chromium', locale: 'en-US' },
   webServer: live
     ? undefined
     : { command: 'npx tsx scripts/serve-web.ts', url: 'http://127.0.0.1:4173/mantide/', reuseExistingServer: false },

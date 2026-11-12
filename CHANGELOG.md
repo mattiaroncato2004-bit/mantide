@@ -2,14 +2,14 @@
 
 ## Unreleased
 
+- Places are read again once after the update: a browser or phone with 0.3.0 photos switches to the San Francisco traveler and the US states, instead of keeping the old Italian ones.
 - Home and the first map view are in San Francisco and North America: the demo traveler starts in the Mission District, and the web and Android tests follow.
 - The 46 sample events are now around the US: San Francisco, California, other states, and cities like Mexico City, Tokyo, Vancouver, Paris, London and Rome (all invented, with US dollars and local currencies).
-- US counties from the Census 1:5m boundaries at about 100 m precision: Manhattan, Brooklyn and independent cities like St. Louis no longer land in a neighboring county.
 - The sample photos are a new demo traveler who lives in San Francisco: 45 photos from the Mission, California, five other states, Mexico City, Banff, Tokyo, Rome and London, with Gemma's answers run again on them.
 - Miles and US date formats when the device region is the US (miles in the UK too, kilometers elsewhere), and American spelling in English ("Traveler").
-- Counts have thousands separators ("14/3,144"), the Italian "all seen" line fits states and counties, Washington D.C. and Mexico City have their own names, and the Seattle hike sample event says what it is.
-- The USA at the same depth as Italy: zooming in lights up states, then counties (US Census Bureau boundaries), and the place sheet and the passport count states and counties there.
-- The README, its screenshots and the GIF show the US: the globe on North America, California and Texas lit, San Francisco with distances in miles, and the passport with states and counties.
+- Counts and distances have thousands separators ("14/3,144", "5,346 mi"), the Italian "all seen" line fits states and counties, Washington D.C. and Mexico City have their own names, the six independent cities (Baltimore city, St. Louis city...) are told apart from their counties, and the Seattle hike and New Orleans jazz sample events say what and where they are.
+- The USA at the same depth as Italy: zooming in lights up states, then counties (US Census Bureau 1:5m boundaries at about 100 m precision, so Manhattan, Brooklyn and independent cities like St. Louis no longer land in a neighboring county), and the place sheet and the passport count states and counties there.
+- The README, its screenshots and the GIF show the US: the globe on North America, the United States by state with California and Texas lit, San Francisco with distances in miles, and the passport with states and counties.
 - Plan for the America stage: [design](docs/superpowers/specs/2026-11-11-america-design.md) and [plan](docs/superpowers/plans/2026-11-11-stage-2b-america.md).
 
 ## 0.3.0 · Stage 2a: the Photos map

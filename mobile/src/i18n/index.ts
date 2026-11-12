@@ -52,7 +52,7 @@ export function setLocaleForTests(l: Locale, region?: string): void {
 
 // "10 mi" or "16 km", rounded.
 export function formatDistance(km: number): string {
-  return distanceUnit === 'mi' ? `${Math.round(km / KM_PER_MILE)} mi` : `${Math.round(km)} km`;
+  return distanceUnit === 'mi' ? `${formatCount(Math.round(km / KM_PER_MILE))} mi` : `${formatCount(Math.round(km))} km`;
 }
 
 export function t(key: StringKey, params?: Record<string, string | number>): string {

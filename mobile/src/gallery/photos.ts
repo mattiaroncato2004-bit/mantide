@@ -21,8 +21,8 @@ export type Photo = Place & {
   lon: number;
 };
 
-// v2: photos carry the real regions of Spain, France, UK and Portugal (18:20).
-const KEY = 'photos:v2';
+// v3: US states and counties from the Census; the San Francisco demo traveler.
+const KEY = 'photos:v3';
 
 // A gallery photo with its place, or null without a position.
 function toPhoto(raw: RawPhoto): Photo | null {
@@ -68,6 +68,7 @@ export async function loadSample(): Promise<Photo[]> {
 export const forgetPhotos = () => Storage.setItem(KEY, '[]');
 
 export async function loadPhotos(): Promise<Photo[]> {
+  Storage.removeItem('photos:v2').catch(() => {}); // the 0.3.0 copy is never read again
   const saved = await Storage.getItem(KEY);
   return saved ? JSON.parse(saved) : [];
 }

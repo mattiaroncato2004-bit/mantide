@@ -28,6 +28,11 @@ const Storage = {
       return null;
     }
   },
+  async removeItem(key: string): Promise<void> {
+    try {
+      localStorage.removeItem(key);
+    } catch {}
+  },
   async setItem(key: string, value: string): Promise<void> {
     try {
       localStorage.setItem(key, value);

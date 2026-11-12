@@ -8,14 +8,15 @@ import { addMarks, removeSource, type Visited } from './marks';
 
 export { ids, type Visited } from './marks';
 
-// v2: regions of Spain, France, UK and Portugal changed ids (real regions, 18:20).
-const KEY = 'visited:v2';
+// v3: US states and counties from the Census; the San Francisco demo traveler.
+const KEY = 'visited:v3';
 const empty = (): Visited => ({ country: {}, region: {}, province: {} });
 
 export function useVisited() {
   const [visited, setVisited] = useState<Visited>(empty);
 
   useEffect(() => {
+    Storage.removeItem('visited:v2').catch(() => {}); // the 0.3.0 copy is never read again
     Storage.getItem(KEY)
       .then((saved) => saved && setVisited({ ...empty(), ...JSON.parse(saved) }))
       .catch((e) => console.warn('[visited] load failed', e));
